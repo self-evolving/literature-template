@@ -30,11 +30,11 @@ async function generateSocialImage(
   userOpts: SocialImageOptions,
 ): Promise<Readable> {
   const { width, height } = userOpts
-  const iconPath = joinSegments(QUARTZ, "static", "icon.png")
+  const iconPath = joinSegments(QUARTZ, "static", "am-logo.svg")
   let iconBase64: string | undefined = undefined
   try {
     const iconData = await fs.readFile(iconPath)
-    iconBase64 = `data:image/png;base64,${iconData.toString("base64")}`
+    iconBase64 = `data:image/svg+xml;base64,${iconData.toString("base64")}`
   } catch (err) {
     console.warn(styleText("yellow", `Warning: Could not find icon at ${iconPath}`))
   }
@@ -73,7 +73,8 @@ async function processOgImage(
 ) {
   const cfg = ctx.cfg.configuration
   const slug = fileData.slug!
-  const titleSuffix = cfg.pageTitleSuffix ?? ""
+  const isIndexPage = slug === "index" || slug === ""
+  const titleSuffix = isIndexPage ? "" : " | Augmented Mind Podcast"
   const title =
     (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title) + titleSuffix
   const description =

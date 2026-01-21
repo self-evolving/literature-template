@@ -14,7 +14,7 @@ export default ((opts?: Options) => {
     return (
       <footer class={`${displayClass ?? ""}`}>
         <p>
-          Made with ❤️ in Palo Alto, CA & Cambridge, MA. The website is built with <a href="https://quartz.jzhao.xyz/">Quartz</a>
+          Made with ❤️ in Palo Alto, CA & Cambridge, MA. The website is built with <a href="https://quartz.jzhao.xyz/">Quartz</a>.
         </p>
       </footer>
     )

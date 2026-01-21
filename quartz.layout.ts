@@ -24,9 +24,9 @@ const episodesCarousel = Component.EpisodeCarousel({
 const subscribeLinks = Component.SubscribeLinks({
   rss: "https://anchor.fm/s/10dbf5b7c/podcast/rss",
   links: {
-    youtube: "https://www.youtube.com/@TheAugmentedMindPodcast",
-    spotify: "https://open.spotify.com/show/the-am-podcast",
-    apple: "https://podcasts.apple.com/podcast/the-am-podcast",
+    youtube: "https://www.youtube.com/@Augmented-Mind",
+    spotify: "https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog",
+    apple: "https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170",
   },
 })
 
