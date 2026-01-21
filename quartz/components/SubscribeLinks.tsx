@@ -27,9 +27,9 @@ export default ((opts?: SubscribeLinksOptions) => {
   const SubscribeLinks: QuartzComponent = ({ displayClass }: QuartzComponentProps) => {
     return (
       <div class={classNames(displayClass, "subscribe-links")}>
-        <a href={rss} target="_blank" rel="noopener noreferrer" class="subscribe-btn" title="RSS Feed">
+        <button class="subscribe-btn" data-rss={rss} title="Copy RSS Feed URL">
           subscribe
-        </a>
+        </button>
         <span class="subscribe-divider">|</span>
         <div class="subscribe-icons">
           {links.youtube && (
@@ -74,7 +74,8 @@ export default ((opts?: SubscribeLinksOptions) => {
   padding: 0.3rem 0.6rem;
   border: 0.25px solid var(--lightgray);
   border-radius: 4px;
-  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
@@ -126,6 +127,18 @@ export default ((opts?: SubscribeLinksOptions) => {
   /* Convert black to var(--secondary) orange #e07b39 */
   filter: invert(56%) sepia(91%) saturate(494%) hue-rotate(341deg) brightness(94%) contrast(89%);
 }
+`
+
+  SubscribeLinks.afterDOMLoaded = `
+document.querySelectorAll(".subscribe-btn[data-rss]").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const rss = btn.getAttribute("data-rss")
+    await navigator.clipboard.writeText(rss)
+    const original = btn.textContent
+    btn.textContent = "rss copied!"
+    setTimeout(() => { btn.textContent = original }, 1500)
+  })
+})
 `
 
   return SubscribeLinks
