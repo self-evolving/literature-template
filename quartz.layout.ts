@@ -27,6 +27,7 @@ const subscribeLinks = Component.SubscribeLinks({
     youtube: "https://www.youtube.com/@Augmented-Mind",
     spotify: "https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog",
     apple: "https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170",
+    twitter: "https://x.com/augmind_fm",
   },
 })
 

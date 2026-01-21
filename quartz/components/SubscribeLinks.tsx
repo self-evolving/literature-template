@@ -7,6 +7,7 @@ interface SubscribeLinksOptions {
     youtube?: string
     spotify?: string
     apple?: string
+    twitter?: string
   }
 }
 
@@ -44,6 +45,11 @@ export default ((opts?: SubscribeLinksOptions) => {
           {links.apple && (
             <a href={links.apple} target="_blank" rel="noopener noreferrer" title="Apple Podcasts">
               <img src="/static/app-logos/apple-podcasts-logo.svg" alt="Apple Podcasts" />
+            </a>
+          )}
+          {links.twitter && (
+            <a href={links.twitter} target="_blank" rel="noopener noreferrer" title="X (Twitter)">
+              <img src="/static/app-logos/x-logo.svg" alt="X (Twitter)" />
             </a>
           )}
         </div>
