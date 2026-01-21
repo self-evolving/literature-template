@@ -12,6 +12,10 @@ body {
   background-size: 24px 24px;
   background-position: 0 0;
   padding-top: 2rem;
+  
+  @media all and ($mobile) {
+    padding-top: 1rem;
+  }
 }
 
 // Page container with softer feel
@@ -49,6 +53,7 @@ body {
 
 // Header card for page title and search - unified card in left sidebar
 .sidebar.left {
+  // Desktop: stacked card style
   .page-title {
     background: var(--light);
     border-radius: 12px 12px 0 0;
@@ -71,6 +76,48 @@ body {
     box-shadow: 
       0 1px 2px rgba(0, 0, 0, 0.03),
       0 2px 8px rgba(0, 0, 0, 0.02);
+  }
+}
+
+// Mobile: unified header card with search below title
+.page > #quartz-body .sidebar.left {
+  @media all and ($mobile) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    background: var(--light);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--lightgray);
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.03),
+      0 2px 8px rgba(0, 0, 0, 0.02);
+    
+    .page-title {
+      background: none;
+      border: none;
+      border-radius: 0;
+      padding: 12px 0 !important;
+      box-shadow: none;
+    }
+    
+    .spacer {
+      flex: 1;
+    }
+    
+    .darkmode {
+      flex-shrink: 0;
+    }
+    
+    // Search on its own row - override default search styles
+    .search.mobile-only {
+      flex-basis: 100% !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      margin-top: 0.5rem;
+      flex-grow: 1 !important;
+      padding-bottom: 12px;
+    }
   }
 }
 
@@ -303,6 +350,11 @@ body:not([data-slug="index"]) {
             margin-bottom: 2rem;
             width: 100%;
             padding-top: 1rem;
+            
+            @media all and ($mobile) {
+                margin-top: 2rem;
+            }
+            
             .page-header {
                 margin-top: 1rem;
             }

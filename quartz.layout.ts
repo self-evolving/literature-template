@@ -35,12 +35,16 @@ const subscribeLinks = Component.SubscribeLinks({
 const left = [
   Component.PageTitle(),
   Component.MobileOnly(Component.Spacer()),
-  Component.Flex({
-    components: [
-      { Component: Component.Search(), grow: true },
-      { Component: Component.Darkmode() },
-    ],
-  }),
+  Component.MobileOnly(Component.Darkmode()),
+  Component.MobileOnly(Component.Search()),
+  Component.DesktopOnly(
+    Component.Flex({
+      components: [
+        { Component: Component.Search(), grow: true },
+        { Component: Component.Darkmode() },
+      ],
+    }),
+  ),
   Component.DesktopOnly(episodesSection),
 ]
 
