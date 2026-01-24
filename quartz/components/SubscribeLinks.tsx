@@ -121,6 +121,10 @@ export default ((opts?: SubscribeLinksOptions) => {
   transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
+:root[saved-theme="dark"] .subscribe-icons img {
+  filter: invert(1);
+}
+
 .subscribe-icons a:hover img {
   opacity: 1;
   margin: 0 0;
