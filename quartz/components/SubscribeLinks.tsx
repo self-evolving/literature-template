@@ -8,6 +8,8 @@ interface SubscribeLinksOptions {
     spotify?: string
     apple?: string
     twitter?: string
+    xyz?: string
+    bilibili?: string
   }
 }
 
@@ -17,6 +19,8 @@ const defaultOptions = {
     youtube: "https://www.youtube.com/@TheAugmentedMindPodcast",
     spotify: "https://open.spotify.com/show/the-am-podcast",
     apple: "https://podcasts.apple.com/podcast/the-am-podcast",
+    xyz: "https://www.xiaoyuzhoufm.com/podcast/6964635361d5b58d75fb49a3",
+    bilibili: "https://space.bilibili.com/3690988010735937",
   },
 }
 
@@ -50,6 +54,16 @@ export default ((opts?: SubscribeLinksOptions) => {
           {links.twitter && (
             <a href={links.twitter} target="_blank" rel="noopener noreferrer" title="X (Twitter)">
               <img src="/static/app-logos/x-logo.svg" alt="X (Twitter)" />
+            </a>
+          )}
+          {links.xyz && (
+            <a href={links.xyz} target="_blank" rel="noopener noreferrer" title="小宇宙">
+              <img src="/static/app-logos/xyz-logo.svg" alt="小宇宙" />
+            </a>
+          )}
+          {links.bilibili && (
+            <a href={links.bilibili} target="_blank" rel="noopener noreferrer" title="Bilibili">
+              <img src="/static/app-logos/bilibili-logo.svg" alt="Bilibili" />
             </a>
           )}
         </div>
