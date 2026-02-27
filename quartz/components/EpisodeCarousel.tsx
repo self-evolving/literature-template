@@ -41,8 +41,14 @@ export default ((userOpts?: Partial<Options>) => {
     return (
       <div class={classNames(displayClass, "episode-carousel")}>
         {opts.title && <h3 class="carousel-title">{opts.title}</h3>}
-        <div class="carousel-container">
-          <div class="carousel-track">
+        <div class="carousel-wrapper">
+          <button class="carousel-arrow carousel-arrow-left" aria-label="Scroll left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <div class="carousel-container">
+            <div class="carousel-track">
             {pages.slice(0, opts.limit).map((page) => {
               const title = page.frontmatter?.title ?? "Untitled"
               const tags = page.frontmatter?.tags ?? []
@@ -99,7 +105,13 @@ export default ((userOpts?: Partial<Options>) => {
                 </a>
               )
             })}
+            </div>
           </div>
+          <button class="carousel-arrow carousel-arrow-right" aria-label="Scroll right">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
         </div>
         {opts.linkToMore && remaining > 0 && (
           <p class="see-more">
@@ -113,5 +125,44 @@ export default ((userOpts?: Partial<Options>) => {
   }
 
   EpisodeCarousel.css = style
+  EpisodeCarousel.afterDOMLoaded = `
+document.querySelectorAll(".carousel-wrapper").forEach((wrapper) => {
+  const container = wrapper.querySelector(".carousel-container")
+  const leftArrow = wrapper.querySelector(".carousel-arrow-left")
+  const rightArrow = wrapper.querySelector(".carousel-arrow-right")
+  if (!container || !leftArrow || !rightArrow) return
+
+  function updateArrows() {
+    const atStart = container.scrollLeft <= 10
+    const atEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 10
+    leftArrow.style.opacity = atStart ? "0" : "1"
+    leftArrow.style.pointerEvents = atStart ? "none" : "auto"
+    rightArrow.style.opacity = atEnd ? "0" : "1"
+    rightArrow.style.pointerEvents = atEnd ? "none" : "auto"
+  }
+
+  leftArrow.addEventListener("click", () => {
+    container.scrollBy({ left: -300, behavior: "smooth" })
+  })
+  rightArrow.addEventListener("click", () => {
+    container.scrollBy({ left: 300, behavior: "smooth" })
+  })
+
+  container.addEventListener("scroll", updateArrows)
+  updateArrows()
+
+  // Nudge animation: briefly scroll right then back to hint scrollability
+  setTimeout(() => {
+    if (container.scrollWidth > container.clientWidth) {
+      container.style.scrollSnapType = "none"
+      container.scrollBy({ left: 100, behavior: "smooth" })
+      setTimeout(() => {
+        container.scrollBy({ left: -100, behavior: "smooth" })
+        setTimeout(() => { container.style.scrollSnapType = "" }, 500)
+      }, 600)
+    }
+  }, 800)
+})
+`
   return EpisodeCarousel
 }) satisfies QuartzComponentConstructor

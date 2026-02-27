@@ -10,6 +10,55 @@
     color: var(--darkgray);
   }
 
+  .carousel-wrapper {
+    position: relative;
+  }
+
+  .carousel-arrow {
+    position: absolute;
+    top: 0;
+    bottom: 15%;
+    width: 3rem;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    z-index: 2;
+    transition: opacity 0.3s ease;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      padding: 4px;
+      border-radius: 50%;
+      color: var(--dark);
+      transition: all 0.2s ease;
+    }
+
+    &:hover svg {
+      background: var(--secondary);
+      color: white;
+    }
+
+    &-right {
+      right: -0.5rem;
+      justify-content: flex-end;
+      padding-right: 0.25rem;
+      background: linear-gradient(to right, transparent, var(--light) 60%);
+
+      &:hover svg { transform: translateX(2px); background: var(--secondary); color: white; }
+    }
+
+    &-left {
+      left: -0.5rem;
+      justify-content: flex-start;
+      padding-left: 0.25rem;
+      background: linear-gradient(to left, transparent, var(--light) 60%);
+
+      &:hover svg { transform: translateX(-2px); background: var(--secondary); color: white; }
+    }
+  }
+
   .carousel-container {
     // Enable horizontal scrolling with snap
     overflow-x: auto;
@@ -18,25 +67,10 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
 
-    // Hide scrollbar but keep functionality
-    scrollbar-width: thin;
-    scrollbar-color: var(--lightgray) transparent;
+    scrollbar-width: none;
 
     &::-webkit-scrollbar {
-      height: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: var(--lightgray);
-      border-radius: 3px;
-
-      &:hover {
-        background: var(--gray);
-      }
+      display: none;
     }
 
     // Bottom padding for scrollbar
@@ -212,6 +246,10 @@
 
 // Larger cards on desktop when in center content area
 .center .episode-carousel {
+  .carousel-arrow-left {
+    left: -1rem;
+  }
+
   .carousel-container {
     margin: 0 0 0 -1rem;
     scroll-padding-left: 1rem;
