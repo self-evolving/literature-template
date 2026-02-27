@@ -166,6 +166,14 @@
     .episode-date {
       opacity: 0.8;
     }
+
+    .episode-guest {
+      margin-left: auto;
+      font-family: "Caveat", cursive;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--secondary);
+    }
   }
 
   .card-title {
@@ -182,29 +190,6 @@
     overflow: hidden;
   }
 
-  .card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin: 0.5rem 0 0 0;
-    padding: 0;
-    list-style: none;
-
-    li {
-      margin: 0;
-    }
-
-    .tag {
-      display: inline-block;
-      font-size: 0.65rem;
-      font-weight: 500;
-      padding: 0.15rem 0.45rem;
-      background: var(--highlight);
-      border: 1px solid rgba(224, 123, 57, 0.2);
-      border-radius: 4px;
-      color: var(--secondary);
-    }
-  }
 
   .see-more {
     margin: 1rem 0 0 0;
@@ -274,9 +259,5 @@
 
   .card-title {
     font-size: 0.85rem;
-  }
-
-  .card-tags {
-    display: none;
   }
 }

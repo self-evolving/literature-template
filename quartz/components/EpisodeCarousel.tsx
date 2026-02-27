@@ -84,17 +84,11 @@ export default ((userOpts?: Partial<Options>) => {
                           <Date date={getDate(cfg, page)!} locale={cfg.locale} />
                         </span>
                       )}
+                      {opts.showTags && tags.length > 0 && (
+                        <span class="episode-guest">{tags[0].replace(/-/g, " ")}</span>
+                      )}
                     </div>
                     <h4 class="card-title">{title}</h4>
-                    {opts.showTags && tags.length > 0 && (
-                      <ul class="card-tags">
-                        {tags.slice(0, 2).map((tag) => (
-                          <li>
-                            <span class="tag">{tag.replace(/-/g, " ")}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
                   </div>
                 </a>
               )
