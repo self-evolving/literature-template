@@ -49,6 +49,7 @@ export default ((userOpts?: Partial<Options>) => {
               const episodeId = page.frontmatter?.episodeId as string | undefined
               const coverImage = (page.frontmatter?.coverImage as string) || DEFAULT_COVER
               const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
+              const guestOffset = (page.frontmatter?.guestOffset as number) ?? 0
 
               // Use YouTube URL if available, otherwise link to internal page
               const linkUrl = youtubeUrl || resolveRelative(fileData.slug!, page.slug!)
@@ -84,11 +85,16 @@ export default ((userOpts?: Partial<Options>) => {
                           <Date date={getDate(cfg, page)!} locale={cfg.locale} />
                         </span>
                       )}
-                      {opts.showTags && tags.length > 0 && (
-                        <span class="episode-guest">{tags[0].replace(/-/g, " ")}</span>
-                      )}
                     </div>
                     <h4 class="card-title">{title}</h4>
+                    {opts.showTags && tags.length > 0 && (
+                      <span
+                        class="episode-guest"
+                        style={{ transform: `translateY(${guestOffset}rem)` }}
+                      >
+                        {tags[0].replace(/-/g, " ")}
+                      </span>
+                    )}
                   </div>
                 </a>
               )
