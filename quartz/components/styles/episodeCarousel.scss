@@ -2,6 +2,8 @@
 
 .episode-carousel {
   margin: 1.5rem 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--lightgray);
 
   .carousel-title {
     margin: 0 0 1rem 0;
@@ -17,7 +19,7 @@
   .carousel-arrow {
     position: absolute;
     top: 0;
-    bottom: 15%;
+    bottom: 0;
     width: 3rem;
     border: none;
     cursor: pointer;
@@ -33,6 +35,7 @@
       border-radius: 50%;
       color: var(--dark);
       transition: all 0.2s ease;
+      margin-bottom: 15%;
     }
 
     &:hover svg {

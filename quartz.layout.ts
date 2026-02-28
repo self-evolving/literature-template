@@ -58,6 +58,10 @@ export const sharedPageComponents: SharedLayout = {
       component: episodesCarousel,
       condition: (page) => page.fileData.slug === "index",
     }),
+    Component.ConditionalRender({
+      component: Component.GuestSuggestion(),
+      condition: (page) => page.fileData.slug === "index",
+    }),
     // On mobile for non-index pages, show episodes list
     Component.MobileOnly(
       Component.ConditionalRender({
