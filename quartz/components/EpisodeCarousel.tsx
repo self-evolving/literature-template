@@ -57,17 +57,12 @@ export default ((userOpts?: Partial<Options>) => {
               const youtubeUrl = page.frontmatter?.youtubeUrl as string | undefined
               const guestOffset = (page.frontmatter?.guestOffset as number) ?? 0
 
-              // Use YouTube URL if available, otherwise link to internal page
-              const linkUrl = youtubeUrl || resolveRelative(fileData.slug!, page.slug!)
+              // Always jump to the internal episode page when the card is clicked
+              const linkUrl = resolveRelative(fileData.slug!, page.slug!)
               const isExternal = !!youtubeUrl
 
               return (
-                <a
-                  href={linkUrl}
-                  class="episode-card"
-                  target={isExternal ? "_blank" : undefined}
-                  rel={isExternal ? "noopener noreferrer" : undefined}
-                >
+                <a href={linkUrl} class="episode-card">
                   <div class="card-image">
                     <img
                       src={coverImage}

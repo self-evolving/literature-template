@@ -2,6 +2,8 @@ import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 import { SimpleSlug } from "./quartz/util/path"
 
+const isEpisodePage = (slug?: string) => slug?.startsWith("episodes/") && slug !== "episodes/index"
+
 // Sidebar episodes list (vertical, compact)
 const episodesSection = Component.RecentNotes({
   title: "Episodes",
@@ -67,8 +69,26 @@ export const sharedPageComponents: SharedLayout = {
       Component.ConditionalRender({
         component: episodesSection,
         condition: (page) => page.fileData.slug !== "index",
-      })
+      }),
     ),
+    // Forum/Comments Section
+    // Positioned in afterBody to ensure it appears at the bottom of the main content
+    Component.ConditionalRender({
+      component: Component.Comments({
+        provider: "giscus",
+        options: {
+          repo: "augmented-mind/augmented-mind.github.io",
+          repoId: "_X_", // Placeholder [REPLACE ME]
+          category: "General",
+          categoryId: "_X_", // Placeholder [REPLACE ME]
+          mapping: "url",
+          strict: true,
+          reactionsEnabled: true,
+          inputPosition: "bottom",
+        },
+      }),
+      condition: (page) => page.fileData.slug !== "index",
+    }),
   ],
   footer: Component.Footer({
     links: {},
@@ -81,17 +101,16 @@ export const defaultContentPageLayout: PageLayout = {
     // Show date above title on non-index pages
     Component.ConditionalRender({
       component: Component.ContentMeta({ showReadingTime: false }),
-      condition: (page) => page.fileData.slug !== "index",
+      condition: (page) => page.fileData.slug !== "index" && !isEpisodePage(page.fileData.slug),
     }),
-    Component.ArticleTitle(),
+    Component.ConditionalRender({
+      component: Component.ArticleTitle(),
+      condition: (page) => !isEpisodePage(page.fileData.slug),
+    }),
     // Show subscribe links only on index page
     Component.ConditionalRender({
       component: subscribeLinks,
       condition: (page) => page.fileData.slug === "index",
-    }),
-    Component.ConditionalRender({
-      component: Component.TagList(),
-      condition: (page) => page.fileData.slug !== "index",
     }),
   ],
   left: left.map((c) =>
