@@ -8,8 +8,8 @@ import * as Plugin from "./quartz/plugins"
  */
 const config: QuartzConfig = {
   configuration: {
-    pageTitle: "The AM Podcast",
-    pageTitleSuffix: " | The Augmented Mind",
+    pageTitle: "Augmented Mind",
+    pageTitleSuffix: " | Augmented Mind",
     enableSPA: true,
     enablePopovers: true,
     analytics: {

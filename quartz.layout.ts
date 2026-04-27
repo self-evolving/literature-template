@@ -1,39 +1,6 @@
 import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
-import { SimpleSlug } from "./quartz/util/path"
 
-const isEpisodePage = (slug?: string) => slug?.startsWith("episodes/") && slug !== "episodes/index"
-
-// Sidebar episodes list (vertical, compact)
-const episodesSection = Component.RecentNotes({
-  title: "Episodes",
-  limit: 20,
-  showTags: true,
-  filter: (f) => f.slug!.startsWith("episodes/") && f.slug! !== "episodes/index",
-  linkToMore: "episodes/" as SimpleSlug,
-})
-
-// Landing page episodes carousel (horizontal cards with images)
-const episodesCarousel = Component.EpisodeCarousel({
-  title: "Episodes",
-  limit: 20,
-  showTags: true,
-  filter: (f) => f.slug!.startsWith("episodes/") && f.slug! !== "episodes/index",
-  linkToMore: "episodes/" as SimpleSlug,
-})
-
-// Subscribe links for podcast platforms
-const subscribeLinks = Component.SubscribeLinks({
-  rss: "https://anchor.fm/s/10dbf5b7c/podcast/rss",
-  links: {
-    youtube: "https://www.youtube.com/@Augmented-Mind",
-    spotify: "https://open.spotify.com/show/40KculkYTe2tOpqJm6TAYr?si=PU_UncsMT4mXjVNCRwoXog",
-    apple: "https://podcasts.apple.com/us/podcast/augmented-mind-podcast/id1868102170",
-    twitter: "https://x.com/augmind_fm",
-  },
-})
-
-// Left sidebar components (used on content pages)
 const left = [
   Component.PageTitle(),
   Component.MobileOnly(Component.Spacer()),
@@ -44,52 +11,27 @@ const left = [
       components: [
         { Component: Component.Search(), grow: true },
         { Component: Component.Darkmode() },
+        { Component: Component.ReaderMode() },
       ],
     }),
   ),
-  Component.DesktopOnly(episodesSection),
+  Component.Explorer(),
+]
+
+const right = [
+  Component.Graph({
+    localGraph: { showTags: false },
+    globalGraph: { showTags: false },
+  }),
+  Component.DesktopOnly(Component.TableOfContents()),
+  Component.Backlinks(),
 ]
 
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [],
-  afterBody: [
-    // Show episodes carousel on index page (in center content area)
-    Component.ConditionalRender({
-      component: episodesCarousel,
-      condition: (page) => page.fileData.slug === "index",
-    }),
-    Component.ConditionalRender({
-      component: Component.GuestSuggestion(),
-      condition: (page) => page.fileData.slug === "index",
-    }),
-    // On mobile for non-index pages, show episodes list
-    Component.MobileOnly(
-      Component.ConditionalRender({
-        component: episodesSection,
-        condition: (page) => page.fileData.slug !== "index",
-      }),
-    ),
-    // Forum/Comments Section
-    // Positioned in afterBody to ensure it appears at the bottom of the main content
-    Component.ConditionalRender({
-      component: Component.Comments({
-        provider: "giscus",
-        options: {
-          repo: "augmented-mind/augmented-mind.github.io",
-          repoId: "_X_", // Placeholder [REPLACE ME]
-          category: "General",
-          categoryId: "_X_", // Placeholder [REPLACE ME]
-          mapping: "url",
-          strict: true,
-          reactionsEnabled: true,
-          inputPosition: "bottom",
-        },
-      }),
-      condition: (page) => page.fileData.slug !== "index",
-    }),
-  ],
+  afterBody: [],
   footer: Component.Footer({
     links: {},
   }),
@@ -98,37 +40,26 @@ export const sharedPageComponents: SharedLayout = {
 // components for pages that display a single page (e.g. a single note)
 export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
-    // Show date above title on non-index pages
+    Component.ConditionalRender({
+      component: Component.Breadcrumbs(),
+      condition: (page) => page.fileData.slug !== "index",
+    }),
+    Component.ArticleTitle(),
     Component.ConditionalRender({
       component: Component.ContentMeta({ showReadingTime: false }),
-      condition: (page) => page.fileData.slug !== "index" && !isEpisodePage(page.fileData.slug),
+      condition: (page) => page.fileData.slug !== "index",
     }),
-    Component.ConditionalRender({
-      component: Component.ArticleTitle(),
-      condition: (page) => !isEpisodePage(page.fileData.slug),
-    }),
-    // Show subscribe links only on index page
-    Component.ConditionalRender({
-      component: subscribeLinks,
-      condition: (page) => page.fileData.slug === "index",
-    }),
+    Component.TagList(),
   ],
-  left: left.map((c) =>
+  left: left.map((component) =>
     Component.ConditionalRender({
-      component: c,
+      component,
       condition: (page) => page.fileData.slug !== "index",
     }),
   ),
-  right: [
-    Component.Graph({
-      localGraph: { showTags: false },
-      globalGraph: { showTags: false },
-    }),
-    Component.DesktopOnly(Component.TableOfContents()),
-    Component.Backlinks(),
-  ].map((c) =>
+  right: right.map((component) =>
     Component.ConditionalRender({
-      component: c,
+      component,
       condition: (page) => page.fileData.slug !== "index",
     }),
   ),
@@ -136,7 +67,7 @@ export const defaultContentPageLayout: PageLayout = {
 
 // components for pages that display lists of pages (e.g. tags or folders)
 export const defaultListPageLayout: PageLayout = {
-  beforeBody: [Component.ArticleTitle(), Component.ContentMeta()],
+  beforeBody: [Component.Breadcrumbs(), Component.ArticleTitle(), Component.ContentMeta()],
   left,
   right: [],
 }

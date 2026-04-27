@@ -13,7 +13,7 @@ export default (() => {
     ctx,
   }: QuartzComponentProps) => {
     const isIndexPage = fileData.slug === "index" || fileData.slug === ""
-    const titleSuffix = isIndexPage ? "" : " | Augmented Mind Podcast"
+    const titleSuffix = isIndexPage ? "" : (cfg.pageTitleSuffix ?? "")
     const title =
       (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title) + titleSuffix
     const description =
@@ -51,7 +51,10 @@ export default (() => {
             )}
           </>
         )}
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap"
+        />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 

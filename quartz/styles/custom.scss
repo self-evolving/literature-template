@@ -12,7 +12,7 @@ body {
   background-size: 24px 24px;
   background-position: 0 0;
   padding-top: 2rem;
-  
+
   @media all and ($mobile) {
     padding-top: 1rem;
   }
@@ -25,20 +25,20 @@ body {
       background: var(--light);
       border-radius: 16px;
       padding: 2rem;
-      box-shadow: 
+      box-shadow:
         0 1px 3px rgba(0, 0, 0, 0.04),
         0 4px 12px rgba(0, 0, 0, 0.03);
       border: 1px solid var(--lightgray);
       margin-top: 3rem;
       min-width: 0; // Prevent grid/flex overflow
       box-sizing: border-box;
-      
+
       @media all and ($mobile) {
         border-radius: 12px;
         padding: 1.5rem;
       }
     }
-    
+
     .page-header {
       margin-top: 3rem;
     }
@@ -49,22 +49,6 @@ body {
 .article-title {
   font-weight: 600;
   letter-spacing: -0.02em;
-}
-
-body[data-slug^="episodes/"] {
-  --episode-card-bg: #fffefc;
-  --episode-card-header-bg: var(--light);
-}
-
-body[data-slug^="episodes/"] .page > #quartz-body .center {
-  background: var(--episode-card-bg);
-}
-
-body[data-slug^="episodes/"] .sidebar.left {
-  .page-title,
-  .flex-component:has(.search) {
-    background: var(--episode-card-bg);
-  }
 }
 
 .page > #quartz-body .sidebar {
@@ -79,25 +63,6 @@ body[data-slug^="episodes/"] .sidebar.left {
   }
 }
 
-@media all and ($mobile) {
-  body[data-slug^="episodes/"] .page > #quartz-body .sidebar.left {
-    background: var(--episode-card-bg);
-  }
-}
-
-body[data-slug^="episodes/"] .sidebar {
-  .backlinks,
-  .toc,
-  .graph,
-  .recent-notes {
-    background: var(--episode-card-bg);
-  }
-}
-
-body[data-slug^="episodes/"] .explorer {
-  background: var(--episode-card-bg);
-}
-
 // Header card for page title and search - unified card in left sidebar
 .sidebar.left {
   // Desktop: stacked card style
@@ -108,11 +73,11 @@ body[data-slug^="episodes/"] .explorer {
     margin: 0;
     border: 1px solid var(--lightgray);
     border-bottom: none;
-    box-shadow: 
+    box-shadow:
       0 1px 2px rgba(0, 0, 0, 0.03),
       0 2px 8px rgba(0, 0, 0, 0.02);
   }
-  
+
   .flex-component:has(.search) {
     background: var(--light);
     border-radius: 0 0 12px 12px;
@@ -120,7 +85,7 @@ body[data-slug^="episodes/"] .explorer {
     margin-top: -1.2rem; // Close the gap from sidebar flex
     border: 1px solid var(--lightgray);
     border-top: none;
-    box-shadow: 
+    box-shadow:
       0 1px 2px rgba(0, 0, 0, 0.03),
       0 2px 8px rgba(0, 0, 0, 0.02);
   }
@@ -136,10 +101,10 @@ body[data-slug^="episodes/"] .explorer {
     border-radius: 12px;
     padding: 0.75rem 1rem;
     border: 1px solid var(--lightgray);
-    box-shadow: 
+    box-shadow:
       0 1px 2px rgba(0, 0, 0, 0.03),
       0 2px 8px rgba(0, 0, 0, 0.02);
-    
+
     .page-title {
       background: none;
       border: none;
@@ -147,15 +112,15 @@ body[data-slug^="episodes/"] .explorer {
       padding: 12px 0 !important;
       box-shadow: none;
     }
-    
+
     .spacer {
       flex: 1;
     }
-    
+
     .darkmode {
       flex-shrink: 0;
     }
-    
+
     // Search on its own row - override default search styles
     .search.mobile-only {
       flex-basis: 100% !important;
@@ -177,7 +142,7 @@ body[data-slug^="episodes/"] .explorer {
     background: var(--light);
     border-radius: 12px;
     padding: 1rem;
-    box-shadow: 
+    box-shadow:
       0 1px 2px rgba(0, 0, 0, 0.03),
       0 2px 8px rgba(0, 0, 0, 0.02);
     border: 1px solid var(--lightgray);
@@ -189,7 +154,7 @@ body[data-slug^="episodes/"] .explorer {
   background: var(--light);
   border-radius: 12px;
   padding: 0.75rem;
-  box-shadow: 
+  box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.03),
     0 2px 8px rgba(0, 0, 0, 0.02);
   border: 1px solid var(--lightgray);
@@ -203,7 +168,7 @@ body[data-slug^="episodes/"] .explorer {
     border: 1px solid var(--lightgray);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
     transition: all 0.2s ease;
-    
+
     &:hover {
       border-color: var(--gray);
       background: var(--lightgray);
@@ -220,7 +185,7 @@ a.internal.tag-link {
   font-size: 0.85em;
   font-weight: 500;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: rgba(224, 123, 57, 0.18);
     border-color: rgba(224, 123, 57, 0.35);
@@ -259,7 +224,7 @@ code {
 a {
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
-  
+
   &.internal {
     border-radius: 4px;
   }
@@ -272,19 +237,19 @@ footer {
   background: var(--light);
   border-radius: 16px;
   border: 1px solid var(--lightgray);
-  box-shadow: 
+  box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.04),
     0 4px 12px rgba(0, 0, 0, 0.03);
   min-width: 0;
   box-sizing: border-box;
-  
+
   @media all and ($mobile) {
     border-radius: 12px;
     padding: 1.5rem;
   }
 }
 
-// Page list items (for episode listings)
+// Page list items
 .page-listing {
   .section-li {
     background: var(--light);
@@ -294,7 +259,7 @@ footer {
     border: 1px solid var(--lightgray);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     transition: all 0.2s ease;
-    
+
     &:hover {
       border-color: var(--gray);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -309,7 +274,7 @@ body[data-slug="index"] {
   .article-title {
     margin-bottom: 0.25rem;
   }
-  
+
   .page > #quartz-body {
     // Tablet: single column, hide sidebars
     @media all and ($tablet) {
@@ -320,7 +285,7 @@ body[data-slug="index"] {
         "grid-footer";
       padding: 0 1rem;
     }
-    
+
     // Mobile: tighter padding
     @media all and ($mobile) {
       grid-template-columns: 1fr;
@@ -345,13 +310,13 @@ body[data-slug="index"] {
       }
     }
 
-    // adjust top 
+    // adjust top
     @media all and ($mobile) {
       .page-header {
         margin-top: 2rem;
       }
     }
-    
+
     // Center content on index page
     .center,
     footer {
@@ -361,7 +326,7 @@ body[data-slug="index"] {
       margin-left: auto;
       margin-right: auto;
       box-sizing: border-box;
-      
+
       @media all and ($mobile) {
         width: 100%;
         max-width: 100%;
@@ -369,17 +334,17 @@ body[data-slug="index"] {
         margin-right: 0;
       }
     }
-    
+
     .center {
       padding-top: 0rem;
       margin-top: 2rem;
       margin-bottom: 3rem;
-      
+
       @media all and ($tablet) {
         margin-top: 1rem;
         margin-bottom: 3rem;
       }
-      
+
       @media all and ($mobile) {
         padding: 1.25rem;
         margin-top: 0.5rem;
@@ -391,31 +356,31 @@ body[data-slug="index"] {
 
 // Non-index (article) pages: align center content with other boxes
 body:not([data-slug="index"]) {
-    .page > #quartz-body {
-        .center {
-            margin-top: 3rem;
-            margin-bottom: 2rem;
-            width: 100%;
-            padding-top: 1rem;
-            
-            @media all and ($mobile) {
-                margin-top: 2rem;
-            }
-            
-            .page-header {
-                margin-top: 1rem;
-            }
-            .content-meta {
-                margin-bottom: 0.25rem;
-            }
-            .article-title {
-                margin-top: 0rem;
-            }
-        }
-        .sidebar.left {
-            .page-title {
-                padding-top: 2rem;
-            }
-        }
+  .page > #quartz-body {
+    .center {
+      margin-top: 3rem;
+      margin-bottom: 2rem;
+      width: 100%;
+      padding-top: 1rem;
+
+      @media all and ($mobile) {
+        margin-top: 2rem;
+      }
+
+      .page-header {
+        margin-top: 1rem;
+      }
+      .content-meta {
+        margin-bottom: 0.25rem;
+      }
+      .article-title {
+        margin-top: 0rem;
+      }
     }
+    .sidebar.left {
+      .page-title {
+        padding-top: 2rem;
+      }
+    }
+  }
 }

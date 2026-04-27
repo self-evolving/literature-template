@@ -74,7 +74,7 @@ async function processOgImage(
   const cfg = ctx.cfg.configuration
   const slug = fileData.slug!
   const isIndexPage = slug === "index" || slug === ""
-  const titleSuffix = isIndexPage ? "" : " | Augmented Mind Podcast"
+  const titleSuffix = isIndexPage ? "" : (cfg.pageTitleSuffix ?? "")
   const title =
     (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title) + titleSuffix
   const description =
