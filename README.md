@@ -1,13 +1,15 @@
 # Sepo documentation site
 
-This repository contains the Quartz shell for the Sepo documentation site published from `self-evolving/repo` on Vercel.
+This repository contains the Quartz shell and generated content for the Sepo documentation site on Vercel.
 
 The documentation source of truth stays in the product repository:
 
-- `README.md`
-- `.agent/docs/**`
+- `self-evolving/repo:README.md`
+- `self-evolving/repo:.agent/docs/**`
 
-The Vercel build checks out `self-evolving/repo`, runs `scripts/sync-source-docs.mjs`, and builds Quartz from the synchronized `content/` directory. This keeps the large Quartz site out of the source repository while avoiding manual copy/paste drift.
+Synchronization happens in GitHub Actions in this repository. The workflow checks out `self-evolving/repo`, runs `scripts/sync-source-docs.mjs`, commits the generated `content/**` files back to this repository, and then Vercel deploys the updated `repo-docs` commit.
+
+Vercel only builds this repository. It does not need access to `self-evolving/repo`.
 
 ## Local development
 
@@ -25,36 +27,31 @@ Use a different source checkout by passing its path:
 npm run sync:source-docs -- /path/to/self-evolving/repo
 ```
 
-To test the Vercel build path locally:
-
-```bash
-SOURCE_REPO_TOKEN=<read-only token if source repo is private> npm run vercel-build
-```
-
 ## Vercel configuration
 
 Import `self-evolving/repo-docs` into Vercel with:
 
 - Framework preset: **Other**
 - Install command: `npm ci`
-- Build command: `npm run vercel-build`
+- Build command: `npx quartz build`
 - Output directory: `public`
 
 These are also captured in `vercel.json`.
 
-Set Vercel environment variables:
+Recommended Vercel environment variable:
 
-| Name                | Required                                | Value                                                                                 |
-| ------------------- | --------------------------------------- | ------------------------------------------------------------------------------------- |
-| `SOURCE_REPO_TOKEN` | Yes, if `self-evolving/repo` is private | Fine-grained token with read-only Contents access to `self-evolving/repo`             |
-| `SOURCE_REPOSITORY` | Optional                                | Defaults to `self-evolving/repo`                                                      |
-| `SOURCE_REF`        | Optional                                | Defaults to `main`                                                                    |
-| `SITE_URL`          | Recommended                             | Production domain without protocol, e.g. `docs.example.com` or `repo-docs.vercel.app` |
+| Name       | Value                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------- |
+| `SITE_URL` | Production domain without protocol, e.g. `docs.example.com` or `repo-docs.vercel.app` |
 
-## Refresh behavior
+## Source sync configuration
 
-Vercel automatically deploys when this docs-shell repository changes. It does not automatically know when only `self-evolving/repo` changes.
+The `Sync source docs` GitHub Actions workflow refreshes `content/**` on:
 
-No workflow is required in `self-evolving/repo`. For source-only docs changes, create a Vercel Deploy Hook and add it to this repository as the `VERCEL_DEPLOY_HOOK_URL` Actions secret. The `Refresh Vercel deployment` workflow calls that hook hourly and can also be run manually.
+- manual `workflow_dispatch`,
+- a 15-minute polling schedule,
+- optional `repository_dispatch` with type `source-docs-updated`.
 
-If the deploy hook secret is not configured, the refresh workflow exits successfully without doing anything. In that case, use Vercel's manual **Redeploy** button when source-only docs change.
+If `self-evolving/repo` is private, add a `SOURCE_REPO_TOKEN` secret to **this** repository (`self-evolving/repo-docs`). Use a fine-grained personal access token or GitHub App token with read-only Contents access to `self-evolving/repo`.
+
+The workflow needs `contents: write` so it can commit synchronized docs back to `repo-docs`. If commits fail, enable read/write workflow permissions in this repository's Actions settings.
