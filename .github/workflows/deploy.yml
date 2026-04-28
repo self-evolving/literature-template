@@ -45,6 +45,10 @@ jobs:
           repository: ${{ env.SOURCE_REPOSITORY }}
           ref: ${{ env.SOURCE_REF }}
           path: source-repo
+          # Required when self-evolving/repo is private. Create this as a
+          # repo-docs secret with read-only Contents access to self-evolving/repo.
+          token: ${{ secrets.SOURCE_REPO_TOKEN || github.token }}
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:

@@ -36,4 +36,6 @@ The deploy workflow refreshes docs on:
 
 No workflow is required in `self-evolving/repo`. The scheduled run checks out the latest `self-evolving/repo@main` and rebuilds the Pages artifact from that source. Use manual `workflow_dispatch` in this repository when you need an immediate refresh before the next scheduled poll.
 
+If `self-evolving/repo` is private, add a `SOURCE_REPO_TOKEN` secret to this repository. Use a fine-grained personal access token or GitHub App token with read-only Contents access to `self-evolving/repo`. The default `GITHUB_TOKEN` for `repo-docs` cannot read a different private repository, which otherwise appears as `Repository not found` during checkout.
+
 If source-repository changes ever need to publish instantly, an external webhook, GitHub App, or source-repository workflow can send the optional `source-docs-updated` dispatch event to this repository, but polling is the default synchronization mechanism.
