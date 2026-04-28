@@ -1,80 +1,28 @@
-name: Deploy Quartz site to GitHub Pages
+name: Refresh Vercel deployment
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
-    inputs:
-      source_ref:
-        description: Ref from self-evolving/repo to publish
-        required: false
-        default: main
-  repository_dispatch:
-    types:
-      - source-docs-updated
   schedule:
-    # Poll self-evolving/repo because GitHub Actions cannot trigger directly from another repo.
-    - cron: "*/15 * * * *"
-
-env:
-  SOURCE_REPOSITORY: self-evolving/repo
-  SOURCE_REF: ${{ github.event.inputs.source_ref || github.event.client_payload.source_ref || 'main' }}
+    # Vercel only watches repo-docs changes. Poll by redeploying periodically so
+    # source-only docs changes in self-evolving/repo are picked up without a
+    # workflow in the source repository.
+    - cron: "17 * * * *"
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout docs site
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Checkout source repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.SOURCE_REPOSITORY }}
-          ref: ${{ env.SOURCE_REF }}
-          path: source-repo
-          # Required when self-evolving/repo is private. Create this as a
-          # repo-docs secret with read-only Contents access to self-evolving/repo.
-          token: ${{ secrets.SOURCE_REPO_TOKEN || github.token }}
-          persist-credentials: false
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Sync source documentation
-        run: npm run sync:source-docs -- source-repo
-
-      - name: Build Quartz
-        run: npx quartz build
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: public
-
-  deploy:
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  refresh-vercel:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Trigger Vercel deploy hook
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
+            echo "VERCEL_DEPLOY_HOOK_URL is not configured; skipping refresh."
+            exit 0
+          fi
+
+          curl --fail --silent --show-error --request POST "$VERCEL_DEPLOY_HOOK_URL"
+          echo "Triggered Vercel deploy hook."

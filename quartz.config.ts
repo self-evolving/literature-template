@@ -1,6 +1,12 @@
 import { QuartzConfig } from "./quartz/cfg"
 import * as Plugin from "./quartz/plugins"
 
+const normalizeBaseUrl = (url?: string) => url?.replace(/^https?:\/\//, "").replace(/\/$/, "")
+const siteBaseUrl =
+  normalizeBaseUrl(
+    process.env.SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL,
+  ) ?? "repo-docs.vercel.app"
+
 /**
  * Quartz 4 Configuration
  *
@@ -16,7 +22,7 @@ const config: QuartzConfig = {
       provider: "plausible",
     },
     locale: "en-US",
-    baseUrl: "self-evolving.github.io/repo-docs",
+    baseUrl: siteBaseUrl,
     ignorePatterns: ["private", "templates", ".obsidian"],
     defaultDateType: "modified",
     theme: {
