@@ -4,6 +4,22 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Ref from self-evolving/repo to publish
+        required: false
+        default: main
+  repository_dispatch:
+    types:
+      - source-docs-updated
+  schedule:
+    # Poll self-evolving/repo because GitHub Actions cannot trigger directly from another repo.
+    - cron: "*/15 * * * *"
+
+env:
+  SOURCE_REPOSITORY: self-evolving/repo
+  SOURCE_REF: ${{ github.event.inputs.source_ref || github.event.client_payload.source_ref || 'main' }}
 
 permissions:
   contents: read
@@ -18,16 +34,31 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout docs site
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.SOURCE_REPOSITORY }}
+          ref: ${{ env.SOURCE_REF }}
+          path: source-repo
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Install Dependencies
         run: npm ci
+
+      - name: Sync source documentation
+        run: npm run sync:source-docs -- source-repo
+
       - name: Build Quartz
         run: npx quartz build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

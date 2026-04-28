@@ -8,8 +8,8 @@ import * as Plugin from "./quartz/plugins"
  */
 const config: QuartzConfig = {
   configuration: {
-    pageTitle: "Augmented Mind",
-    pageTitleSuffix: " | Augmented Mind",
+    pageTitle: "Sepo Docs",
+    pageTitleSuffix: " | Sepo Docs",
     enableSPA: true,
     enablePopovers: true,
     analytics: {
@@ -57,7 +57,7 @@ const config: QuartzConfig = {
     transformers: [
       Plugin.FrontMatter(),
       Plugin.CreatedModifiedDate({
-        priority: ["frontmatter", "git", "filesystem"],
+        priority: ["frontmatter", "filesystem"],
       }),
       Plugin.SyntaxHighlighting({
         theme: {

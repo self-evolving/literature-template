@@ -1,8 +1,15 @@
 ---
-title: Augmented Mind
-socialDescription: Notes and resources on human-centered AI, intelligence augmentation, and technical work.
+title: Sepo Docs
+socialDescription: Documentation for Sepo, a GitHub-native agent runtime for self-evolving repositories.
 ---
 
-A digital garden for notes and resources on human-centered AI, intelligence augmentation, and technical work.
+This site is generated from [`self-evolving/repo`](https://github.com/self-evolving/repo).
 
-This site is powered by [Quartz](https://quartz.jzhao.xyz/).
+During CI, the docs site syncs the source repository's root `README.md` and `.agent/docs/` directory into this Quartz content folder before building.
+
+For local development, run:
+
+```bash
+npm run sync:source-docs -- ../sepo
+npx quartz build --serve
+```

@@ -1,17 +1,39 @@
-# Quartz v4
+# Sepo documentation site
 
-> “[One] who works with the door open gets all kinds of interruptions, but [they] also occasionally gets clues as to what the world is and what might be important.” — Richard Hamming
+This repository contains the Quartz shell for the Sepo documentation site published from `self-evolving/repo`.
 
-Quartz is a set of tools that helps you publish your [digital garden](https://jzhao.xyz/posts/networked-thought) and notes as a website for free.
+The documentation source of truth stays in the product repository:
 
-🔗 Read the documentation and get started: https://quartz.jzhao.xyz/
+- `README.md`
+- `.agent/docs/**`
 
-[Join the Discord Community](https://discord.gg/cRFFHYye7t)
+The GitHub Pages workflow in this repository checks out `self-evolving/repo`, runs `scripts/sync-source-docs.mjs`, and builds Quartz from the synchronized `content/` directory. This keeps the large Quartz site out of the source repository while avoiding manual copy/paste drift.
 
-## Sponsors
+## Local development
 
-<p align="center">
-  <a href="https://github.com/sponsors/jackyzha0">
-    <img src="https://cdn.jsdelivr.net/gh/jackyzha0/jackyzha0/sponsorkit/sponsors.svg" />
-  </a>
-</p>
+From this repository:
+
+```bash
+npm ci
+npm run sync:source-docs -- ../sepo
+npx quartz build --serve
+```
+
+Use a different source checkout by passing its path:
+
+```bash
+npm run sync:source-docs -- /path/to/self-evolving/repo
+```
+
+## Refresh behavior
+
+The deploy workflow refreshes docs on:
+
+- pushes to this docs repository,
+- manual `workflow_dispatch`,
+- a 15-minute polling schedule,
+- optional `repository_dispatch` with type `source-docs-updated`.
+
+No workflow is required in `self-evolving/repo`. The scheduled run checks out the latest `self-evolving/repo@main` and rebuilds the Pages artifact from that source. Use manual `workflow_dispatch` in this repository when you need an immediate refresh before the next scheduled poll.
+
+If source-repository changes ever need to publish instantly, an external webhook, GitHub App, or source-repository workflow can send the optional `source-docs-updated` dispatch event to this repository, but polling is the default synchronization mechanism.
