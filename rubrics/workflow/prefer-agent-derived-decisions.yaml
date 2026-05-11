@@ -1,0 +1,24 @@
+schema_version: 1
+id: prefer-agent-derived-decisions
+title: Prefer agent-derived decisions
+description: >-
+  When an existing agent workflow already has enough current context to choose
+  safely between internal actions, prefer encoding the decision policy in that
+  workflow over adding a new repository-level setting or environment variable.
+  Keep strict guards for uncertain cases and use explicit structured fields for
+  any data the decision needs.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 7
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/pull/199#issuecomment-4416127608
+    note: >-
+      The requester asked to simplify inline cleanup by removing a new
+      environment variable and letting the agent decide whether to resolve or
+      minimize based on current context.
