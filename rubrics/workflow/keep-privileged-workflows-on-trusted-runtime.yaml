@@ -1,0 +1,23 @@
+schema_version: 1
+id: keep-privileged-workflows-on-trusted-runtime
+title: Keep privileged workflows on trusted runtime code
+description: >-
+  When a privileged workflow adopts or updates an unmerged branch, keep the
+  workflow runtime checkout, local actions, and scripts on a trusted ref unless
+  the adopted branch is explicitly verified as trusted. Use separate target
+  worktrees or equivalent isolation when the branch only needs to receive edits.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 8
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/pull/204#issuecomment-4417623087
+    note: >-
+      The requester endorsed keeping scheduled update runtime code on the
+      default branch while using the adopted update PR branch only as the update
+      target.
