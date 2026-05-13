@@ -1,0 +1,23 @@
+schema_version: 1
+id: investigative-approval-review
+title: Use investigative approval review
+description: >-
+  When an agent is deciding whether code is safe to approve, require an
+  independent investigation of the implementation instead of relying on a prior
+  positive review verdict. The agent should ask and answer concrete questions
+  about changed behavior, intended invariants, scope fit, edge cases,
+  permissions, failure handling, tests, and deferrable follow-up, citing code or
+  PR evidence. If a material question cannot be answered from the available
+  context, return blocked or request changes rather than approving.
+type: generic
+domain: review_quality
+applies_to:
+  - review
+severity: should
+weight: 8
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/pull/184#issuecomment-4417688195
+    note: >-
+      The requester suggested self-approval prompting should be based on asking
+      investigative questions of the code implementation.
