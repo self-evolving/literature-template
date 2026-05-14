@@ -14,18 +14,19 @@ Sepo turns a repository into a **self-evolving repository**: a codebase that can
 
 ### Start from this template
 
-1. Fork this repository or use it as a template.
-2. Install the [Sepo GitHub App](https://github.com/apps/sepo-agent-app/installations/select_target) and ensure GitHub Actions is enabled for your repository.
-   - Alternatively, you can use [your own GitHub App](docs/deployment/using-your-own-github-app.md) when you want a self-managed app identity.
-   - See the [setup guide](docs/deployment/setup-guide.md) for all auth options and trade-offs.
-3. Add at least one model-provider credential as a repository secret:
-   - `OPENAI_API_KEY` for Codex-backed runs.
-   - `CLAUDE_CODE_OAUTH_TOKEN` for Claude-backed runs.
-4. Open an issue and mention `@sepo-agent` in the issue body or a comment. After a short delay, the workflow should add an eyes reaction and then post a response.
+1. Create a new repository with **Use this template**.
+2. Install the [Sepo GitHub App](https://github.com/apps/sepo-agent-app/installations/select_target). For first-time setup, select only the repository you are setting up.
+3. Before onboarding, confirm the repository is ready:
+   - **Issues** are enabled in `Settings > General > Features > Issues`.
+   - **Actions** are enabled in `Settings > Actions > General`.
+   - The Sepo GitHub App is installed for this repository.
+   - At least one model-provider credential is configured as a repository secret: `OPENAI_API_KEY` for Codex-backed runs or `CLAUDE_CODE_OAUTH_TOKEN` for Claude-backed runs.
+4. Run `Agent / Onboarding / Check Setup` from GitHub Actions. It creates the built-in `agent/*` trigger labels if they are missing and opens or updates a `Sepo setup check` issue with configuration status and copyable test commands.
+5. Open an issue and mention `@sepo-agent` in the issue body or a comment. After a short delay, the workflow should add an eyes reaction and then post a response.
 
 ### Install into an existing repository
 
-Check [Install into an existing repository](docs/deployment/install-existing-repository.md) for the detailed guide. TL;DR: you (or your agent) should copy `.agent/` and `.github/`, configure secrets, and initialize agent memory from GitHub Actions.
+Check [Install into an existing repository](docs/deployment/install-existing-repository.md) for the detailed guide. TL;DR: you (or your agent) should copy `.agent/` and `.github/`, configure secrets, run the onboarding setup check, and initialize agent memory from GitHub Actions.
 
 ## What You Can Ask It To Do
 
@@ -44,24 +45,25 @@ Check [Install into an existing repository](docs/deployment/install-existing-rep
 # Inside a PR
 @sepo-agent /review
 @sepo-agent /fix-pr
+@sepo-agent /orchestrate
 ```
 
 > [!WARNING]
-> Only authorized repository users can trigger Sepo. By default, public repositories allow `OWNER`, `MEMBER`, and `COLLABORATOR`; private repositories also allow `CONTRIBUTOR`. See [Trigger access policy](docs/access-policy.md) to customize that behavior.
+> Only authorized repository users can trigger Sepo. By default, repositories allow `OWNER`, `MEMBER`, `COLLABORATOR`, and `CONTRIBUTOR` associations; public repositories can tighten this with `AGENT_ACCESS_POLICY`. See [Trigger access policy](docs/access-policy.md) to customize that behavior.
 
 
 ### You can also trigger the same built-in routes by adding `agent/*` labels to PRs
 
-For example, adding the `agent/review` label will run the review agent.
+For example, adding the `agent/review` label will run the review agent. The `Agent / Onboarding / Check Setup` workflow creates the built-in trigger labels on first run.
 
-### Automatic Task Orchestration Layer
-When automation mode is enabled, Sepo can chain follow-up actions after an initial run, such as review after implementation and fix after review. The orchestrator applies deterministic guardrails like dedupe checks and max-round limits to keep loops bounded.
+### Task Orchestration Route
+Use `@sepo-agent /orchestrate` (or `agent/orchestrate`) to run the orchestration route explicitly. It checks current target state, dispatches the right built-in action (`implement`, `review`, or `fix-pr`), and keeps that explicitly started chain moving through bounded follow-up handoffs until a stop condition is reached. Direct `/implement`, `/review`, and `/fix-pr` requests remain one-shot.
 
 ### Tracking Workspace Memory and Rubrics
 Sepo persists long-lived context in `agent/memory` and preference rules in `agent/rubrics`, both as repository-owned branches. This lets later runs resume with durable project context and team-specific guidance.
 
 ### Scheduled Jobs
-You can run Sepo on a schedule to handle recurring maintenance, triage, or monitoring tasks without a manual mention. For example, [`agent-daily-summary.yml`](https://github.com/self-evolving/repo/blob/main/.github/workflows/agent-daily-summary.yml) can publish a daily repository activity summary discussion. Scheduled workflows still route through the same policy and memory layers, so they behave consistently with on-demand runs.
+You can run Sepo on a schedule to handle recurring maintenance, triage, or monitoring tasks without a manual mention. For example, [`agent-daily-summary.yml`](https://github.com/self-evolving/repo/blob/main/.github/workflows/agent-daily-summary.yml) can publish a daily repository activity summary discussion, and [`agent-update.yml`](https://github.com/self-evolving/repo/blob/main/.github/workflows/agent-update.yml) checks near-biweekly for Sepo agent infrastructure updates from the latest stable release tag. Manual update runs can pass `source_ref` to test `main`, a branch, or a specific tag; if no release exists yet, the workflow falls back to `main` and records that in the run summary. If an update PR is already open, later runs update that PR instead of opening a duplicate. Set `AGENT_AUTO_UPDATE=false` to disable the scheduled update check. Scheduled workflows still route through the same policy and memory layers, so they behave consistently with on-demand runs.
 
 
 ## How It Works
@@ -73,7 +75,7 @@ Durable context lives in two repository-owned branches:
 - `agent/memory` mirrors GitHub artifacts and stores curated project context.
 - `agent/rubrics` stores user/team preferences that guide implementation and review.
 
-When automation mode is enabled, completed actions can hand back to `agent-orchestrator.yml`, a deterministic post-action boundary that manages follow-up review and fix loops with dedupe and max-round budgeting.
+Orchestration runs through `agent-orchestrator.yml` as an explicit route. Follow-up automation starts only when requested, and only workflows launched with explicit orchestration context hand back to the orchestrator.
 
 ## Learn More
 

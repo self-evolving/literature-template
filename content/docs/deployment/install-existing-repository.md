@@ -21,11 +21,22 @@ Copy these directories into the target repository:
 
 Copy the current `.github/` directory as a unit so the workflows, composite actions, and prompt templates stay in sync.
 
+Also merge these generated-output rules into the target repository's existing `.gitignore` without replacing target-owned entries:
+
+```gitignore
+.agent/dist/
+.agent/node_modules/
+```
+
+The workflows build `.agent/dist/` on GitHub-hosted runners. Keeping generated runtime outputs ignored prevents them from being committed accidentally.
+
 ## Repository configuration
 
 At minimum, configure:
 
-- GitHub Actions enabled for the repository
+- Issues enabled in `Settings > General > Features > Issues`
+- GitHub Actions enabled in `Settings > Actions > General`
+- the Sepo GitHub App installed on the selected repository
 - `OPENAI_API_KEY` and/or `CLAUDE_CODE_OAUTH_TOKEN` as repository secrets
 
 See [Setup guide](setup-guide.md) for the auth options and trade-offs.
@@ -34,9 +45,16 @@ See [Setup guide](setup-guide.md) for the auth options and trade-offs.
 
 After the files and secrets are in place:
 
-1. open an issue in the target repository
-2. mention `@sepo-agent` in the issue body or a comment
-3. wait for the `👀` reaction and the follow-up workflow run
+1. run `Agent / Onboarding / Check Setup` from GitHub Actions
+2. review the `Sepo setup check` issue that the workflow opens or updates
+3. run a copyable test command from that issue's status comment, or open another issue and mention `@sepo-agent`
+4. wait for the `👀` reaction and the follow-up workflow run
+
+The onboarding workflow is safe to rerun. It creates the built-in trigger labels
+(`agent/answer`, `agent/implement`, `agent/create-action`, `agent/review`,
+`agent/fix-pr`, and `agent/orchestrate`) when they are missing, then updates the
+same setup issue comment with GitHub auth, provider credentials, memory, rubrics,
+remaining setup, and test commands.
 
 ## Memory Setup
 

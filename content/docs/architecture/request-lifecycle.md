@@ -12,8 +12,9 @@ Every trigger converges on the portal workflow `agent-router.yml`. It extracts c
 
 - Inline answers are posted immediately.
 - Review and `fix-pr` requests on pull requests are dispatched immediately.
+- Explicit `/orchestrate` (or `agent/orchestrate`) requests dispatch the orchestrator workflow, which chooses one follow-up action from current target state.
 - Edited PR events are blocked from re-triggering review and `fix-pr` routes.
-- Mention and label requests that fail route authorization are posted back as inline `unsupported` replies instead of being dropped silently.
+- Mention and label requests that fail route authorization are posted back as inline `unsupported` replies instead of being dropped silently; that path still runs `Setup agent runtime` before `post-response.js` so posting dependencies are available.
 - Triaged implementation requests (i.e., when the dispatch agent predicts `implement` from a free-form mention) require an approval comment:
   - `@sepo-agent /approve req-...`
 - For triaged implementation requests from non-issue surfaces, the router drafts an issue title and body, posts the proposal on the original surface, and creates the issue after approval.
@@ -45,8 +46,11 @@ Current route-level `acpx` permission modes:
 |---|---|---|
 | `dispatch` | `approve-all` | classification may gather repo and issue context |
 | `answer` | `approve-all` | may gather context before replying |
+| `orchestrator` | `approve-all` | planner may gather target and repository context before choosing the next route |
+| `agent-self-approve` | `approve-reads` | final approval judgment may inspect PR/repo context, but deterministic resolver code owns approval submission |
+| `agent-self-merge` | none | deterministic workflow code owns current-head approval validation and merge submission |
 | `implement` | `approve-all` | needs full file system access |
 | `fix-pr` | `approve-all` | needs full file system access |
 | `review` | `approve-all` | reviewers and synthesis may gather PR and repo context |
 
-Dedicated memory and rubric maintenance workflows use the same runtime but are documented with their storage systems rather than the user-request lifecycle. The workflow-level GitHub token still has write scope for all jobs. Narrowing that token per job is tracked separately. The `acpx` permission modes restrict agent tool use but not direct `gh` CLI calls.
+Dedicated memory and rubric maintenance workflows use the same runtime but are documented with their storage systems rather than the user-request lifecycle. Workflow-level GitHub token scopes are set by each workflow or job and remain separate from route-level `acpx` modes. The self-approval workflow keeps the inspection agent on the read-scoped `github.token`; deterministic resolver code uses the resolved Sepo auth token for approval submission. Self-merge has no model step; its deterministic resolver uses the resolved Sepo auth token only after current-head self-approval, checks, mergeability, and requested-change guards pass.
