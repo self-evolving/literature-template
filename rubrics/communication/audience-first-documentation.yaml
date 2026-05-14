@@ -1,0 +1,26 @@
+schema_version: 1
+id: audience-first-documentation
+title: Write audience-first documentation
+description: >-
+  User-facing entry documentation should lead with the reader's immediate task
+  and avoid front-loading internal mechanics. Put technical details, trade-offs,
+  and limitations in deeper docs or short callout blocks when they affect user
+  decisions.
+type: generic
+domain: communication
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 7
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/pull/239#issuecomment-4445421308
+    note: >-
+      Requester said the README should stay simple for first-time readers and
+      asked whether this docs communication preference belonged in rubrics.
+  - source: https://github.com/self-evolving/repo/pull/239#issuecomment-4445572212
+    note: >-
+      Requester clarified that limitation callouts belong in technical details,
+      not the main README, and asked for a broader docs clarity pass.
