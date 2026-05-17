@@ -1,0 +1,27 @@
+schema_version: 1
+id: minimal-defaults-native-escape-hatches
+title: Minimal defaults, native escape hatches
+description: >-
+  When designing customization or extension surfaces, keep built-in support to a
+  minimal common-case primitive and document where users can customize native
+  repo-owned workflow or code for advanced cases instead of reimplementing the
+  host platform inside the agent feature.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 8
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/pull/241#issuecomment-4468342771
+    note: >-
+      The requester framed the durable boundary as minimal infrastructure for
+      simple customizations while allowing users to change repo-owned workflow
+      code for larger customizations.
+  - source: https://github.com/self-evolving/repo/pull/252#discussion_r3253910728
+    note: >-
+      During PR #252 review, the requester challenged a large helper for a
+      simple setup command as overcomplicated.
