@@ -93,6 +93,7 @@ Understanding the system:
 
 Customizing and operating:
 
+- [Repository skills](docs/customization/skills.md)
 - [Configuration list](docs/customization/configuration-list.md)
 - [Repository memory](docs/architecture/memory.md)
 - [User/team rubrics](docs/architecture/rubrics.md)
