@@ -1,6 +1,11 @@
 import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 
+const isDocumentationPage = (slug?: string) =>
+  slug === "docs" || slug === "docs/index" || (slug?.startsWith("docs/") ?? false)
+
+const docPageHeader = Component.DocPageHeader()
+
 const left = [
   Component.PageTitle(),
   Component.MobileOnly(Component.Spacer()),
@@ -41,15 +46,27 @@ export const sharedPageComponents: SharedLayout = {
 export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
     Component.ConditionalRender({
-      component: Component.Breadcrumbs(),
-      condition: (page) => page.fileData.slug !== "index",
+      component: docPageHeader,
+      condition: (page) => isDocumentationPage(page.fileData.slug),
     }),
-    Component.ArticleTitle(),
+    Component.ConditionalRender({
+      component: Component.Breadcrumbs(),
+      condition: (page) =>
+        page.fileData.slug !== "index" && !isDocumentationPage(page.fileData.slug),
+    }),
+    Component.ConditionalRender({
+      component: Component.ArticleTitle(),
+      condition: (page) => !isDocumentationPage(page.fileData.slug),
+    }),
     Component.ConditionalRender({
       component: Component.ContentMeta({ showReadingTime: false }),
-      condition: (page) => page.fileData.slug !== "index",
+      condition: (page) =>
+        page.fileData.slug !== "index" && !isDocumentationPage(page.fileData.slug),
     }),
-    Component.TagList(),
+    Component.ConditionalRender({
+      component: Component.TagList(),
+      condition: (page) => !isDocumentationPage(page.fileData.slug),
+    }),
   ],
   left: left.map((component) =>
     Component.ConditionalRender({
@@ -67,7 +84,24 @@ export const defaultContentPageLayout: PageLayout = {
 
 // components for pages that display lists of pages (e.g. tags or folders)
 export const defaultListPageLayout: PageLayout = {
-  beforeBody: [Component.Breadcrumbs(), Component.ArticleTitle(), Component.ContentMeta()],
+  beforeBody: [
+    Component.ConditionalRender({
+      component: docPageHeader,
+      condition: (page) => isDocumentationPage(page.fileData.slug),
+    }),
+    Component.ConditionalRender({
+      component: Component.Breadcrumbs(),
+      condition: (page) => !isDocumentationPage(page.fileData.slug),
+    }),
+    Component.ConditionalRender({
+      component: Component.ArticleTitle(),
+      condition: (page) => !isDocumentationPage(page.fileData.slug),
+    }),
+    Component.ConditionalRender({
+      component: Component.ContentMeta(),
+      condition: (page) => !isDocumentationPage(page.fileData.slug),
+    }),
+  ],
   left,
   right: [],
 }

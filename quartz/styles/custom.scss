@@ -384,3 +384,35 @@ body:not([data-slug="index"]) {
     }
   }
 }
+
+// Documentation pages use an AM-style card header: breadcrumb context + title
+// in a full-width strip with a bottom underline.
+body[data-slug="docs"] .page > #quartz-body .center,
+body[data-slug^="docs/"] .page > #quartz-body .center {
+  overflow: hidden;
+
+  .page-header {
+    margin-top: 0;
+  }
+
+  .doc-page-header {
+    margin: -1rem -2rem 1.35rem;
+    padding: 1.1rem 2rem 1rem;
+    background: var(--light);
+    border-radius: 16px 16px 0 0;
+
+    .doc-page-title.article-title {
+      margin-top: 0.45rem;
+    }
+  }
+
+  @media all and ($mobile) {
+    .doc-page-header {
+      margin-right: -1.5rem;
+      margin-left: -1.5rem;
+      padding-right: 1.5rem;
+      padding-left: 1.5rem;
+      border-radius: 12px 12px 0 0;
+    }
+  }
+}
