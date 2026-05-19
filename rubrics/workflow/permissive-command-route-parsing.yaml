@@ -1,0 +1,33 @@
+schema_version: 1
+id: permissive-command-route-parsing
+title: Prefer permissive command route parsing
+description: >-
+  When adding user-facing command routes that launch route-specific automation,
+  detect the command and pass through the full user request instead of making a
+  rigid early regex the whole interface. Put richer target resolution in
+  route-specific code or helpers, support common forms such as slugs, URLs, and
+  natural-language references when the feature calls for them, and block for
+  clarification when the target is missing or ambiguous. Keep normalized
+  structured fields when deterministic extraction succeeds, but do not make
+  them the only accepted path for complex commands.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 7
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/pull/273#discussion_r3267976463
+    note: >-
+      The requester objected that parsing `/install` with a rigid regex was too
+      narrow and preferred passing the whole user message to the install route
+      so the route can resolve a target from a slug, GitHub URL, or natural
+      text.
+  - source: https://github.com/self-evolving/repo/pull/273#discussion_r3267987692
+    note: >-
+      After the install route follow-up PRs, the requester framed install as an
+      implementation-style route that should parse the repo from the broader
+      user request before creating an external PR.
