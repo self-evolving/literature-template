@@ -1,0 +1,23 @@
+schema_version: 1
+id: ground-review-synthesis-in-current-artifacts
+title: Ground review synthesis in current artifacts
+description: >-
+  When synthesizing reviews or deciding whether to request changes, ground
+  blocking findings in the current review artifacts, current diff, or current
+  target state. Do not carry forward stale findings from prior conversation
+  context unless the current evidence still supports them, and add guardrails or
+  regression coverage for stateful review paths where stale context could
+  trigger unnecessary follow-up automation.
+type: generic
+domain: review_quality
+applies_to:
+  - review
+severity: should
+weight: 8
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/issues/267
+    note: >-
+      The requester described stale review synthesis as a failure mode and asked
+      that synthesis findings be grounded in current reviewer artifacts or the
+      current target state unless explicit resume is requested.
