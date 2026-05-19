@@ -150,7 +150,8 @@ body {
 }
 
 // Explorer card styling
-.explorer {
+.explorer,
+.docs-explorer {
   background: var(--light);
   border-radius: 12px;
   padding: 0.75rem;

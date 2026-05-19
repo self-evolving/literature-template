@@ -6,6 +6,8 @@ const isDocumentationPage = (slug?: string) =>
 
 const docPageHeader = Component.DocPageHeader()
 
+const docsExplorer = Component.DocsExplorer()
+
 const left = [
   Component.PageTitle(),
   Component.MobileOnly(Component.Spacer()),
@@ -20,7 +22,7 @@ const left = [
       ],
     }),
   ),
-  Component.Explorer(),
+  docsExplorer,
 ]
 
 const right = [

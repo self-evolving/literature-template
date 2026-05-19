@@ -1,0 +1,122 @@
+@use "../../styles/variables.scss" as *;
+
+.docs-explorer {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  min-height: 1.2rem;
+  overflow: hidden auto;
+
+  details {
+    min-height: 0;
+  }
+
+  details:not([open]) .fold {
+    transform: rotateZ(-90deg);
+  }
+
+  h2 {
+    display: inline-block;
+    margin: 0;
+    color: var(--dark);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.2;
+    text-transform: none;
+  }
+}
+
+.docs-explorer-header {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  color: var(--dark);
+  cursor: pointer;
+  list-style: none;
+  text-align: left;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &::marker {
+    content: "";
+  }
+
+  .fold {
+    margin-left: 0.5rem;
+    opacity: 0.8;
+    transition: transform 0.3s ease;
+  }
+}
+
+.docs-nav-root,
+.docs-nav-children {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.docs-nav-root {
+  margin-top: 0.75rem;
+  padding-right: 0.15rem;
+}
+
+.docs-nav-root li {
+  margin: 0.08rem 0;
+}
+
+.docs-nav-link {
+  display: block;
+  padding: 0.32rem 0.55rem;
+  color: var(--darkgray);
+  border-radius: 7px;
+  font-size: 0.86rem;
+  font-weight: $normalWeight;
+  line-height: 1.28;
+  opacity: 0.88;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+
+  &:hover {
+    background: var(--lightgray);
+    color: var(--dark);
+    opacity: 1;
+  }
+
+  &.active {
+    background: var(--highlight);
+    color: var(--secondary);
+    opacity: 1;
+  }
+}
+
+.docs-nav-root > li.has-children > .docs-nav-link {
+  color: var(--darkgray);
+  font-weight: 600;
+}
+
+.docs-nav-root > li.has-children > .docs-nav-link.active {
+  color: var(--secondary);
+}
+
+.docs-nav-children {
+  margin: 0.15rem 0 0.35rem 0.78rem;
+  padding-left: 0.65rem;
+  border-left: 1px solid var(--lightgray);
+}
+
+.docs-nav-children .docs-nav-link {
+  font-size: 0.84rem;
+}
+
+@media all and ($mobile) {
+  .docs-explorer {
+    display: none;
+  }
+}
