@@ -3,10 +3,11 @@ id: context-derived-artifact-metadata
 title: Generate context-derived artifact metadata
 description: >-
   When agent automation creates user-facing tracking artifacts such as issues
-  from a terse slash command or label trigger, synthesize concise titles and
-  useful bodies from the request plus surrounding target context. Do not copy
-  the literal command tail or rely on a generic placeholder except as an
-  explicit fallback when metadata generation is unavailable or invalid.
+  or needs dispatch metadata from a terse slash command or label trigger,
+  synthesize structured metadata from the request plus surrounding target
+  context. Do not copy the literal command tail, rely on a generic placeholder,
+  or add separate ad hoc request parsers when an existing metadata contract can
+  be extended with typed validated fields.
 type: generic
 domain: coding_workflow
 applies_to:
@@ -27,3 +28,8 @@ examples:
       The requester endorsed the plan where `/implement` selects the route
       while Sepo synthesizes issue title metadata from the request and target
       context.
+  - source: https://github.com/self-evolving/repo/issues/275#issuecomment-4485653708
+    note: >-
+      The maintainer corrected a deterministic stacked-PR wording parser and
+      asked to use the existing implement metadata prompt/agent output to carry
+      `base_pr` because that path was simpler.
