@@ -12,6 +12,7 @@ source: ".agent/docs/README.md"
 ## Architecture
 
 - [Overall design](architecture/overall-design.md)
+- [Repository goals](architecture/goals.md)
 - [Repository memory](architecture/memory.md)
 - [User/team rubrics](architecture/rubrics.md)
 - [The life cycle of an agent request](architecture/request-lifecycle.md)
