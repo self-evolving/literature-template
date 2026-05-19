@@ -1,0 +1,29 @@
+schema_version: 1
+id: separate-decision-gates-from-action-authorization
+title: Separate decision gates from action authorization
+description: >-
+  When automation has an enabled agent decision gate for judgment-oriented
+  signals, route those signals to the gate instead of treating them as a normal
+  human fallback or suppressing the signal upstream. Keep privileged outcomes
+  separately authorized with current trusted provenance, so the gate may inspect
+  and choose request-changes or blocked paths without being allowed to perform
+  unsafe approvals, merges, or other privileged actions.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 8
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/pull/262#issuecomment-4469256662
+    note: >-
+      The requester clarified that whenever a review says human decision, the
+      enabled self-approval gate should activate instead of stopping only some
+      verdicts.
+  - source: https://github.com/self-evolving/repo/pull/264#issuecomment-4471225809
+    note: >-
+      The requester objected that, once self-approval is enabled, the prompt
+      should not keep returning the case to human decision as the normal path.
