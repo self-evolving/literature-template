@@ -163,6 +163,7 @@ async function renderGraph(graph: HTMLElement, fullSlug: FullSlug) {
 
   const width = graph.offsetWidth
   const height = Math.max(graph.offsetHeight, 250)
+  scale = Math.min(Math.max(scale, 0.25), 4)
 
   // we virtualize the simulation and use pixi to actually render it
   const simulation: Simulation<NodeData, LinkData> = forceSimulation<NodeData>(graphData.nodes)
@@ -449,7 +450,12 @@ async function renderGraph(graph: HTMLElement, fullSlug: FullSlug) {
     linkRenderData.push(linkRenderDatum)
   }
 
-  let currentTransform = zoomIdentity
+  const initialTransform = zoomIdentity
+    .translate((width * (1 - scale)) / 2, (height * (1 - scale)) / 2)
+    .scale(scale)
+  let currentTransform = initialTransform
+  stage.scale.set(initialTransform.k, initialTransform.k)
+  stage.position.set(initialTransform.x, initialTransform.y)
   if (enableDrag) {
     select<HTMLCanvasElement, NodeData | undefined>(app.canvas).call(
       drag<HTMLCanvasElement, NodeData | undefined>()
@@ -497,30 +503,30 @@ async function renderGraph(graph: HTMLElement, fullSlug: FullSlug) {
   }
 
   if (enableZoom) {
-    select<HTMLCanvasElement, NodeData>(app.canvas).call(
-      zoom<HTMLCanvasElement, NodeData>()
-        .extent([
-          [0, 0],
-          [width, height],
-        ])
-        .scaleExtent([0.25, 4])
-        .on("zoom", ({ transform }) => {
-          currentTransform = transform
-          stage.scale.set(transform.k, transform.k)
-          stage.position.set(transform.x, transform.y)
+    const zoomBehavior = zoom<HTMLCanvasElement, NodeData>()
+      .extent([
+        [0, 0],
+        [width, height],
+      ])
+      .scaleExtent([0.25, 4])
+      .on("zoom", ({ transform }) => {
+        currentTransform = transform
+        stage.scale.set(transform.k, transform.k)
+        stage.position.set(transform.x, transform.y)
 
-          // zoom adjusts opacity of labels too
-          const scale = transform.k * opacityScale
-          let scaleOpacity = Math.max((scale - 1) / 3.75, 0)
-          const activeNodes = nodeRenderData.filter((n) => n.active).flatMap((n) => n.label)
+        // zoom adjusts opacity of labels too
+        const scale = transform.k * opacityScale
+        let scaleOpacity = Math.max((scale - 1) / 3.75, 0)
+        const activeNodes = nodeRenderData.filter((n) => n.active).flatMap((n) => n.label)
 
-          for (const label of labelsContainer.children) {
-            if (!activeNodes.includes(label)) {
-              label.alpha = scaleOpacity
-            }
+        for (const label of labelsContainer.children) {
+          if (!activeNodes.includes(label)) {
+            label.alpha = scaleOpacity
           }
-        }),
-    )
+        }
+      })
+    const canvasSelection = select<HTMLCanvasElement, NodeData>(app.canvas)
+    canvasSelection.call(zoomBehavior).call(zoomBehavior.transform, initialTransform)
   }
 
   let stopAnimation = false
