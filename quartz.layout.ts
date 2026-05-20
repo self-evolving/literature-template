@@ -17,7 +17,6 @@ const left = [
     Component.Flex({
       components: [
         { Component: Component.Search(), grow: true },
-        { Component: Component.GitHubLink() },
         { Component: Component.Darkmode() },
         { Component: Component.ReaderMode() },
       ],
