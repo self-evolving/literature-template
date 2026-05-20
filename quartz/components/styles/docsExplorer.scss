@@ -25,15 +25,22 @@
 
 .docs-nav-link {
   display: block;
+  width: 100%;
+  box-sizing: border-box;
   padding: 0.32rem 0.55rem;
   color: var(--darkgray);
+  background: transparent;
+  border: 0;
   border-radius: 7px;
+  font: inherit;
   font-size: 0.86rem;
   font-weight: $normalWeight;
   line-height: 1.28;
   opacity: 0.88;
   overflow-wrap: anywhere;
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
   transition:
     background 0.15s ease,
     color 0.15s ease,
@@ -52,59 +59,34 @@
   }
 }
 
-.docs-nav-section-row {
+.docs-nav-section-button {
   display: flex;
   align-items: center;
-  gap: 0.2rem;
+  justify-content: space-between;
+  gap: 0.5rem;
 
-  > .docs-nav-link {
-    flex: 1 1 auto;
+  span {
     min-width: 0;
-  }
-}
-
-.docs-nav-root > li.has-children > .docs-nav-section-row > .docs-nav-link {
-  color: var(--darkgray);
-  font-weight: 600;
-}
-
-.docs-nav-root > li.has-children > .docs-nav-section-row > .docs-nav-link.active {
-  color: var(--secondary);
-}
-
-.docs-nav-toggle {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 1.55rem;
-  height: 1.55rem;
-  margin: 0;
-  padding: 0;
-  color: var(--darkgray);
-  background: transparent;
-  border: 0;
-  border-radius: 7px;
-  cursor: pointer;
-  opacity: 0.82;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    opacity 0.15s ease;
-
-  &:hover {
-    background: var(--lightgray);
-    color: var(--dark);
-    opacity: 1;
   }
 
   .fold {
+    flex: 0 0 auto;
+    opacity: 0.82;
     transition: transform 0.3s ease;
   }
 
   &[aria-expanded="false"] .fold {
     transform: rotateZ(-90deg);
   }
+}
+
+.docs-nav-root > li.has-children > .docs-nav-section-button {
+  color: var(--darkgray);
+  font-weight: 600;
+}
+
+.docs-nav-root > li.has-children > .docs-nav-section-button.active {
+  color: var(--secondary);
 }
 
 .docs-nav-children {

@@ -144,37 +144,33 @@ function renderNavItem(currentSlug: FullSlug, item: DocsNavItem) {
     >
       {hasChildren ? (
         <>
-          <div class="docs-nav-section-row">
-            <a
-              class={["docs-nav-link", current ? "active" : undefined].filter(Boolean).join(" ")}
-              href={resolveRelative(currentSlug, item.slug)}
+          <button
+            type="button"
+            class={["docs-nav-link docs-nav-section-button", current ? "active" : undefined]
+              .filter(Boolean)
+              .join(" ")}
+            aria-controls={sectionId}
+            aria-expanded={expanded}
+            aria-label={`${expanded ? "Collapse" : "Expand"} ${item.title}`}
+            data-title={item.title}
+            data-href={resolveRelative(currentSlug, item.slug)}
+          >
+            <span>{item.title}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="5 8 14 8"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="fold"
             >
-              {item.title}
-            </a>
-            <button
-              type="button"
-              class="docs-nav-toggle"
-              aria-controls={sectionId}
-              aria-expanded={expanded}
-              aria-label={`${expanded ? "Collapse" : "Expand"} ${item.title}`}
-              data-title={item.title}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="5 8 14 8"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="fold"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-          </div>
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
           <ul id={sectionId} class="docs-nav-children" hidden={!expanded}>
             {item.children!.map((child) => renderNavItem(currentSlug, child))}
           </ul>
