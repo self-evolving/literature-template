@@ -91,7 +91,10 @@ For explicit `/implement` requests from pull requests, the router's
 metadata-only prompt may emit `base_pr` when the current user request asks for a
 stacked or follow-up PR. The portal validates that value as a positive integer
 and passes it through to `agent-implement.yml`; the implementation workflow then
-verifies the PR is open and same-repository before using its head branch.
+verifies the PR is open and same-repository before using its head branch. If
+the inferred source PR is closed or merged, the router omits `base_pr` before
+dispatch and leaves the closed PR link in the tracking issue context so the run
+starts from the default branch.
 
 When a new review synthesis, rubrics review, `fix-pr` status comment, or
 orchestrator handoff marker is posted, the workflows minimize prior visible
@@ -301,8 +304,10 @@ requires latest trusted review synthesis from the authenticated Sepo actor for
 the current reviewed-head marker before it runs an approval agent. Normal runs
 require that synthesis to be `SHIP`; orchestrated review `HUMAN_DECISION`
 handoffs may also run the agent as a decision gate for non-`SHIP` verdicts. The
-agent runs with read-approved permissions and returns structured JSON with a
-verdict, reason, optional follow-up context, and `inspected_head_sha`.
+agent runs with `approve-all` ACPX tool permissions so it can perform required
+read-only `gh` and `git` PR investigation commands. The workflow still passes a
+read-scoped `github.token` to the agent, and the agent returns structured JSON
+with a verdict, reason, optional follow-up context, and `inspected_head_sha`.
 
 Deterministic resolver code is the only part that can submit or record the
 approval. It rereads the current PR head, rechecks trusted current-head review
