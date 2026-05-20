@@ -1,39 +1,54 @@
 @use "../../styles/variables.scss" as *;
 
 .graph {
+  display: flex;
+  flex-direction: column;
+  min-height: 1.2rem;
+  overflow-y: hidden;
+
   & > h3 {
-    font-size: 1rem;
+    box-sizing: border-box;
     margin: 0;
+    padding: 0.2rem 0.55rem;
+    color: var(--dark);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.2;
   }
 
   & > .graph-outer {
-    border-radius: 5px;
-    border: 1px solid var(--lightgray);
+    position: relative;
     box-sizing: border-box;
     height: 250px;
-    margin: 0.5em 0;
-    position: relative;
+    margin: 0.65rem 0 0;
     overflow: hidden;
+    border: 1px solid var(--lightgray);
+    border-radius: 7px;
 
     & > .global-graph-icon {
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: var(--dark);
-      opacity: 0.5;
-      width: 24px;
-      height: 24px;
       position: absolute;
-      padding: 0.2rem;
-      margin: 0.3rem;
       top: 0;
       right: 0;
-      border-radius: 4px;
-      background-color: transparent;
-      transition: background-color 0.5s ease;
+      width: 1.65rem;
+      height: 1.65rem;
+      margin: 0.35rem;
+      padding: 0.35rem;
+      color: var(--darkgray);
+      background: transparent;
+      border: none;
+      border-radius: 7px;
       cursor: pointer;
+      opacity: 0.72;
+      transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        opacity 0.15s ease;
+
       &:hover {
-        background-color: var(--lightgray);
+        background: var(--lightgray);
+        color: var(--dark);
+        opacity: 1;
       }
     }
   }
@@ -56,7 +71,7 @@
     & > .global-graph-container {
       border: 1px solid var(--lightgray);
       background-color: var(--light);
-      border-radius: 5px;
+      border-radius: 7px;
       box-sizing: border-box;
       position: fixed;
       top: 50%;
