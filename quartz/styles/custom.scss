@@ -402,6 +402,11 @@ body:not([data-slug="index"]) {
 
 // Documentation pages use an AM-style card header: breadcrumb context + title
 // in a full-width strip with a bottom underline.
+body[data-slug="docs"] .page-listing,
+body[data-slug="docs/index"] .page-listing {
+  display: none;
+}
+
 body[data-slug="docs"] .page > #quartz-body .center,
 body[data-slug^="docs/"] .page > #quartz-body .center {
   overflow: hidden;
