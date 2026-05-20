@@ -111,6 +111,8 @@ body {
       0 2px 8px rgba(0, 0, 0, 0.02);
 
     .page-title {
+      flex: 1 1 auto;
+      min-width: 0;
       background: none;
       border: none;
       border-radius: 0;
@@ -118,12 +120,16 @@ body {
       box-shadow: none;
     }
 
-    .page-title > a {
+    .site-title-link {
       gap: 0.4rem;
     }
 
+    .page-title-github {
+      margin-left: auto;
+    }
+
     .spacer {
-      flex: 1;
+      display: none;
     }
 
     .darkmode {
