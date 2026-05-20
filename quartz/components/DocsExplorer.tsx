@@ -210,7 +210,7 @@ const DocsExplorer: QuartzComponent = ({ fileData, displayClass }: QuartzCompone
               .join(" ")}
             href={resolveRelative(currentSlug, "docs/index" as FullSlug)}
           >
-            Introduction
+            Doc Index
           </a>
         </li>
         {docsNav.map((item) => renderNavItem(currentSlug, item))}
