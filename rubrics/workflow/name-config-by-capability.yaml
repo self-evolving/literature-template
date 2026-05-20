@@ -1,0 +1,22 @@
+schema_version: 1
+id: name-config-by-capability
+title: Name config by capability
+description: >-
+  When adding user-facing configuration, secrets, workflow inputs, or
+  environment variables, name the public surface after the general capability or
+  contract it exposes rather than a narrower first use case. Use specific names
+  only when the implementation is intentionally limited to that specific path.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 6
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/pull/317#issuecomment-4496224614
+    note: >-
+      The requester asked to rename a cross-repo PAT secret to something more
+      general once the feature exposed a general secondary GitHub token.
