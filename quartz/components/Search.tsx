@@ -28,6 +28,9 @@ export default ((userOpts?: Partial<SearchOptions>) => {
             </g>
           </svg>
           <p>{i18n(cfg.locale).components.search.title}</p>
+          <kbd class="search-shortcut" aria-hidden="true">
+            <span>⌘</span>K
+          </kbd>
         </button>
         <div class="search-container">
           <div class="search-space">

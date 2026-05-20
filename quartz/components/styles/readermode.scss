@@ -2,21 +2,36 @@
   cursor: pointer;
   padding: 0;
   position: relative;
-  background: none;
+  background: transparent;
   border: none;
-  width: 20px;
-  height: 32px;
+  border-radius: 7px;
+  color: var(--darkgray);
+  width: 1.65rem;
+  height: 1.65rem;
   margin: 0;
   text-align: inherit;
   flex-shrink: 0;
+  opacity: 0.68;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+
+  &:hover {
+    background: var(--lightgray);
+    color: var(--dark);
+    opacity: 1;
+  }
 
   & svg {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    top: calc(50% - 10px);
-    fill: var(--darkgray);
-    stroke: var(--darkgray);
+    width: 17px;
+    height: 17px;
+    top: calc(50% - 8.5px);
+    left: calc(50% - 8.5px);
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 0.14;
     transition: opacity 0.1s ease;
   }
 }

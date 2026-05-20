@@ -14,7 +14,7 @@ const siteBaseUrl =
  */
 const config: QuartzConfig = {
   configuration: {
-    pageTitle: "Sepo Docs",
+    pageTitle: "Sepo",
     pageTitleSuffix: " | Sepo Docs",
     enableSPA: true,
     enablePopovers: true,

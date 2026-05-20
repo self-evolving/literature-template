@@ -8,36 +8,78 @@
   }
 
   & > .search-button {
-    background-color: transparent;
-    border: 1px var(--lightgray) solid;
-    border-radius: 4px;
-    font-family: inherit;
-    font-size: inherit;
-    height: 2rem;
-    padding: 0 1rem 0 0;
+    position: relative;
     display: flex;
     align-items: center;
-    text-align: inherit;
-    cursor: pointer;
-    white-space: nowrap;
     width: 100%;
+    height: 2.1rem;
+    padding: 0 2.9rem 0 0.72rem;
+    color: var(--darkgray);
+    background-color: var(--light);
+    border: 1px var(--lightgray) solid;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    text-align: inherit;
+    white-space: nowrap;
 
     & > p {
       display: inline;
-      color: var(--gray);
+      margin: 0;
+      color: var(--darkgray);
+      font-size: 0.86rem;
+      opacity: 0.78;
       text-wrap: unset;
     }
 
     & svg {
       cursor: pointer;
-      width: 18px;
-      min-width: 18px;
-      margin: 0 0.5rem;
+      width: 15px;
+      min-width: 15px;
+      margin: 0 0.48rem 0 0;
+      opacity: 0.72;
 
       .search-path {
-        stroke: var(--darkgray);
-        stroke-width: 1.5px;
+        stroke: currentColor;
+        stroke-width: 1.35px;
         transition: stroke 0.5s ease;
+      }
+    }
+
+    & > .search-shortcut {
+      position: absolute;
+      top: 50%;
+      right: 0.38rem;
+      display: flex;
+      align-items: center;
+      gap: 0.1rem;
+      height: 1.25rem;
+      box-sizing: border-box;
+      padding: 0 0.38rem;
+      color: var(--gray);
+      background: var(--light);
+      border: 1px solid var(--lightgray);
+      border-radius: 4px;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+      font-family: var(--codeFont);
+      font-size: 0.68rem;
+      font-weight: 500;
+      line-height: 1;
+      pointer-events: none;
+      transform: translateY(-50%);
+
+      & > span {
+        font-size: 0.75rem;
+        line-height: 1;
+      }
+    }
+
+    @media all and ($mobile) {
+      padding-right: 0.72rem;
+
+      & > .search-shortcut {
+        display: none;
       }
     }
   }
