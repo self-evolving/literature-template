@@ -2,13 +2,17 @@
 @use "./variables.scss" as *;
 
 // =============================================
-// WORKFLOW-INSPIRED AESTHETIC
-// Warm cream tones, soft shadows, dot patterns
+// AGENTATION-INSPIRED AESTHETIC
+// Cool blue-lavender tones, soft shadows, dot patterns
 // =============================================
 
 // Subtle dot pattern background
 body {
-  background-image: radial-gradient(circle, var(--gray) 1px, transparent 1px);
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--gray) 45%, transparent) 1px,
+    transparent 1px
+  );
   background-size: 24px 24px;
   background-position: 0 0;
   padding-top: 2rem;
@@ -187,10 +191,10 @@ body {
   }
 }
 
-// Tag styling with warm accents
+// Tag styling with cool accents
 a.internal.tag-link {
   background: var(--highlight);
-  border: 1px solid rgba(224, 123, 57, 0.2);
+  border: 1px solid color-mix(in srgb, var(--secondary) 22%, transparent);
   border-radius: 6px;
   padding: 0.15rem 0.5rem;
   font-size: 0.85em;
@@ -198,12 +202,12 @@ a.internal.tag-link {
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(224, 123, 57, 0.18);
-    border-color: rgba(224, 123, 57, 0.35);
+    background: color-mix(in srgb, var(--secondary) 18%, transparent);
+    border-color: color-mix(in srgb, var(--secondary) 36%, transparent);
   }
 }
 
-// Blockquote with warm accent
+// Blockquote with cool accent
 blockquote {
   background: var(--highlight);
   border-left: 3px solid var(--secondary);
@@ -231,7 +235,7 @@ code {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-// Links with subtle warmth
+// Links with subtle cool accenting
 a {
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
