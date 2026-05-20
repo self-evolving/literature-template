@@ -1,4 +1,5 @@
 const docsExplorerStateKey = "quartz:docs-explorer:sections"
+const docsExplorerScrollKey = "quartz:docs-explorer:scrollTop"
 
 type DocsExplorerState = Record<string, boolean>
 
@@ -16,6 +17,44 @@ function writeDocsExplorerState(state: DocsExplorerState) {
   } catch {
     // Ignore storage failures in private browsing or locked-down contexts.
   }
+}
+
+function getDocsExplorer() {
+  return document.querySelector<HTMLElement>(".docs-explorer")
+}
+
+function readDocsExplorerScrollTop() {
+  try {
+    const scrollTop = Number.parseFloat(sessionStorage.getItem(docsExplorerScrollKey) ?? "")
+    return Number.isFinite(scrollTop) ? scrollTop : undefined
+  } catch {
+    return undefined
+  }
+}
+
+function writeDocsExplorerScrollTop(scrollTop: number) {
+  try {
+    sessionStorage.setItem(docsExplorerScrollKey, String(scrollTop))
+  } catch {
+    // Ignore storage failures in private browsing or locked-down contexts.
+  }
+}
+
+function saveDocsExplorerScroll() {
+  const explorer = getDocsExplorer()
+  if (!explorer) return
+
+  writeDocsExplorerScrollTop(explorer.scrollTop)
+}
+
+function restoreDocsExplorerScroll() {
+  const explorer = getDocsExplorer()
+  const scrollTop = readDocsExplorerScrollTop()
+  if (!explorer || scrollTop === undefined) return
+
+  requestAnimationFrame(() => {
+    explorer.scrollTop = scrollTop
+  })
 }
 
 function docsNavSectionKey(button: HTMLButtonElement) {
@@ -59,6 +98,15 @@ function setupDocsExplorer() {
     button.addEventListener("click", toggleDocsNavSection)
     window.addCleanup(() => button.removeEventListener("click", toggleDocsNavSection))
   }
+
+  const explorer = getDocsExplorer()
+  if (explorer) {
+    explorer.addEventListener("scroll", saveDocsExplorerScroll, { passive: true })
+    window.addCleanup(() => explorer.removeEventListener("scroll", saveDocsExplorerScroll))
+  }
+
+  restoreDocsExplorerScroll()
 }
 
+document.addEventListener("prenav", saveDocsExplorerScroll)
 document.addEventListener("nav", setupDocsExplorer)
