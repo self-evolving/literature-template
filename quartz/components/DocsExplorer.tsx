@@ -29,6 +29,7 @@ const docsNav: DocsNavItem[] = [
     slug: "docs/architecture/index" as FullSlug,
     children: [
       { title: "Overall design", slug: "docs/architecture/overall-design" as FullSlug },
+      { title: "Repository goals", slug: "docs/architecture/goals" as FullSlug },
       { title: "Repository memory", slug: "docs/architecture/memory" as FullSlug },
       { title: "User/team rubrics", slug: "docs/architecture/rubrics" as FullSlug },
       {

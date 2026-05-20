@@ -28,9 +28,9 @@ stateDiagram-v2
     Implement --> Review: success + PR created
     Implement --> Stop: failed or no PR
 
-    Review --> SelfApprove: SHIP + AGENT_ALLOW_SELF_APPROVE=true
-    Review --> FixPR: MINOR_ISSUES / NEEDS_REWORK / CHANGES_REQUESTED
-    Review --> Stop: SHIP + self-approval disabled
+    Review --> SelfApprove: SHIP or HUMAN_DECISION + AGENT_ALLOW_SELF_APPROVE=true
+    Review --> FixPR: MINOR_ISSUES / NEEDS_REWORK / CHANGES_REQUESTED without HUMAN_DECISION
+    Review --> Stop: SHIP or HUMAN_DECISION + self-approval disabled
     Review --> Stop: failed or unsupported verdict
 
     SelfApprove --> FixPR: REQUEST_CHANGES
@@ -70,6 +70,7 @@ When an action-originated handoff is used, the orchestrator also accepts:
 
 - source action
 - source conclusion
+- source recommended next step, when the source is review synthesis
 - target issue or pull request number
 - next target number when implementation opened a pull request
 - source workflow run ID for duplicate-dispatch detection
@@ -94,6 +95,15 @@ targets, the planner can return `handoff` with `next_action: "review"` or
 checks that the PR is open and rejects PR starts that try to dispatch
 `implement` or `delegate_issue`. The planner may also return `answer`, `stop`,
 or `blocked` when no follow-up workflow should run.
+
+Issue targets labeled `agent-goal` are parent objectives rather than ordinary
+implementation tasks. The planner should use the goal body, success criteria,
+subgoals, linked work, and existing sub-issues to choose one bounded next step.
+When the next step is non-trivial or represents a distinct subgoal, prefer
+`delegate_issue` so the child can run the normal implementation/review/fix
+chain. Use a direct `implement` handoff only when the goal issue itself already
+describes a small, concrete, self-contained change. Stop or block when the goal's
+success criteria or next subgoal require human direction.
 
 For child work, the planner may return `delegate_issue`, which is an internal
 command rather than a public route. The dispatcher creates or reuses one child
@@ -170,7 +180,7 @@ envelopes use the planner path when enabled.
 
 In `heuristics` mode, action-originated handoff decisions still use the fixed transition policy and round budget checks.
 
-Review-originated `fix-pr` handoffs carry explicit task context when available. The review dispatcher derives it from the latest review synthesis action items, and heuristic mode falls back to a conservative instruction to address only unresolved review synthesis action items while ignoring optional INFO notes and metadata-only polish. Manual PR `/orchestrate` starts with a `CHANGES_REQUESTED` review decision use separate context that tells `fix-pr` to address the latest unresolved requested-change review comments instead of the review-synthesis fallback. Self-approval `REQUEST_CHANGES` handoffs preserve the approval agent's handoff context as the `fix-pr` task. Self-approval `APPROVED` handoffs dispatch `agent-self-merge` only when `AGENT_ALLOW_SELF_MERGE=true`.
+Review-originated `fix-pr` handoffs carry explicit task context when available. The review dispatcher derives it from the latest review synthesis action items, and heuristic mode falls back to a conservative instruction to address only unresolved review synthesis action items while ignoring optional INFO notes and metadata-only polish. When a review synthesis recommends `HUMAN_DECISION`, self-approval-enabled orchestration routes to `agent-self-approve` instead of `fix-pr` or a human stop; self-approval then decides whether to approve, request changes, or block. Manual PR `/orchestrate` starts with a `CHANGES_REQUESTED` review decision use separate context that tells `fix-pr` to address the latest unresolved requested-change review comments instead of the review-synthesis fallback. Self-approval `REQUEST_CHANGES` handoffs preserve the approval agent's handoff context as the `fix-pr` task. Self-approval `APPROVED` handoffs dispatch `agent-self-merge` only when `AGENT_ALLOW_SELF_MERGE=true`.
 
 In `agent` mode, the orchestrator first runs a scoped planner prompt through the same resolved-provider runtime used by other agent actions. The planner has its own `orchestrator` route and `planner` lane, so session continuation is separate from implement, review, and fix-pr sessions. The planner runs with `approve-all` tool permission so it can gather current GitHub and repository context in non-interactive workflows. It still receives read-only repository memory, selected read-only rubrics, the handoff envelope, any source handoff context, and original request, and returns JSON describing whether to stop, block, delegate a child issue, or hand off. For blocked decisions, the planner may return `user_message` or `clarification_request` to ask for missing context in the visible stop comment. For handoffs, the planner may also return `handoff_context`: explicit, action-oriented instructions for the next workflow. When the next action is `fix-pr`, the dispatcher passes that context into `agent-fix-pr.yml`, and the fix-pr prompt treats it as the selected task and constraints for the automated fix pass. The workflow uses the runtime preflight CLI to skip this planner when the max-round budget is already exhausted or the initial requester lacks delegated-route capability, and the runtime still validates planner JSON against the fixed transition policy, the issue-only direct-implement rule, and max-round budget before dispatching anything.
 
