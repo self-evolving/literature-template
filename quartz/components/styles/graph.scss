@@ -6,33 +6,30 @@
   min-height: 1.2rem;
   overflow-y: hidden;
 
-  & > h3 {
+  & > .graph-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     box-sizing: border-box;
-    margin: 0;
+    width: 100%;
     padding: 0.2rem 0.55rem;
-    color: var(--dark);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.2;
-  }
 
-  & > .graph-outer {
-    position: relative;
-    box-sizing: border-box;
-    height: 250px;
-    margin: 0.65rem 0 0;
-    overflow: hidden;
-    border: 1px solid var(--lightgray);
-    border-radius: 7px;
+    & > h3 {
+      margin: 0;
+      color: var(--dark);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      line-height: 1.2;
+    }
 
     & > .global-graph-icon {
-      position: absolute;
-      top: 0;
-      right: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       width: 1.65rem;
       height: 1.65rem;
-      margin: 0.35rem;
+      margin: 0;
       padding: 0.35rem;
       color: var(--darkgray);
       background: transparent;
@@ -51,6 +48,16 @@
         opacity: 1;
       }
     }
+  }
+
+  & > .graph-outer {
+    position: relative;
+    box-sizing: border-box;
+    height: 250px;
+    margin: 0.3rem 0 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 7px;
   }
 
   & > .global-graph-outer {
