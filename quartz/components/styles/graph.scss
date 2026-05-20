@@ -2,6 +2,7 @@
 
 .graph {
   display: flex;
+  flex: 0 0 auto;
   flex-direction: column;
   min-height: 1.2rem;
   overflow-y: hidden;
@@ -52,12 +53,24 @@
 
   & > .graph-outer {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     box-sizing: border-box;
     height: 250px;
     margin: 0.3rem 0 0;
     overflow: hidden;
     border: 0;
     border-radius: 7px;
+
+    & > .graph-container {
+      width: 100%;
+      height: 100%;
+
+      & > canvas {
+        display: block;
+      }
+    }
   }
 
   & > .global-graph-outer {
