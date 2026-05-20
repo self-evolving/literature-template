@@ -1,0 +1,26 @@
+schema_version: 1
+id: separate-context-from-execution-dependencies
+title: Separate context from execution dependencies
+description: >-
+  When automation derives execution parameters from the current issue, pull
+  request, discussion, or prior conversation, validate that the referenced
+  artifact is still eligible for the role being assigned. Preserve stale,
+  closed, or otherwise ineligible artifacts as context when useful, but do not
+  silently turn them into required bases, blockers, or active dependencies. If a
+  user explicitly requests an ineligible dependency, surface a clear warning or
+  clarification path instead of failing with a low-level resolver error.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 7
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/issues/305
+    note: >-
+      The maintainer said a closed PR should remain usable as context for a new
+      version of the work, but should not automatically become a required
+      stacking base; explicit closed-base requests should warn or clarify.
