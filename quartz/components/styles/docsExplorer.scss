@@ -71,12 +71,20 @@
 
   .fold {
     flex: 0 0 auto;
-    opacity: 0.82;
-    transition: transform 0.3s ease;
+    width: 1.125rem;
+    height: 1.125rem;
+    padding: 0.125rem;
+    box-sizing: border-box;
+    border-radius: 4px;
+    opacity: 0.78;
+    transform: rotateZ(90deg);
+    transition:
+      transform 0.2s ease,
+      opacity 0.15s ease;
   }
 
   &[aria-expanded="false"] .fold {
-    transform: rotateZ(-90deg);
+    transform: rotateZ(0deg);
   }
 }
 

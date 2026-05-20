@@ -158,9 +158,9 @@ function renderNavItem(currentSlug: FullSlug, item: DocsNavItem) {
             <span>{item.title}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="5 8 14 8"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
@@ -168,7 +168,7 @@ function renderNavItem(currentSlug: FullSlug, item: DocsNavItem) {
               stroke-linejoin="round"
               class="fold"
             >
-              <polyline points="6 9 12 15 18 9"></polyline>
+              <path d="M9 5l7 7-7 7"></path>
             </svg>
           </button>
           <ul id={sectionId} class="docs-nav-children" hidden={!expanded}>

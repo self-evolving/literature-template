@@ -39,13 +39,21 @@ button.toc-header {
 
   & .fold {
     flex: 0 0 auto;
+    width: 1.125rem;
+    height: 1.125rem;
     margin-left: 0.5rem;
-    opacity: 0.8;
-    transition: transform 0.3s ease;
+    padding: 0.125rem;
+    box-sizing: border-box;
+    border-radius: 4px;
+    opacity: 0.78;
+    transform: rotateZ(90deg);
+    transition:
+      transform 0.2s ease,
+      opacity 0.15s ease;
   }
 
   &.collapsed .fold {
-    transform: rotateZ(-90deg);
+    transform: rotateZ(0deg);
   }
 }
 
