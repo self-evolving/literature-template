@@ -36,6 +36,9 @@ export default (() => {
       (e) => e.name === CustomOgImagesEmitterName,
     )
     const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image.png`
+    const redirect = fileData.frontmatter?.redirect
+    const redirectUrl = typeof redirect === "string" && redirect.length > 0 ? redirect : undefined
+    const canonicalRedirectUrl = redirectUrl ? new URL(redirectUrl, url).toString() : undefined
 
     return (
       <head>
@@ -84,6 +87,19 @@ export default (() => {
             <meta property="twitter:domain" content={cfg.baseUrl}></meta>
             <meta property="og:url" content={socialUrl}></meta>
             <meta property="twitter:url" content={socialUrl}></meta>
+          </>
+        )}
+
+        {redirectUrl && (
+          <>
+            <link rel="canonical" href={canonicalRedirectUrl} />
+            <meta name="robots" content="noindex" />
+            <meta httpEquiv="refresh" content={`0; url=${redirectUrl}`} />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.location.replace(${JSON.stringify(redirectUrl)})`,
+              }}
+            />
           </>
         )}
 
