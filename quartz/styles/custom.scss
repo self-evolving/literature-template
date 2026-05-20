@@ -149,6 +149,14 @@ body {
   }
 }
 
+// Match outline-style sidebar cards to the documentation explorer spacing
+.sidebar {
+  .backlinks,
+  .toc {
+    padding: 0.75rem;
+  }
+}
+
 // Explorer card styling
 .explorer,
 .docs-explorer {

@@ -1,23 +1,57 @@
 @use "../../styles/variables.scss" as *;
 
 .backlinks {
+  display: flex;
   flex-direction: column;
+  min-height: 1.2rem;
+  overflow-y: hidden;
 
   & > h3 {
-    font-size: 1rem;
     margin: 0;
+    color: var(--dark);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.2;
   }
 
   & > ul.overflow {
-    list-style: none;
-    padding: 0;
-    margin: 0.5rem 0;
     max-height: calc(100% - 2rem);
+    margin: 0.55rem 0 0;
+    padding: 0;
+    list-style: none;
     overscroll-behavior: contain;
 
     & > li {
+      margin: 0.08rem 0;
+      color: var(--darkgray);
+      font-size: 0.86rem;
+      font-weight: $normalWeight;
+      line-height: 1.28;
+      opacity: 0.88;
+
       & > a {
+        display: block;
+        padding: 0.32rem 0.55rem;
+        color: var(--darkgray);
         background-color: transparent;
+        border-radius: 7px;
+        font-size: 0.86rem;
+        font-weight: $normalWeight;
+        line-height: 1.28;
+        opacity: 0.88;
+        overflow-wrap: anywhere;
+        text-decoration: none;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease,
+          opacity 0.15s ease;
+
+        &:hover {
+          background: var(--lightgray);
+          color: var(--dark);
+          opacity: 1;
+        }
       }
     }
   }

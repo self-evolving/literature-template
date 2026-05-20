@@ -6,49 +6,6 @@
   flex-direction: column;
   min-height: 1.2rem;
   overflow: hidden auto;
-
-  details {
-    min-height: 0;
-  }
-
-  details:not([open]) .fold {
-    transform: rotateZ(-90deg);
-  }
-
-  h2 {
-    display: inline-block;
-    margin: 0;
-    color: var(--dark);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0;
-    line-height: 1.2;
-    text-transform: none;
-  }
-}
-
-.docs-explorer-header {
-  display: flex;
-  align-items: center;
-  padding: 0;
-  color: var(--dark);
-  cursor: pointer;
-  list-style: none;
-  text-align: left;
-
-  &::-webkit-details-marker {
-    display: none;
-  }
-
-  &::marker {
-    content: "";
-  }
-
-  .fold {
-    margin-left: 0.5rem;
-    opacity: 0.8;
-    transition: transform 0.3s ease;
-  }
 }
 
 .docs-nav-root,
@@ -59,7 +16,6 @@
 }
 
 .docs-nav-root {
-  margin-top: 0.75rem;
   padding-right: 0.15rem;
 }
 
@@ -96,19 +52,69 @@
   }
 }
 
-.docs-nav-root > li.has-children > .docs-nav-link {
+.docs-nav-section-row {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+
+  > .docs-nav-link {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.docs-nav-root > li.has-children > .docs-nav-section-row > .docs-nav-link {
   color: var(--darkgray);
   font-weight: 600;
 }
 
-.docs-nav-root > li.has-children > .docs-nav-link.active {
+.docs-nav-root > li.has-children > .docs-nav-section-row > .docs-nav-link.active {
   color: var(--secondary);
+}
+
+.docs-nav-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  margin: 0;
+  padding: 0;
+  color: var(--darkgray);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  opacity: 0.82;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+
+  &:hover {
+    background: var(--lightgray);
+    color: var(--dark);
+    opacity: 1;
+  }
+
+  .fold {
+    transition: transform 0.3s ease;
+  }
+
+  &[aria-expanded="false"] .fold {
+    transform: rotateZ(-90deg);
+  }
 }
 
 .docs-nav-children {
   margin: 0.15rem 0 0.35rem 0.78rem;
   padding-left: 0.65rem;
   border-left: 1px solid var(--lightgray);
+}
+
+.docs-nav-children[hidden] {
+  display: none;
 }
 
 .docs-nav-children .docs-nav-link {

@@ -3,6 +3,9 @@ import { classNames } from "../util/lang"
 import { FullSlug, resolveRelative } from "../util/path"
 import style from "./styles/docsExplorer.scss"
 
+// @ts-ignore
+import script from "./scripts/docsExplorer.inline"
+
 type DocsNavItem = {
   title: string
   slug: FullSlug
@@ -119,26 +122,70 @@ const isActive = (currentSlug: FullSlug, item: DocsNavItem) => {
   return currentSlug.startsWith(folderPrefix)
 }
 
+const docsNavSectionId = (item: DocsNavItem) =>
+  `docs-nav-${item.slug.replace(/\/index$/, "").replace(/[^a-z0-9_-]+/gi, "-")}`
+
 function renderNavItem(currentSlug: FullSlug, item: DocsNavItem) {
   const active = isActive(currentSlug, item)
+  const current = currentSlug === item.slug
   const hasChildren = item.children && item.children.length > 0
+  const sectionId = hasChildren ? docsNavSectionId(item) : undefined
+  const expanded = active
 
   return (
     <li
-      class={[active ? "active" : undefined, hasChildren ? "has-children" : undefined]
+      class={[
+        active ? "active" : undefined,
+        hasChildren ? "has-children docs-nav-section" : undefined,
+        hasChildren ? (expanded ? "expanded" : "collapsed") : undefined,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
-      <a
-        class={["docs-nav-link", active ? "active" : undefined].filter(Boolean).join(" ")}
-        href={resolveRelative(currentSlug, item.slug)}
-      >
-        {item.title}
-      </a>
-      {hasChildren && (
-        <ul class="docs-nav-children">
-          {item.children!.map((child) => renderNavItem(currentSlug, child))}
-        </ul>
+      {hasChildren ? (
+        <>
+          <div class="docs-nav-section-row">
+            <a
+              class={["docs-nav-link", current ? "active" : undefined].filter(Boolean).join(" ")}
+              href={resolveRelative(currentSlug, item.slug)}
+            >
+              {item.title}
+            </a>
+            <button
+              type="button"
+              class="docs-nav-toggle"
+              aria-controls={sectionId}
+              aria-expanded={expanded}
+              aria-label={`${expanded ? "Collapse" : "Expand"} ${item.title}`}
+              data-title={item.title}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="5 8 14 8"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="fold"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+          <ul id={sectionId} class="docs-nav-children" hidden={!expanded}>
+            {item.children!.map((child) => renderNavItem(currentSlug, child))}
+          </ul>
+        </>
+      ) : (
+        <a
+          class={["docs-nav-link", current ? "active" : undefined].filter(Boolean).join(" ")}
+          href={resolveRelative(currentSlug, item.slug)}
+        >
+          {item.title}
+        </a>
       )}
     </li>
   )
@@ -149,46 +196,34 @@ const DocsExplorer: QuartzComponent = ({ fileData, displayClass }: QuartzCompone
 
   return (
     <nav class={classNames(displayClass, "docs-explorer")} aria-label="Documentation navigation">
-      <details open>
-        <summary class="docs-explorer-header">
-          <h2>Documentation</h2>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="5 8 14 8"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="fold"
-          >
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </summary>
-        <ul class="docs-nav-root">
-          <li
-            class={["docs-root-link", currentSlug === "docs/index" ? "active" : undefined]
+      <ul class="docs-nav-root">
+        <li
+          class={[
+            "docs-root-link",
+            currentSlug === "docs" || currentSlug === "docs/index" ? "active" : undefined,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <a
+            class={[
+              "docs-nav-link",
+              currentSlug === "docs" || currentSlug === "docs/index" ? "active" : undefined,
+            ]
               .filter(Boolean)
               .join(" ")}
+            href={resolveRelative(currentSlug, "docs/index" as FullSlug)}
           >
-            <a
-              class={["docs-nav-link", currentSlug === "docs/index" ? "active" : undefined]
-                .filter(Boolean)
-                .join(" ")}
-              href={resolveRelative(currentSlug, "docs/index" as FullSlug)}
-            >
-              Introduction
-            </a>
-          </li>
-          {docsNav.map((item) => renderNavItem(currentSlug, item))}
-        </ul>
-      </details>
+            Introduction
+          </a>
+        </li>
+        {docsNav.map((item) => renderNavItem(currentSlug, item))}
+      </ul>
     </nav>
   )
 }
 
 DocsExplorer.css = style
+DocsExplorer.afterDOMLoaded = script
 
 export default (() => DocsExplorer) satisfies QuartzComponentConstructor
