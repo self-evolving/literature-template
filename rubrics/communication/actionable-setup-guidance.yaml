@@ -1,0 +1,24 @@
+schema_version: 1
+id: actionable-setup-guidance
+title: Make setup guidance actionable
+description: >-
+  When creating or changing user-facing setup, onboarding, or post-merge
+  guidance, put required next steps where readers will see them and link
+  directly to the relevant workflow, settings page, run, issue, or guide when
+  the target context is known. Avoid making users hunt through GitHub Actions,
+  settings, or long audit details to complete the setup.
+type: generic
+domain: communication
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 7
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/issues/313
+    note: >-
+      The requester asked onboarding and install PR guidance to make required
+      setup prominent and directly clickable instead of leaving workflow and
+      setup destinations buried or unlinked.
