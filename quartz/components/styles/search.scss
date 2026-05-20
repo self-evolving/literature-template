@@ -92,13 +92,13 @@
     top: 0;
     width: 100vw;
     height: 100vh;
-    overflow-y: auto;
+    overflow: hidden;
     display: none;
     background: color-mix(in srgb, var(--light) 24%, transparent);
     backdrop-filter: blur(8px);
 
     &.active {
-      display: inline-block;
+      display: block;
     }
 
     & > .search-space {
@@ -106,6 +106,9 @@
       margin-top: 10vh;
       margin-left: auto;
       margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 12vh);
       overflow: hidden;
       background: var(--light);
       border: 1px solid var(--lightgray);
@@ -116,6 +119,7 @@
 
       @media all and ($mobile) {
         width: calc(100vw - 1.5rem);
+        max-height: calc(100vh - 1.5rem);
         margin-top: 0.75rem;
         border-radius: 12px;
       }
@@ -128,6 +132,7 @@
       }
 
       & > input {
+        flex: 0 0 3.45rem;
         box-sizing: border-box;
         height: 3.45rem;
         padding: 0 1.15rem;
@@ -151,12 +156,14 @@
 
       & > .search-layout {
         display: none;
+        flex: 1 1 auto;
         flex-direction: row;
-        min-height: 18rem;
-        max-height: min(66vh, 34rem);
+        min-height: 0;
+        height: min(66vh, 34rem);
+        max-height: 100%;
+        overflow: hidden;
         border: 0;
         border-radius: 0;
-        flex: 0 0 100%;
         box-sizing: border-box;
 
         &.display-results {
@@ -189,13 +196,15 @@
         }
 
         & > div {
-          height: min(66vh, 34rem);
+          min-height: 0;
+          height: auto;
           border-radius: 0;
         }
 
         @media all and ($mobile) {
           flex-direction: column;
-          min-height: 16rem;
+          height: auto;
+          min-height: 0;
           max-height: calc(100vh - 5rem);
 
           & > .preview-container {
@@ -206,7 +215,7 @@
             width: 100%;
             height: auto;
             max-height: calc(100vh - 8.5rem);
-            flex: 0 0 100%;
+            flex: 1 1 auto;
           }
         }
 
@@ -225,6 +234,7 @@
           line-height: 1.5em;
           font-weight: $normalWeight;
           overflow-y: auto;
+          overscroll-behavior: contain;
           padding: 1rem 1.35rem;
 
           & .preview-inner {
@@ -239,6 +249,7 @@
 
         & > .results-container {
           overflow-y: auto;
+          overscroll-behavior: contain;
           box-sizing: border-box;
           padding: 0.45rem;
 
