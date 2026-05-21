@@ -3,6 +3,8 @@ import fs from "node:fs/promises"
 import path from "node:path"
 import process from "node:process"
 
+import { buildDocsNav } from "../quartz/util/docsNav.mjs"
+
 const SOURCE_REPOSITORY = "self-evolving/repo"
 
 const sourceRoot = path.resolve(process.argv[2] ?? "../sepo")
@@ -110,6 +112,8 @@ async function validateContentSection(section) {
       await validateMarkdownFile(file, section)
     }
   }
+
+  buildDocsNav({ docsRoot: section.sourceDir, slugPrefix: section.destRel })
 
   return files
 }
