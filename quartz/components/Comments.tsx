@@ -37,23 +37,29 @@ export default ((opts: Options) => {
     }
 
     return (
-      <div
-        class={classNames(displayClass, "comments", "giscus")}
-        data-repo={opts.options.repo}
-        data-repo-id={opts.options.repoId}
-        data-category={opts.options.category}
-        data-category-id={opts.options.categoryId}
-        data-mapping={opts.options.mapping ?? "url"}
-        data-strict={boolToStringBool(opts.options.strict ?? true)}
-        data-reactions-enabled={boolToStringBool(opts.options.reactionsEnabled ?? true)}
-        data-input-position={opts.options.inputPosition ?? "bottom"}
-        data-light-theme={opts.options.lightTheme ?? "light"}
-        data-dark-theme={opts.options.darkTheme ?? "dark"}
-        data-theme-url={
-          opts.options.themeUrl ?? `https://${cfg.baseUrl ?? "example.com"}/static/giscus`
-        }
-        data-lang={opts.options.lang ?? "en"}
-      ></div>
+      <section class={classNames(displayClass, "comments")} aria-label="Page discussion">
+        <div class="comments-header">
+          <h2>Discuss this page</h2>
+          <p>Ask questions, share feedback, or suggest improvements in GitHub Discussions.</p>
+        </div>
+        <div
+          class="giscus"
+          data-repo={opts.options.repo}
+          data-repo-id={opts.options.repoId}
+          data-category={opts.options.category}
+          data-category-id={opts.options.categoryId}
+          data-mapping={opts.options.mapping ?? "url"}
+          data-strict={boolToStringBool(opts.options.strict ?? true)}
+          data-reactions-enabled={boolToStringBool(opts.options.reactionsEnabled ?? true)}
+          data-input-position={opts.options.inputPosition ?? "bottom"}
+          data-light-theme={opts.options.lightTheme ?? "light"}
+          data-dark-theme={opts.options.darkTheme ?? "dark"}
+          data-theme-url={
+            opts.options.themeUrl ?? `https://${cfg.baseUrl ?? "example.com"}/static/giscus`
+          }
+          data-lang={opts.options.lang ?? "en"}
+        ></div>
+      </section>
     )
   }
 

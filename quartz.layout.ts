@@ -81,7 +81,7 @@ function giscusComments() {
         "pathname",
       ),
       strict: booleanEnv("GISCUS_STRICT", true),
-      reactionsEnabled: booleanEnv("GISCUS_REACTIONS_ENABLED", true),
+      reactionsEnabled: booleanEnv("GISCUS_REACTIONS_ENABLED", false),
       inputPosition: enumEnv<GiscusInputPosition>(
         "GISCUS_INPUT_POSITION",
         ["top", "bottom"],

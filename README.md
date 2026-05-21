@@ -63,7 +63,7 @@ Optional Giscus overrides:
 | `GISCUS_CATEGORY`          | Override Discussion category name                                                    |
 | `GISCUS_CATEGORY_ID`       | Override Giscus category ID                                                          |
 | `GISCUS_MAPPING`           | Optional mapping; defaults to `pathname` to avoid preview/production URL duplication |
-| `GISCUS_REACTIONS_ENABLED` | Optional boolean; defaults to `true`                                                 |
+| `GISCUS_REACTIONS_ENABLED` | Optional boolean; defaults to `false` to keep the docs page footer quieter           |
 | `GISCUS_INPUT_POSITION`    | Optional `top` or `bottom`; defaults to `bottom`                                     |
 | `GISCUS_LIGHT_THEME`       | Optional theme file/name; defaults to `light`                                        |
 | `GISCUS_DARK_THEME`        | Optional theme file/name; defaults to `dark`                                         |

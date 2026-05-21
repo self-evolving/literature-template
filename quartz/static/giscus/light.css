@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
 /*! MIT License
  * Copyright (c) 2018 GitHub Inc.
  * https://github.com/primer/primitives/blob/main/LICENSE
@@ -96,4 +98,219 @@ main .pagination-loader-container {
 
 main .gsc-loading-image {
   background-image: url("https://github.githubassets.com/images/mona-loading-default.gif");
+}
+/* Sepo docs custom Giscus theme overrides. */
+main {
+  --sepo-bg: #fbfcff;
+  --sepo-surface: rgba(255, 255, 255, 0.78);
+  --sepo-surface-strong: #ffffff;
+  --sepo-surface-soft: rgba(109, 94, 252, 0.07);
+  --sepo-border: #eceef8;
+  --sepo-border-strong: #dde3f6;
+  --sepo-text: #202337;
+  --sepo-muted: #52576d;
+  --sepo-subtle: #7b849d;
+  --sepo-accent: #6d5efc;
+  --sepo-accent-strong: #5748e8;
+  --sepo-accent-blue: #3b82f6;
+  --sepo-accent-soft: rgba(109, 94, 252, 0.12);
+  --sepo-shadow: 0 18px 45px rgba(47, 54, 101, 0.1);
+
+  --color-btn-text: var(--sepo-text);
+  --color-btn-bg: var(--sepo-surface-strong);
+  --color-btn-border: var(--sepo-border-strong);
+  --color-btn-hover-bg: #f4f6ff;
+  --color-btn-hover-border: #cfd7f3;
+  --color-btn-active-bg: #eef1ff;
+  --color-btn-selected-bg: #eef1ff;
+  --color-btn-primary-text: #ffffff;
+  --color-btn-primary-bg: var(--sepo-accent);
+  --color-btn-primary-border: transparent;
+  --color-btn-primary-hover-bg: var(--sepo-accent-strong);
+  --color-btn-primary-hover-border: transparent;
+  --color-btn-primary-selected-bg: var(--sepo-accent-strong);
+  --color-fg-default: var(--sepo-text);
+  --color-fg-muted: var(--sepo-muted);
+  --color-fg-subtle: var(--sepo-subtle);
+  --color-canvas-default: transparent;
+  --color-canvas-overlay: var(--sepo-surface-strong);
+  --color-canvas-inset: #f6f8ff;
+  --color-canvas-subtle: #f4f6ff;
+  --color-border-default: var(--sepo-border);
+  --color-border-muted: var(--sepo-border);
+  --color-neutral-muted: rgba(109, 94, 252, 0.1);
+  --color-accent-fg: var(--sepo-accent);
+  --color-accent-emphasis: var(--sepo-accent);
+  --color-accent-muted: rgba(109, 94, 252, 0.32);
+  --color-accent-subtle: var(--sepo-accent-soft);
+  --color-social-reaction-bg-hover: var(--sepo-accent-soft);
+  --color-social-reaction-bg-reacted-hover: rgba(59, 130, 246, 0.16);
+}
+
+html,
+body,
+main {
+  background: transparent !important;
+  color: var(--sepo-text);
+  font-family:
+    "DM Sans",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.gsc-main {
+  background: transparent !important;
+  color: var(--sepo-text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.gsc-comments,
+.gsc-reactions {
+  border: 1px solid var(--sepo-border);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(251, 252, 255, 0.72)),
+    var(--sepo-surface);
+  box-shadow: var(--sepo-shadow);
+}
+
+.gsc-reactions {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+}
+
+.gsc-comments {
+  padding: 1rem;
+}
+
+.gsc-header {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--sepo-border);
+}
+
+.gsc-comments-count,
+.gsc-reactions-count {
+  color: var(--sepo-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.gsc-comment-box {
+  overflow: hidden;
+  border: 1px solid var(--sepo-border-strong) !important;
+  border-radius: 16px !important;
+  background: var(--sepo-surface-strong) !important;
+  box-shadow: none !important;
+}
+
+.gsc-comment-box-tabs {
+  border-color: var(--sepo-border) !important;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(109, 94, 252, 0.1), transparent 28%), #f6f8ff !important;
+}
+
+.gsc-comment-box-tabs button {
+  border-radius: 10px 10px 0 0 !important;
+  font-weight: 600;
+}
+
+.gsc-comment-box-tabs button[aria-selected="true"],
+.gsc-comment-box-tabs button.color-bg-canvas {
+  border-color: var(--sepo-border-strong) !important;
+  background: var(--sepo-surface-strong) !important;
+  color: var(--sepo-text) !important;
+}
+
+.gsc-comment-box-main,
+.gsc-comment-box-write,
+.gsc-comment-box-preview {
+  background: var(--sepo-surface-strong) !important;
+}
+
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-extras,
+.form-control,
+.input-contrast {
+  border-color: var(--sepo-border) !important;
+  background: var(--sepo-surface-strong) !important;
+  color: var(--sepo-text) !important;
+  font-family: inherit !important;
+  box-shadow: none !important;
+}
+
+.gsc-comment-box-textarea {
+  min-height: 7.5rem;
+  padding: 0.9rem 1rem !important;
+}
+
+.gsc-comment-box-bottom {
+  border-top: 1px solid var(--sepo-border) !important;
+  background: #fbfcff !important;
+}
+
+.btn {
+  border-radius: 999px !important;
+  font-weight: 700 !important;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.btn-primary {
+  border-color: transparent !important;
+  background: linear-gradient(135deg, var(--sepo-accent), var(--sepo-accent-blue)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(109, 94, 252, 0.24) !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(109, 94, 252, 0.3) !important;
+}
+
+.gsc-toolbar-item,
+.gsc-reactions-button,
+.gsc-social-reaction-summary-item,
+.gsc-emoji-button {
+  border-radius: 999px !important;
+  color: var(--sepo-muted) !important;
+}
+
+.gsc-toolbar-item:hover,
+.gsc-reactions-button:hover,
+.gsc-emoji-button:hover {
+  background: var(--sepo-accent-soft) !important;
+  color: var(--sepo-accent) !important;
+}
+
+.gsc-reactions-popover {
+  border-color: var(--sepo-border) !important;
+  border-radius: 16px !important;
+  background: var(--sepo-surface-strong) !important;
+  box-shadow: var(--sepo-shadow) !important;
+}
+
+a,
+.color-text-link {
+  color: var(--sepo-accent) !important;
+}
+
+.gsc-comment,
+.gsc-timeline > div {
+  border-color: var(--sepo-border) !important;
+  border-radius: 16px !important;
+}
+
+.markdown-body code,
+.markdown-body pre,
+.gsc-comment-box-textarea {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }

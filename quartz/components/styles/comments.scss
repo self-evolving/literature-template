@@ -1,8 +1,44 @@
 .comments {
-  margin-top: 1.75rem;
-  padding-top: 0.5rem;
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(251, 252, 255, 0.54)), var(--light);
+  box-shadow: 0 18px 45px rgba(47, 54, 101, 0.08);
 }
 
-.comments:empty {
-  display: none;
+.comments-header {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--lightgray);
+}
+
+.comments-header h2 {
+  margin: 0;
+  color: var(--dark);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.comments-header p {
+  margin: 0.25rem 0 0;
+  color: var(--darkgray);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.comments .giscus,
+.comments .giscus-frame {
+  width: 100%;
+}
+
+.comments .giscus:empty {
+  min-height: 8rem;
+}
+
+[saved-theme="dark"] .comments {
+  background: linear-gradient(180deg, rgba(24, 27, 43, 0.82), rgba(17, 19, 31, 0.58)), var(--light);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.24);
 }
