@@ -174,8 +174,7 @@ main {
 .gsc-reactions {
   border: 1px solid var(--sepo-border);
   border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(24, 27, 43, 0.95), rgba(17, 19, 31, 0.78)), var(--sepo-surface);
+  background: var(--sepo-surface);
   box-shadow: var(--sepo-shadow);
 }
 
@@ -212,8 +211,7 @@ main {
 
 .gsc-comment-box-tabs {
   border-color: var(--sepo-border) !important;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(139, 124, 255, 0.16), transparent 30%), #171a2a !important;
+  background: #171a2a !important;
 }
 
 .gsc-comment-box-tabs button {
@@ -266,14 +264,15 @@ main {
 
 .btn-primary {
   border-color: transparent !important;
-  background: linear-gradient(135deg, var(--sepo-accent), var(--sepo-accent-blue)) !important;
+  background: var(--sepo-accent) !important;
   color: #ffffff !important;
-  box-shadow: 0 10px 24px rgba(139, 124, 255, 0.28) !important;
+  box-shadow: none !important;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(139, 124, 255, 0.34) !important;
+  background: #7c6cff !important;
+  transform: none;
+  box-shadow: none !important;
 }
 
 .gsc-toolbar-item,
@@ -408,4 +407,151 @@ main {
 
 .btn {
   border-color: var(--sepo-border) !important;
+}
+
+/* Final low-contrast pass: keep native Giscus structure and match Sepo's flat surfaces. */
+main {
+  --sepo-hairline: rgba(111, 120, 152, 0.44);
+  --sepo-hairline-strong: rgba(154, 164, 192, 0.56);
+  --sepo-field: rgba(17, 19, 31, 0.74);
+  --sepo-panel: rgba(24, 27, 43, 0.5);
+}
+
+.gsc-comments-count {
+  color: var(--sepo-muted) !important;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.gsc-header {
+  margin-bottom: 0.25rem;
+}
+
+.gsc-main .color-border-primary,
+.gsc-main .color-border-secondary,
+.gsc-main .color-border-muted,
+.gsc-main .border,
+.gsc-main .border-top,
+.gsc-main .border-right,
+.gsc-main .border-bottom,
+.gsc-main .border-left,
+.gsc-main .border-t,
+.gsc-main .border-r,
+.gsc-main .border-b,
+.gsc-main .border-l {
+  border-color: var(--sepo-hairline) !important;
+}
+
+.gsc-comment-box {
+  border-color: var(--sepo-hairline) !important;
+  border-radius: 16px !important;
+  background: var(--sepo-panel) !important;
+  box-shadow: none !important;
+}
+
+.gsc-comment-box-tabs {
+  border-bottom-color: var(--sepo-hairline) !important;
+  background: transparent !important;
+}
+
+.gsc-comment-box-tabs > div:first-child {
+  margin: -1px 0 -1px -1px !important;
+}
+
+.gsc-comment-box-tabs button {
+  border-color: var(--sepo-hairline) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--sepo-muted) !important;
+}
+
+.gsc-comment-box-tabs button:first-child {
+  border-top-left-radius: 16px !important;
+}
+
+.gsc-comment-box-tabs button + button {
+  margin-left: 0 !important;
+  border-left: 0 !important;
+}
+
+.gsc-comment-box-md-toolbar {
+  margin-top: 0 !important;
+}
+
+.gsc-comment-box-tabs button.color-bg-canvas,
+.gsc-comment-box-tabs button[aria-selected="true"] {
+  border-color: var(--sepo-hairline) !important;
+  border-bottom-color: var(--sepo-field) !important;
+  background: var(--sepo-field) !important;
+  color: var(--sepo-text) !important;
+}
+
+.gsc-comment-box-main,
+.gsc-comment-box-write,
+.gsc-comment-box-preview {
+  background: transparent !important;
+}
+
+.gsc-comment-box-preview {
+  min-height: 151px !important;
+}
+
+.gsc-comment-box-textarea,
+.gsc-comment-box-textarea-extras,
+.form-control,
+.input-contrast {
+  border-color: var(--sepo-hairline) !important;
+  background: var(--sepo-field) !important;
+  box-shadow: none !important;
+}
+
+.gsc-comment-box-textarea::placeholder {
+  color: rgba(215, 220, 239, 0.54) !important;
+}
+
+.gsc-comment-box-textarea:focus,
+.form-control:focus,
+.input-contrast:focus {
+  border-color: rgba(139, 124, 255, 0.42) !important;
+  box-shadow: 0 0 0 2px rgba(139, 124, 255, 0.12) !important;
+  outline: none !important;
+}
+
+.gsc-comment-box-textarea-extras,
+.gsc-comment-box-bottom {
+  border-top: 0 !important;
+}
+
+.gsc-comment-box-bottom {
+  background: transparent !important;
+}
+
+.gsc-comment,
+.gsc-timeline > div {
+  border-color: var(--sepo-hairline) !important;
+  box-shadow: none !important;
+}
+
+.btn {
+  border-color: var(--sepo-hairline) !important;
+  box-shadow: none !important;
+}
+
+.gsc-comment-box-bottom .btn,
+.gsc-comment-box-bottom .btn-primary {
+  border-color: rgba(139, 124, 255, 0.34) !important;
+  background: rgba(17, 19, 31, 0.56) !important;
+  color: var(--sepo-muted) !important;
+  font-weight: 600 !important;
+}
+
+.btn:hover {
+  border-color: var(--sepo-hairline-strong) !important;
+}
+
+.gsc-comment-box-bottom .btn:hover,
+.gsc-comment-box-bottom .btn-primary:hover {
+  border-color: rgba(139, 124, 255, 0.58) !important;
+  background: rgba(139, 124, 255, 0.1) !important;
+  color: var(--sepo-accent-strong) !important;
 }
