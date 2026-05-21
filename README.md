@@ -44,6 +44,25 @@ Recommended Vercel environment variable:
 | ---------- | ------------------------------------------------------------------------------------- |
 | `SITE_URL` | Production domain without protocol, e.g. `docs.example.com` or `repo-docs.vercel.app` |
 
+Optional Giscus comments configuration:
+
+| Name                       | Value                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------ |
+| `GISCUS_REPO`              | GitHub repository that hosts Discussions, in `owner/name` format                     |
+| `GISCUS_REPO_ID`           | Giscus repository ID                                                                 |
+| `GISCUS_CATEGORY`          | Discussion category name                                                             |
+| `GISCUS_CATEGORY_ID`       | Giscus category ID                                                                   |
+| `GISCUS_ENABLED`           | Optional boolean; defaults to enabled when the required Giscus variables are present |
+| `GISCUS_MAPPING`           | Optional mapping; defaults to `pathname` to avoid preview/production URL duplication |
+| `GISCUS_REACTIONS_ENABLED` | Optional boolean; defaults to `true`                                                 |
+| `GISCUS_INPUT_POSITION`    | Optional `top` or `bottom`; defaults to `bottom`                                     |
+| `GISCUS_LIGHT_THEME`       | Optional theme file/name; defaults to `light`                                        |
+| `GISCUS_DARK_THEME`        | Optional theme file/name; defaults to `dark`                                         |
+| `GISCUS_THEME_URL`         | Optional theme base URL; defaults to this site's `/static/giscus` theme directory    |
+| `GISCUS_LANG`              | Optional language; defaults to `en`                                                  |
+
+When configured, comments render on documentation content pages and can be disabled per page with frontmatter: `comments: false`.
+
 ## Source sync configuration
 
 The `Sync source docs` GitHub Actions workflow refreshes `content/**` on:

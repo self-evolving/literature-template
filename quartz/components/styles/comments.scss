@@ -1,0 +1,8 @@
+.comments {
+  margin-top: 1.75rem;
+  padding-top: 0.5rem;
+}
+
+.comments:empty {
+  display: none;
+}

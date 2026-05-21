@@ -1,5 +1,6 @@
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { classNames } from "../util/lang"
+import style from "./styles/comments.scss"
 // @ts-ignore
 import script from "./scripts/comments.inline"
 
@@ -37,7 +38,7 @@ export default ((opts: Options) => {
 
     return (
       <div
-        class={classNames(displayClass, "giscus")}
+        class={classNames(displayClass, "comments", "giscus")}
         data-repo={opts.options.repo}
         data-repo-id={opts.options.repoId}
         data-category={opts.options.category}
@@ -56,6 +57,7 @@ export default ((opts: Options) => {
     )
   }
 
+  Comments.css = style
   Comments.afterDOMLoaded = script
 
   return Comments
