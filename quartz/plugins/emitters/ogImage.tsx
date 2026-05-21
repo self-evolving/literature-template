@@ -39,6 +39,15 @@ async function generateSocialImage(
     console.warn(styleText("yellow", `Warning: Could not find icon at ${iconPath}`))
   }
 
+  const backgroundPath = joinSegments(QUARTZ, "static", "og-background.png")
+  let backgroundBase64: string | undefined = undefined
+  try {
+    const backgroundData = await fs.readFile(backgroundPath)
+    backgroundBase64 = `data:image/png;base64,${backgroundData.toString("base64")}`
+  } catch (err) {
+    console.warn(styleText("yellow", `Warning: Could not find OG background at ${backgroundPath}`))
+  }
+
   const imageComponent = userOpts.imageStructure({
     cfg,
     userOpts,
@@ -47,6 +56,7 @@ async function generateSocialImage(
     fonts,
     fileData,
     iconBase64,
+    backgroundBase64,
   })
 
   const svg = await satori(imageComponent, {
@@ -62,7 +72,7 @@ async function generateSocialImage(
     },
   })
 
-  return sharp(Buffer.from(svg)).webp({ quality: 40 })
+  return sharp(Buffer.from(svg)).webp({ quality: 82 })
 }
 
 async function processOgImage(
@@ -73,10 +83,8 @@ async function processOgImage(
 ) {
   const cfg = ctx.cfg.configuration
   const slug = fileData.slug!
-  const isIndexPage = slug === "index" || slug === ""
-  const titleSuffix = isIndexPage ? "" : (cfg.pageTitleSuffix ?? "")
-  const title =
-    (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title) + titleSuffix
+  const pageTitle = fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title
+  const title = fileData.frontmatter?.socialTitle ?? pageTitle
   const description =
     fileData.frontmatter?.socialDescription ??
     fileData.frontmatter?.description ??
