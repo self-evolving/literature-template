@@ -8,18 +8,19 @@ import style from "./styles/docsExplorer.scss"
 // @ts-ignore
 import script from "./scripts/docsExplorer.inline"
 
-const docsNavCache = new Map<string, DocsNavData>()
+let docsNavCache: { key: string; data: DocsNavData } | undefined
 
-function docsNavForContentRoot(contentRoot: string) {
+function docsNavForContentRoot(contentRoot: string, buildId: string) {
   const docsRoot = path.resolve(contentRoot, "docs")
-  const cached = docsNavCache.get(docsRoot)
-  if (cached) {
-    return cached
+  const key = `${buildId}:${docsRoot}`
+
+  if (docsNavCache?.key === key) {
+    return docsNavCache.data
   }
 
-  const docsNav = buildDocsNav({ docsRoot })
-  docsNavCache.set(docsRoot, docsNav)
-  return docsNav
+  const data = buildDocsNav({ docsRoot })
+  docsNavCache = { key, data }
+  return data
 }
 
 const isActive = (currentSlug: FullSlug, item: DocsNavItem) => {
@@ -101,7 +102,7 @@ function renderNavItem(currentSlug: FullSlug, item: DocsNavItem) {
 
 const DocsExplorer: QuartzComponent = ({ ctx, fileData, displayClass }: QuartzComponentProps) => {
   const currentSlug = fileData.slug as FullSlug
-  const docsNavData = docsNavForContentRoot(ctx.argv.directory)
+  const docsNavData = docsNavForContentRoot(ctx.argv.directory, ctx.buildId)
   const rootActive = currentSlug === "docs" || currentSlug === docsNavData.root.slug
 
   return (
