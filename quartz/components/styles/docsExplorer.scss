@@ -1,0 +1,122 @@
+@use "../../styles/variables.scss" as *;
+
+.docs-explorer {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  min-height: 1.2rem;
+  overflow: hidden auto;
+}
+
+.docs-nav-root,
+.docs-nav-children {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.docs-nav-root {
+  padding-right: 0.15rem;
+}
+
+.docs-nav-root li {
+  margin: 0.08rem 0;
+}
+
+.docs-root-link > .docs-nav-link {
+  font-weight: 600;
+}
+
+.docs-nav-link {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.32rem 0.55rem;
+  color: var(--darkgray);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: $normalWeight;
+  line-height: 1.28;
+  opacity: 0.88;
+  overflow-wrap: anywhere;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+
+  &:hover {
+    background: var(--lightgray);
+    color: var(--dark);
+    opacity: 1;
+  }
+
+  &.active {
+    background: var(--highlight);
+    color: var(--secondary);
+    opacity: 1;
+  }
+}
+
+.docs-nav-section-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  span {
+    min-width: 0;
+  }
+
+  .fold {
+    flex: 0 0 auto;
+    width: 1.125rem;
+    height: 1.125rem;
+    padding: 0.125rem;
+    box-sizing: border-box;
+    border-radius: 4px;
+    opacity: 0.78;
+    transform: rotateZ(90deg);
+    transition:
+      transform 0.2s ease,
+      opacity 0.15s ease;
+  }
+
+  &[aria-expanded="false"] .fold {
+    transform: rotateZ(0deg);
+  }
+}
+
+.docs-nav-root > li.has-children > .docs-nav-section-button {
+  color: var(--darkgray);
+  font-weight: 600;
+}
+
+.docs-nav-root > li.has-children > .docs-nav-section-button.active {
+  color: var(--secondary);
+}
+
+.docs-nav-children {
+  margin: 0.15rem 0 0.35rem 0.78rem;
+  padding-left: 0.65rem;
+  border-left: 1px solid var(--lightgray);
+}
+
+.docs-nav-children[hidden] {
+  display: none;
+}
+
+.docs-nav-children .docs-nav-link {
+  font-size: 0.84rem;
+}
+
+@media all and ($mobile) {
+  .docs-explorer {
+    display: none;
+  }
+}

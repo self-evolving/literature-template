@@ -31,7 +31,7 @@ const defaultOptions: GraphOptions = {
     drag: true,
     zoom: true,
     depth: 1,
-    scale: 1.1,
+    scale: 1.265,
     repelForce: 0.5,
     centerForce: 0.3,
     linkDistance: 30,
@@ -65,9 +65,8 @@ export default ((opts?: Partial<GraphOptions>) => {
     const globalGraph = { ...defaultOptions.globalGraph, ...opts?.globalGraph }
     return (
       <div class={classNames(displayClass, "graph")}>
-        <h3>{i18n(cfg.locale).components.graph.title}</h3>
-        <div class="graph-outer">
-          <div class="graph-container" data-cfg={JSON.stringify(localGraph)}></div>
+        <div class="graph-header">
+          <h3>{i18n(cfg.locale).components.graph.title}</h3>
           <button class="global-graph-icon" aria-label="Global Graph">
             <svg
               version="1.1"
@@ -94,6 +93,9 @@ export default ((opts?: Partial<GraphOptions>) => {
               />
             </svg>
           </button>
+        </div>
+        <div class="graph-outer">
+          <div class="graph-container" data-cfg={JSON.stringify(localGraph)}></div>
         </div>
         <div class="global-graph-outer">
           <div class="global-graph-container" data-cfg={JSON.stringify(globalGraph)}></div>

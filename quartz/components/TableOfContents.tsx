@@ -42,8 +42,8 @@ export default ((opts?: Partial<Options>) => {
           <h3>{i18n(cfg.locale).components.tableOfContents.title}</h3>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width="18"
+            height="18"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -52,7 +52,7 @@ export default ((opts?: Partial<Options>) => {
             stroke-linejoin="round"
             class="fold"
           >
-            <polyline points="6 9 12 15 18 9"></polyline>
+            <path d="M9 5l7 7-7 7"></path>
           </svg>
         </button>
         <OverflowList

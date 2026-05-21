@@ -1,3 +1,5 @@
+const tocCollapsedStateKey = "quartz:toc:collapsed"
+
 const observer = new IntersectionObserver((entries) => {
   for (const entry of entries) {
     const slug = entry.target.id
@@ -13,22 +15,49 @@ const observer = new IntersectionObserver((entries) => {
   }
 })
 
-function toggleToc(this: HTMLElement) {
-  this.classList.toggle("collapsed")
-  this.setAttribute(
-    "aria-expanded",
-    this.getAttribute("aria-expanded") === "true" ? "false" : "true",
-  )
-  const content = this.nextElementSibling as HTMLElement | undefined
+function readTocCollapsedState() {
+  try {
+    return localStorage.getItem(tocCollapsedStateKey)
+  } catch {
+    return null
+  }
+}
+
+function writeTocCollapsedState(collapsed: boolean) {
+  try {
+    localStorage.setItem(tocCollapsedStateKey, collapsed ? "true" : "false")
+  } catch {
+    // Ignore storage failures in private browsing or locked-down contexts.
+  }
+}
+
+function setTocCollapsed(button: Element, collapsed: boolean) {
+  button.classList.toggle("collapsed", collapsed)
+  button.setAttribute("aria-expanded", collapsed ? "false" : "true")
+
+  const content = button.nextElementSibling as HTMLElement | undefined
   if (!content) return
-  content.classList.toggle("collapsed")
+  content.classList.toggle("collapsed", collapsed)
+}
+
+function toggleToc(this: HTMLElement) {
+  const collapsed = !this.classList.contains("collapsed")
+  setTocCollapsed(this, collapsed)
+  writeTocCollapsedState(collapsed)
 }
 
 function setupToc() {
+  const savedCollapsedState = readTocCollapsedState()
+
   for (const toc of document.getElementsByClassName("toc")) {
     const button = toc.querySelector(".toc-header")
     const content = toc.querySelector(".toc-content")
     if (!button || !content) return
+
+    if (savedCollapsedState !== null) {
+      setTocCollapsed(button, savedCollapsedState === "true")
+    }
+
     button.addEventListener("click", toggleToc)
     window.addCleanup(() => button.removeEventListener("click", toggleToc))
   }

@@ -8,36 +8,78 @@
   }
 
   & > .search-button {
-    background-color: transparent;
-    border: 1px var(--lightgray) solid;
-    border-radius: 4px;
-    font-family: inherit;
-    font-size: inherit;
-    height: 2rem;
-    padding: 0 1rem 0 0;
+    position: relative;
     display: flex;
     align-items: center;
-    text-align: inherit;
-    cursor: pointer;
-    white-space: nowrap;
     width: 100%;
+    height: 2.1rem;
+    padding: 0 2.9rem 0 0.72rem;
+    color: var(--darkgray);
+    background-color: var(--light);
+    border: 1px var(--lightgray) solid;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    text-align: inherit;
+    white-space: nowrap;
 
     & > p {
       display: inline;
-      color: var(--gray);
+      margin: 0;
+      color: var(--darkgray);
+      font-size: 0.86rem;
+      opacity: 0.78;
       text-wrap: unset;
     }
 
     & svg {
       cursor: pointer;
-      width: 18px;
-      min-width: 18px;
-      margin: 0 0.5rem;
+      width: 15px;
+      min-width: 15px;
+      margin: 0 0.48rem 0 0;
+      opacity: 0.72;
 
       .search-path {
-        stroke: var(--darkgray);
-        stroke-width: 1.5px;
+        stroke: currentColor;
+        stroke-width: 1.35px;
         transition: stroke 0.5s ease;
+      }
+    }
+
+    & > .search-shortcut {
+      position: absolute;
+      top: 50%;
+      right: 0.38rem;
+      display: flex;
+      align-items: center;
+      gap: 0.1rem;
+      height: 1.25rem;
+      box-sizing: border-box;
+      padding: 0 0.38rem;
+      color: var(--gray);
+      background: var(--light);
+      border: 1px solid var(--lightgray);
+      border-radius: 4px;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+      font-family: var(--codeFont);
+      font-size: 0.68rem;
+      font-weight: 500;
+      line-height: 1;
+      pointer-events: none;
+      transform: translateY(-50%);
+
+      & > span {
+        font-size: 0.75rem;
+        line-height: 1;
+      }
+    }
+
+    @media all and ($mobile) {
+      padding-right: 0.72rem;
+
+      & > .search-shortcut {
+        display: none;
       }
     }
   }
@@ -50,41 +92,62 @@
     top: 0;
     width: 100vw;
     height: 100vh;
-    overflow-y: auto;
+    overflow: hidden;
     display: none;
-    backdrop-filter: blur(4px);
+    background: color-mix(in srgb, var(--light) 24%, transparent);
+    backdrop-filter: blur(8px);
 
     &.active {
-      display: inline-block;
+      display: block;
     }
 
     & > .search-space {
-      width: 65%;
-      margin-top: 12vh;
+      width: min(920px, calc(100vw - 2rem));
+      margin-top: 10vh;
       margin-left: auto;
       margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 12vh);
+      overflow: hidden;
+      background: var(--light);
+      border: 1px solid var(--lightgray);
+      border-radius: 14px;
+      box-shadow:
+        0 24px 70px rgba(15, 23, 42, 0.16),
+        0 8px 24px rgba(15, 23, 42, 0.08);
 
-      @media all and not ($desktop) {
-        width: 90%;
+      @media all and ($mobile) {
+        width: calc(100vw - 1.5rem);
+        max-height: calc(100vh - 1.5rem);
+        margin-top: 0.75rem;
+        border-radius: 12px;
       }
 
       & > * {
         width: 100%;
-        border-radius: 7px;
-        background: var(--light);
-        box-shadow:
-          0 14px 50px rgba(27, 33, 48, 0.12),
-          0 10px 30px rgba(27, 33, 48, 0.16);
-        margin-bottom: 2em;
+        margin-bottom: 0;
+        background: transparent;
+        box-shadow: none;
       }
 
       & > input {
+        flex: 0 0 3.45rem;
         box-sizing: border-box;
-        padding: 0.5em 1em;
-        font-family: var(--bodyFont);
+        height: 3.45rem;
+        padding: 0 1.15rem;
         color: var(--dark);
-        font-size: 1.1em;
-        border: 1px solid var(--lightgray);
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--lightgray);
+        border-radius: 0;
+        font-family: var(--bodyFont);
+        font-size: 1rem;
+        line-height: 1;
+
+        &::placeholder {
+          color: var(--gray);
+        }
 
         &:focus {
           outline: none;
@@ -93,9 +156,14 @@
 
       & > .search-layout {
         display: none;
+        flex: 1 1 auto;
         flex-direction: row;
-        border: 1px solid var(--lightgray);
-        flex: 0 0 100%;
+        min-height: 0;
+        height: min(66vh, 34rem);
+        max-height: 100%;
+        overflow: hidden;
+        border: 0;
+        border-radius: 0;
         box-sizing: border-box;
 
         &.display-results {
@@ -128,12 +196,16 @@
         }
 
         & > div {
-          height: calc(75vh - 12vh);
-          border-radius: 5px;
+          min-height: 0;
+          height: auto;
+          border-radius: 0;
         }
 
         @media all and ($mobile) {
           flex-direction: column;
+          height: auto;
+          min-height: 0;
+          max-height: calc(100vh - 5rem);
 
           & > .preview-container {
             display: none !important;
@@ -142,7 +214,8 @@
           &[data-preview] > .results-container {
             width: 100%;
             height: auto;
-            flex: 0 0 100%;
+            max-height: calc(100vh - 8.5rem);
+            flex: 1 1 auto;
           }
         }
 
@@ -161,7 +234,8 @@
           line-height: 1.5em;
           font-weight: $normalWeight;
           overflow-y: auto;
-          padding: 0 2rem;
+          overscroll-behavior: contain;
+          padding: 1rem 1.35rem;
 
           & .preview-inner {
             margin: 0 auto;
@@ -175,13 +249,19 @@
 
         & > .results-container {
           overflow-y: auto;
+          overscroll-behavior: contain;
+          box-sizing: border-box;
+          padding: 0.45rem;
 
           & .result-card {
             overflow: hidden;
-            padding: 1em;
+            padding: 0.72rem 0.8rem;
             cursor: pointer;
-            transition: background 0.2s ease;
-            border-bottom: 1px solid var(--lightgray);
+            transition:
+              background 0.15s ease,
+              color 0.15s ease;
+            border-bottom: 0;
+            border-radius: 9px;
             width: 100%;
             display: block;
             box-sizing: border-box;
@@ -199,11 +279,15 @@
             &:hover,
             &:focus,
             &.focus {
-              background: var(--lightgray);
+              background: var(--highlight);
             }
 
             & > h3 {
               margin: 0;
+              color: var(--dark);
+              font-size: 0.92rem;
+              font-weight: 600;
+              line-height: 1.25;
             }
 
             @media all and not ($mobile) {

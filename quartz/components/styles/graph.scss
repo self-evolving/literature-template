@@ -1,39 +1,74 @@
 @use "../../styles/variables.scss" as *;
 
 .graph {
-  & > h3 {
-    font-size: 1rem;
-    margin: 0;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  min-height: 1.2rem;
+  overflow-y: hidden;
+
+  & > .graph-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.2rem 0.55rem;
+
+    & > h3 {
+      margin: 0;
+      color: var(--dark);
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      line-height: 1.2;
+    }
+
+    & > .global-graph-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.65rem;
+      height: 1.65rem;
+      margin: 0;
+      padding: 0.35rem;
+      color: var(--darkgray);
+      background: transparent;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      opacity: 0.72;
+      transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        opacity 0.15s ease;
+
+      &:hover {
+        background: var(--lightgray);
+        color: var(--dark);
+        opacity: 1;
+      }
+    }
   }
 
   & > .graph-outer {
-    border-radius: 5px;
-    border: 1px solid var(--lightgray);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     box-sizing: border-box;
     height: 250px;
-    margin: 0.5em 0;
-    position: relative;
+    margin: 0.3rem 0 0;
     overflow: hidden;
+    border: 0;
+    border-radius: 7px;
 
-    & > .global-graph-icon {
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: var(--dark);
-      opacity: 0.5;
-      width: 24px;
-      height: 24px;
-      position: absolute;
-      padding: 0.2rem;
-      margin: 0.3rem;
-      top: 0;
-      right: 0;
-      border-radius: 4px;
-      background-color: transparent;
-      transition: background-color 0.5s ease;
-      cursor: pointer;
-      &:hover {
-        background-color: var(--lightgray);
+    & > .graph-container {
+      width: 100%;
+      height: 100%;
+
+      & > canvas {
+        display: block;
       }
     }
   }
@@ -56,7 +91,7 @@
     & > .global-graph-container {
       border: 1px solid var(--lightgray);
       background-color: var(--light);
-      border-radius: 5px;
+      border-radius: 7px;
       box-sizing: border-box;
       position: fixed;
       top: 50%;
