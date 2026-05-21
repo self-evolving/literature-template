@@ -10,6 +10,13 @@ const isDocumentationContentPage = (slug?: string) =>
 type GiscusMapping = "url" | "title" | "og:title" | "specific" | "number" | "pathname"
 type GiscusInputPosition = "top" | "bottom"
 
+const defaultGiscusConfig = {
+  repo: "self-evolving/repo-discussions",
+  repoId: "R_kgDOSjgnjQ",
+  category: "General",
+  categoryId: "DIC_kwDOSjgnjc4C9gaF",
+} as const
+
 const giscusRequiredEnv = [
   "GISCUS_REPO",
   "GISCUS_REPO_ID",
@@ -38,25 +45,25 @@ function enumEnv<T extends string>(name: string, allowed: readonly T[], defaultV
 }
 
 function giscusComments() {
-  const explicitEnabled = envValue("GISCUS_ENABLED") !== undefined
-
   if (!booleanEnv("GISCUS_ENABLED", true)) {
     return undefined
   }
 
-  const values = Object.fromEntries(giscusRequiredEnv.map((name) => [name, envValue(name)]))
-  const configured = Object.values(values).some(Boolean)
+  const envConfig = Object.fromEntries(giscusRequiredEnv.map((name) => [name, envValue(name)]))
+  const hasEnvConfig = Object.values(envConfig).some(Boolean)
 
-  if (!configured && !explicitEnabled) {
-    return undefined
+  if (hasEnvConfig) {
+    const missing = giscusRequiredEnv.filter((name) => !envConfig[name])
+    if (missing.length > 0) {
+      throw new Error(`Incomplete Giscus configuration. Missing: ${missing.join(", ")}`)
+    }
   }
 
-  const missing = giscusRequiredEnv.filter((name) => !values[name])
-  if (missing.length > 0) {
-    throw new Error(`Incomplete Giscus configuration. Missing: ${missing.join(", ")}`)
-  }
+  const repo = envConfig.GISCUS_REPO ?? defaultGiscusConfig.repo
+  const repoId = envConfig.GISCUS_REPO_ID ?? defaultGiscusConfig.repoId
+  const category = envConfig.GISCUS_CATEGORY ?? defaultGiscusConfig.category
+  const categoryId = envConfig.GISCUS_CATEGORY_ID ?? defaultGiscusConfig.categoryId
 
-  const repo = values.GISCUS_REPO!
   if (!repo.includes("/")) {
     throw new Error("GISCUS_REPO must use the owner/name format")
   }
@@ -65,9 +72,9 @@ function giscusComments() {
     provider: "giscus",
     options: {
       repo: repo as `${string}/${string}`,
-      repoId: values.GISCUS_REPO_ID!,
-      category: values.GISCUS_CATEGORY!,
-      categoryId: values.GISCUS_CATEGORY_ID!,
+      repoId,
+      category,
+      categoryId,
       mapping: enumEnv<GiscusMapping>(
         "GISCUS_MAPPING",
         ["url", "title", "og:title", "specific", "number", "pathname"],
