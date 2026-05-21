@@ -44,6 +44,34 @@ Recommended Vercel environment variable:
 | ---------- | ------------------------------------------------------------------------------------- |
 | `SITE_URL` | Production domain without protocol, e.g. `docs.example.com` or `repo-docs.vercel.app` |
 
+Giscus comments are enabled by default against [`self-evolving/repo-discussions`](https://github.com/self-evolving/repo-discussions), using the `General` Discussions category:
+
+| Name                 | Default                          |
+| -------------------- | -------------------------------- |
+| `GISCUS_REPO`        | `self-evolving/repo-discussions` |
+| `GISCUS_REPO_ID`     | `R_kgDOSjgnjQ`                   |
+| `GISCUS_CATEGORY`    | `General`                        |
+| `GISCUS_CATEGORY_ID` | `DIC_kwDOSjgnjc4C9gaF`           |
+
+Optional Giscus overrides:
+
+| Name                       | Value                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------ |
+| `GISCUS_ENABLED`           | Set to `false` to disable comments                                                   |
+| `GISCUS_REPO`              | Override repository that hosts Discussions, in `owner/name` format                   |
+| `GISCUS_REPO_ID`           | Override Giscus repository ID                                                        |
+| `GISCUS_CATEGORY`          | Override Discussion category name                                                    |
+| `GISCUS_CATEGORY_ID`       | Override Giscus category ID                                                          |
+| `GISCUS_MAPPING`           | Optional mapping; defaults to `pathname` to avoid preview/production URL duplication |
+| `GISCUS_REACTIONS_ENABLED` | Optional boolean; defaults to `false` to keep the docs page footer quieter           |
+| `GISCUS_INPUT_POSITION`    | Optional `top` or `bottom`; defaults to `bottom`                                     |
+| `GISCUS_LIGHT_THEME`       | Optional theme file/name; defaults to `light`                                        |
+| `GISCUS_DARK_THEME`        | Optional theme file/name; defaults to `dark`                                         |
+| `GISCUS_THEME_URL`         | Optional theme base URL; defaults to this site's `/static/giscus` theme directory    |
+| `GISCUS_LANG`              | Optional language; defaults to `en`                                                  |
+
+If any of `GISCUS_REPO`, `GISCUS_REPO_ID`, `GISCUS_CATEGORY`, or `GISCUS_CATEGORY_ID` is overridden, all four must be provided together. Comments render on documentation content pages and can be disabled per page with frontmatter: `comments: false`.
+
 ## Source sync configuration
 
 The `Sync source docs` GitHub Actions workflow refreshes `content/**` on:

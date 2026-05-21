@@ -380,6 +380,10 @@ export async function handleBuild(argv) {
               headers: [{ key: "Content-Disposition", value: "inline" }],
             },
             {
+              source: "static/giscus/*.css",
+              headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+            },
+            {
               source: "**/*.webp",
               headers: [{ key: "Content-Type", value: "image/webp" }],
             },

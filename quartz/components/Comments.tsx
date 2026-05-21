@@ -1,5 +1,6 @@
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { classNames } from "../util/lang"
+import style from "./styles/comments.scss"
 // @ts-ignore
 import script from "./scripts/comments.inline"
 
@@ -26,7 +27,7 @@ function boolToStringBool(b: boolean): string {
 }
 
 export default ((opts: Options) => {
-  const Comments: QuartzComponent = ({ displayClass, fileData, cfg }: QuartzComponentProps) => {
+  const Comments: QuartzComponent = ({ displayClass, fileData }: QuartzComponentProps) => {
     // check if comments should be displayed according to frontmatter
     const disableComment: boolean =
       typeof fileData.frontmatter?.comments !== "undefined" &&
@@ -36,26 +37,34 @@ export default ((opts: Options) => {
     }
 
     return (
-      <div
-        class={classNames(displayClass, "giscus")}
-        data-repo={opts.options.repo}
-        data-repo-id={opts.options.repoId}
-        data-category={opts.options.category}
-        data-category-id={opts.options.categoryId}
-        data-mapping={opts.options.mapping ?? "url"}
-        data-strict={boolToStringBool(opts.options.strict ?? true)}
-        data-reactions-enabled={boolToStringBool(opts.options.reactionsEnabled ?? true)}
-        data-input-position={opts.options.inputPosition ?? "bottom"}
-        data-light-theme={opts.options.lightTheme ?? "light"}
-        data-dark-theme={opts.options.darkTheme ?? "dark"}
-        data-theme-url={
-          opts.options.themeUrl ?? `https://${cfg.baseUrl ?? "example.com"}/static/giscus`
-        }
-        data-lang={opts.options.lang ?? "en"}
-      ></div>
+      <section class={classNames(displayClass, "comments")} aria-label="Page discussion">
+        <div class="comments-header">
+          <h2>Questions or feedback?</h2>
+          <p>
+            Ask questions, share feedback, or suggest improvements in GitHub Discussions. Please
+            feel free to tag <code>@sepo-agent</code>.
+          </p>
+        </div>
+        <div
+          class="giscus"
+          data-repo={opts.options.repo}
+          data-repo-id={opts.options.repoId}
+          data-category={opts.options.category}
+          data-category-id={opts.options.categoryId}
+          data-mapping={opts.options.mapping ?? "url"}
+          data-strict={boolToStringBool(opts.options.strict ?? true)}
+          data-reactions-enabled={boolToStringBool(opts.options.reactionsEnabled ?? true)}
+          data-input-position={opts.options.inputPosition ?? "bottom"}
+          data-light-theme={opts.options.lightTheme ?? "light"}
+          data-dark-theme={opts.options.darkTheme ?? "dark"}
+          data-theme-url={opts.options.themeUrl ?? "/static/giscus"}
+          data-lang={opts.options.lang ?? "en"}
+        ></div>
+      </section>
     )
   }
 
+  Comments.css = style
   Comments.afterDOMLoaded = script
 
   return Comments

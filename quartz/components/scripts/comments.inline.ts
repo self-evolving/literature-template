@@ -39,7 +39,9 @@ const getThemeUrl = (theme: string) => {
   if (!giscusContainer) {
     return `https://giscus.app/themes/${theme}.css`
   }
-  return `${giscusContainer.dataset.themeUrl ?? "https://giscus.app/themes"}/${theme}.css`
+
+  const themeRoot = giscusContainer.dataset.themeUrl ?? "https://giscus.app/themes"
+  return new URL(`${themeRoot.replace(/\/$/, "")}/${theme}.css`, window.location.origin).toString()
 }
 
 type GiscusElement = Omit<HTMLElement, "dataset"> & {
