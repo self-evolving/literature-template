@@ -27,6 +27,8 @@ export default (() => {
     const url = new URL(`https://${cfg.baseUrl ?? "example.com"}`)
     const path = url.pathname as FullSlug
     const baseDir = fileData.slug === "404" ? path : pathToRoot(fileData.slug!)
+    const icon16Path = joinSegments(baseDir, "static/icon-16.png")
+    const icon128Path = joinSegments(baseDir, "static/icon-128.png")
     const iconPath = joinSegments(baseDir, "static/icon.png")
 
     // Url of current page
@@ -104,7 +106,9 @@ export default (() => {
           </>
         )}
 
-        <link rel="icon" href={iconPath} />
+        <link rel="icon" href={icon16Path} sizes="16x16" type="image/png" />
+        <link rel="icon" href={icon128Path} sizes="128x128" type="image/png" />
+        <link rel="icon" href={iconPath} type="image/png" />
         <meta name="description" content={description} />
         <meta name="generator" content="Quartz" />
 
