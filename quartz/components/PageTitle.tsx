@@ -1,16 +1,20 @@
 import { FullSlug, resolveRelative } from "../util/path"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { classNames } from "../util/lang"
-import { i18n } from "../i18n"
 
-const PageTitle: QuartzComponent = ({ fileData, cfg, displayClass }: QuartzComponentProps) => {
-  const title = cfg?.pageTitle ?? i18n(cfg.locale).propertyDefaults.title
+const PageTitle: QuartzComponent = ({ fileData, displayClass }: QuartzComponentProps) => {
   const docsRoot = resolveRelative(fileData.slug!, "docs/index" as FullSlug)
   return (
     <h2 class={classNames(displayClass, "page-title")}>
-      <a class="site-title-link" href={docsRoot} aria-label={`${title} Docs`}>
-        <span class="site-title-main">{title}</span>
-        <span class="site-title-badge">Docs</span>
+      <a class="site-title-link" href={docsRoot} aria-label="Self-evolving docs">
+        <span class="site-title-main" aria-hidden="true">
+          <span class="site-title-variant site-title-variant-base">Self-evolving</span>
+          <span class="site-title-variant site-title-variant-hand">Self-evolving</span>
+          <span class="site-title-variant site-title-variant-bitcount">Self-evolving</span>
+          <span class="site-title-variant site-title-variant-dynapuff">Self-evolving</span>
+          <span class="site-title-variant site-title-variant-nabla">Self-evolving</span>
+          <span class="site-title-variant site-title-variant-code">Self-evolving</span>
+        </span>
       </a>
       <a
         class="page-title-github"
@@ -50,9 +54,16 @@ PageTitle.css = `
   display: inline-flex;
   align-items: center;
   min-width: 0;
-  gap: 0.45rem;
+  gap: 0.38rem;
+  padding-left: 0.15rem;
   color: var(--dark);
   text-decoration: none;
+}
+
+.site-title-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+  outline-offset: 4px;
+  border-radius: 8px;
 }
 
 .page-title-github {
@@ -73,10 +84,16 @@ PageTitle.css = `
     opacity 0.15s ease;
 }
 
-.page-title-github:hover {
+.page-title-github:hover,
+.page-title-github:focus-visible {
   background: var(--lightgray);
   color: var(--dark);
   opacity: 1;
+}
+
+.page-title-github:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--secondary) 55%, transparent);
+  outline-offset: 2px;
 }
 
 .page-title-github > svg {
@@ -85,26 +102,201 @@ PageTitle.css = `
 }
 
 .site-title-main {
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 1;
+  display: inline-grid;
+  align-items: center;
+  color: var(--dark);
+  white-space: nowrap;
 }
 
-.site-title-badge {
-  display: inline-flex;
-  align-items: center;
-  height: 1.05rem;
-  padding: 0 0.38rem;
-  border: 1px solid var(--lightgray);
-  border-radius: 999px;
-  color: var(--darkgray);
-  background: var(--light);
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+.site-title-variant {
+  grid-area: 1 / 1;
+  display: block;
+  color: var(--dark);
   line-height: 1;
-  text-transform: uppercase;
+  transform-origin: left center;
+  transition: color 0.15s ease;
+  white-space: nowrap;
 }
+
+.site-title-variant-base {
+  font-family: var(--titleFont);
+  font-size: 1.24rem;
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  animation: site-title-evolve-base 24s ease-in-out infinite;
+}
+
+.site-title-variant-hand {
+  font-family: "Caveat", cursive;
+  font-size: 1.46rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  opacity: 0;
+  animation: site-title-evolve-hand 24s ease-in-out infinite;
+}
+
+.site-title-variant-bitcount {
+  font-family: "Bitcount Ink", var(--codeFont);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  opacity: 0;
+  animation: site-title-evolve-bitcount 24s ease-in-out infinite;
+}
+
+.site-title-variant-dynapuff {
+  font-family: "DynaPuff", var(--titleFont);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  opacity: 0;
+  animation: site-title-evolve-dynapuff 24s ease-in-out infinite;
+}
+
+.site-title-variant-nabla {
+  font-family: "Nabla", var(--titleFont);
+  font-size: 1.03rem;
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  opacity: 0;
+  filter: hue-rotate(185deg) saturate(0.92) brightness(0.96);
+  animation: site-title-evolve-nabla 24s ease-in-out infinite;
+}
+
+.site-title-variant-code {
+  font-family: var(--codeFont);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  opacity: 0;
+  animation: site-title-evolve-code 24s ease-in-out infinite;
+}
+
+.site-title-link:hover .site-title-variant,
+.site-title-link:focus-visible .site-title-variant {
+  color: var(--secondary);
+}
+
+@keyframes site-title-evolve-base {
+  0%,
+  18%,
+  92%,
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  24%,
+  86% {
+    opacity: 0;
+    transform: translateY(0.02rem) scale(0.99);
+  }
+}
+
+@keyframes site-title-evolve-hand {
+  0%,
+  20%,
+  38%,
+  100% {
+    opacity: 0;
+    transform: translateY(0.04rem) scale(0.99);
+  }
+
+  25%,
+  33% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes site-title-evolve-bitcount {
+  0%,
+  35%,
+  53%,
+  100% {
+    opacity: 0;
+    transform: translateY(-0.01rem) scale(0.99);
+  }
+
+  40%,
+  48% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes site-title-evolve-dynapuff {
+  0%,
+  50%,
+  68%,
+  100% {
+    opacity: 0;
+    transform: translateY(0.02rem) scale(0.99);
+  }
+
+  55%,
+  63% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes site-title-evolve-nabla {
+  0%,
+  65%,
+  78%,
+  100% {
+    opacity: 0;
+    transform: translateY(0.01rem) scale(0.98);
+  }
+
+  70%,
+  74% {
+    opacity: 0.9;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes site-title-evolve-code {
+  0%,
+  75%,
+  92%,
+  100% {
+    opacity: 0;
+    transform: translateY(-0.02rem) scale(0.99);
+  }
+
+  80%,
+  88% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-title-variant-base,
+  .site-title-variant-hand,
+  .site-title-variant-bitcount,
+  .site-title-variant-dynapuff,
+  .site-title-variant-nabla,
+  .site-title-variant-code {
+    animation: none;
+  }
+
+  .site-title-variant-base {
+    opacity: 1;
+    transform: none;
+  }
+
+  .site-title-variant-hand,
+  .site-title-variant-bitcount,
+  .site-title-variant-dynapuff,
+  .site-title-variant-nabla,
+  .site-title-variant-code {
+    opacity: 0;
+  }
+}
+
 `
 
 export default (() => PageTitle) satisfies QuartzComponentConstructor
