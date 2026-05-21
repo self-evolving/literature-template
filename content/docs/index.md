@@ -1,8 +1,5 @@
 ---
 title: "Sepo: self-evolving repository"
-socialTitle: "Sepo — self-evolving repositories"
-description: "Sepo turns GitHub issues, pull requests, and discussions into agent-powered workflows that answer, implement, review, remember, and improve your repository over time."
-socialDescription: "Agent workflows for GitHub repositories that answer, implement, review, remember, and evolve with your codebase."
 ---
 
 Mention `@sepo-agent` on a GitHub issue, pull request, or discussion to answer questions, implement issues, review PRs, fix PR branches, or create durable scheduled agent workflows. Sepo runs inside GitHub Actions and keeps working context in repository-owned branches, so collaboration stays in GitHub instead of moving to a separate chat surface.
