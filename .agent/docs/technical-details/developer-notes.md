@@ -23,8 +23,12 @@ For manual continuity checks, use a disposable `HOME` or container. Do not delet
 
 ## Known limitations
 
+> [!NOTE]
+> The hosted Sepo App path only works for repositories where the Sepo GitHub App
+> is installed. If you use selected-repository installation, add each repository
+> before onboarding it.
+
 - Workflow-level GitHub token permissions are broader than route-level `acpx` permission modes.
-- `skill_root` is advertised on `agent-router.yml` but is not wired through yet.
 - Slash routes are hardcoded to `/answer`, `/implement`, `/create-action`, `/fix-pr`, `/review`, and `/skill`.
 - Mention parsing does not fully handle lazy blockquote continuations or multi-backtick inline code spans.
 - Implementation approval uses comments, not reactions.

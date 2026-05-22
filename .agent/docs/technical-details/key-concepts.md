@@ -30,6 +30,8 @@ A route is the high-level backend behavior being run. Current first-class routes
 - `implement`
 - `fix-pr`
 - `review`
+- `agent-self-approve`
+- `agent-self-merge`
 - `create-action`
 - `dispatch`
 - `skill`
@@ -63,7 +65,7 @@ Every agent run receives a shared metadata envelope.
 |---|---|
 | `schema_version` | Envelope version, currently `1` |
 | `repo_slug` | Repository as `owner/repo` |
-| `route` | agent action like `review`, `implement`, `fix-pr`, `answer`, `create-action`, `dispatch`, or `skill` |
+| `route` | agent action like `review`, `implement`, `fix-pr`, `answer`, `agent-self-approve`, `agent-self-merge`, `create-action`, `dispatch`, or `skill` |
 | `source_kind` | Triggering surface, such as `issue_comment`, `pull_request_review`, or `workflow_dispatch` |
 | `target_kind` | `issue`, `pull_request`, `discussion`, or `repository` |
 | `target_number`, `target_url` | Canonical target identity. Repo-scoped runs reserve `target_number=0` and use the repository URL. |
@@ -94,7 +96,13 @@ Some routes also expose an explicit allowlist of supplemental env-backed prompt 
 
 ## Session continuity and forks
 
-Persistent routes store thread state in git refs and can optionally restore local agent session files from GitHub Actions artifacts. A destination run may also be seeded from another thread via `session_fork_from_thread_key`; explicit `/implement` uses this to continue from the prior `answer/default` thread for the original target when available. See [Session continuity](session-continuity.md).
+Routes with session policies can store thread state in git refs. `track-only`
+records run metadata without using a persistent named ACP conversation; resume
+policies use persistent sessions and can optionally restore local agent session
+files from GitHub Actions artifacts. A destination run may also be seeded from
+another thread via `session_fork_from_thread_key`; explicit `/implement` uses
+this to continue from the prior `answer/default` thread for the original target
+when available. See [Session continuity](session-continuity.md).
 
 ## Repository memory
 

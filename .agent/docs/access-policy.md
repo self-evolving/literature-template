@@ -61,7 +61,9 @@ The values match GitHub's [`CommentAuthorAssociation`](https://docs.github.com/g
 If `AGENT_ACCESS_POLICY` is unset:
 
 - private repositories allow `OWNER`, `MEMBER`, `COLLABORATOR`, and `CONTRIBUTOR`
-- public repositories allow `OWNER`, `MEMBER`, and `COLLABORATOR`
+- public repositories also allow `OWNER`, `MEMBER`, `COLLABORATOR`, and `CONTRIBUTOR`
+
+Known limitation: GitHub can report private organization members as `CONTRIBUTOR` in public repository issue payloads when the token or payload cannot see private membership. Sepo therefore includes `CONTRIBUTOR` in the public default allowlist as a pragmatic compatibility choice. Repositories that need stricter public access should set `AGENT_ACCESS_POLICY`, for example `{"allowed_associations":["OWNER","MEMBER","COLLABORATOR"]}`.
 
 ## Enforcement model
 
@@ -75,6 +77,8 @@ Label triggers authorize the label applier rather than the issue or pull request
 
 Organization membership detection depends on what the agent's GitHub token can see. With a repo-scoped installation token, only **public** org memberships are visible, so private org members who apply a label resolve as `COLLABORATOR` rather than `MEMBER`. Policies that restrict a route to `MEMBER` only (e.g. `route_overrides.implement: ["OWNER", "MEMBER"]`) may therefore reject private org members unless `COLLABORATOR` is also included.
 
-## Issue-body association refresh
+## Weak association normalization
 
-For issue-body mentions from `issues` events, the runtime refreshes `author_association` from the GitHub API before rejecting the request. This covers cases where the webhook payload reports `NONE` but the live issue API reports a stronger association such as `MEMBER`, so valid issue-body mentions are not rejected because of stale event metadata.
+For mention triggers, the runtime trusts strong `author_association` values (`OWNER`, `MEMBER`, and `COLLABORATOR`) without another lookup. When GitHub reports a weaker value such as `NONE`, `CONTRIBUTOR`, `FIRST_TIMER`, or `FIRST_TIME_CONTRIBUTOR`, Sepo checks the triggering actor with `GET /repos/{owner}/{repo}/collaborators/{username}` and treats a `204` response as `COLLABORATOR` before route authorization. This applies to all supported mention surfaces, including issue and pull request bodies, discussion bodies and comments, issue comments, pull request review comments, and pull request reviews.
+
+Issue-body mentions from `issues` events also refresh `author_association` from the live issue API before the collaborator fallback. These checks cover cases where repo-scoped tokens cannot see private org membership through webhook `author_association`, but GitHub author association remains token- and visibility-dependent. The public default allowlist therefore still includes `CONTRIBUTOR` unless a repository configures a stricter `AGENT_ACCESS_POLICY`.
