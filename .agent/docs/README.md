@@ -18,6 +18,7 @@
 - [Key concepts](technical-details/key-concepts.md)
 - [Session continuity](technical-details/session-continuity.md)
 - [Agent orchestrator](technical-details/agent-orchestrator.md)
+- [Sepo versioning](technical-details/versioning.md)
 - [Developer notes](technical-details/developer-notes.md)
 
 ## Actions
@@ -29,6 +30,7 @@
 ## Customization
 
 - [Configurations list](customization/configuration-list.md)
+- [Repository skills](customization/skills.md)
 - [Trigger access policy](access-policy.md)
 - [Creating your own actions](customization/creating-your-own-actions.md)
 - [Creating your own workflows](customization/creating-your-own-workflows.md)

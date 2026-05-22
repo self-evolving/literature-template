@@ -12,7 +12,6 @@ import { isKnownAuthorAssociation } from "../access-policy.js";
 import { ghApi, ghApiOk } from "../github.js";
 import { setOutput } from "../output.js";
 import {
-  DEFAULT_TRUSTED_ASSOCIATIONS,
   DEFAULT_MENTION,
   extractEventContext,
   getAuthorAssociation,
@@ -31,6 +30,21 @@ const triggerKind = String(process.env.INPUT_TRIGGER_KIND || "mention").trim().t
 const labelName = process.env.INPUT_LABEL_NAME || "";
 const authorAssociationOverride = process.env.INPUT_AUTHOR_ASSOCIATION || "";
 const repository = process.env.GITHUB_REPOSITORY || "";
+const ASSOCIATIONS_TRUSTED_WITHOUT_REFRESH = new Set([
+  "OWNER",
+  "MEMBER",
+  "COLLABORATOR",
+]);
+const WEAK_ASSOCIATIONS_FOR_COLLABORATOR_FALLBACK = new Set([
+  "CONTRIBUTOR",
+  "FIRST_TIME_CONTRIBUTOR",
+  "FIRST_TIMER",
+  "NONE",
+]);
+
+function normalizeAssociation(association: string): string {
+  return String(association || "").trim().toUpperCase();
+}
 
 function hasOrgMembership(orgLogin: string, userLogin: string): boolean {
   const membershipState = ghApi([
@@ -59,6 +73,15 @@ function hasRepositoryPermission(userLogin: string): boolean {
   ]).toLowerCase();
 
   return Boolean(permission) && permission !== "none";
+}
+
+function hasRepositoryCollaborator(userLogin: string): boolean {
+  const login = String(userLogin || "").trim();
+  if (!repository || !login) {
+    return false;
+  }
+
+  return ghApiOk([`repos/${repository}/collaborators/${login}`]);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,15 +113,16 @@ function resolveLabelActorAssociation(payload: Record<string, any>): string {
   return "NONE";
 }
 
-function refreshIssueAssociation(association: string, issueNumber: string): string {
+function refreshIssueAssociation(
+  association: string,
+  issueNumber: string,
+): string {
   if (
-    authorAssociationOverride ||
     eventName !== "issues" ||
-    DEFAULT_TRUSTED_ASSOCIATIONS.has(association) ||
     !repository ||
     !issueNumber
   ) {
-    return association;
+    return normalizeAssociation(association) || association;
   }
 
   const refreshed = ghApi([
@@ -106,7 +130,33 @@ function refreshIssueAssociation(association: string, issueNumber: string): stri
     "--jq",
     ".author_association // empty",
   ]).toUpperCase();
-  return refreshed || association;
+  return refreshed || normalizeAssociation(association) || association;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeMentionAuthorAssociation(association: string, payload: Record<string, any>): string {
+  const normalized = normalizeAssociation(association);
+  if (authorAssociationOverride || ASSOCIATIONS_TRUSTED_WITHOUT_REFRESH.has(normalized)) {
+    return normalized || association;
+  }
+
+  const resolved = refreshIssueAssociation(
+    normalized || association,
+    String(payload.issue?.number || ""),
+  );
+  const resolvedNormalized = normalizeAssociation(resolved);
+  if (ASSOCIATIONS_TRUSTED_WITHOUT_REFRESH.has(resolvedNormalized)) {
+    return resolvedNormalized;
+  }
+
+  if (
+    WEAK_ASSOCIATIONS_FOR_COLLABORATOR_FALLBACK.has(resolvedNormalized) &&
+    hasRepositoryCollaborator(getRequestedBy(eventName, payload))
+  ) {
+    return "COLLABORATOR";
+  }
+
+  return resolvedNormalized || resolved;
 }
 
 if (!eventPath || !eventName) {
@@ -123,9 +173,9 @@ if (!eventPath || !eventName) {
     // Gate 2: check author association
     const association = triggerKind === "label"
       ? resolveLabelActorAssociation(payload)
-      : refreshIssueAssociation(
+      : normalizeMentionAuthorAssociation(
         authorAssociationOverride || getAuthorAssociation(eventName, payload),
-        String(payload.issue?.number || ""),
+        payload,
       );
     if (!isKnownAuthorAssociation(association)) {
       setOutput("should_respond", "false");

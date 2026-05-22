@@ -6,8 +6,11 @@
 // Outputs: status
 
 import { readFileSync } from "node:fs";
-import { postIssueComment, postPrComment } from "../github.js";
-import { collapsePreviousReviewSummaries } from "../review-summary-minimize.js";
+import { fetchPrMeta, postIssueComment, postPrComment } from "../github.js";
+import {
+  collapsePreviousFixPrComments,
+  collapsePreviousReviewSummaries,
+} from "../review-summary-minimize.js";
 import {
   formatImplementComment,
   formatFixPrComment,
@@ -43,10 +46,26 @@ const summary = summaryFromAgentResponse(route, rawResponse);
 let body: string;
 
 if (route === "review") {
+  let reviewedHeadSha = "";
+  const capturedReviewedHeadSha = String(process.env.REVIEWED_HEAD_SHA || "").trim();
+  if (capturedReviewedHeadSha && target === "pr" && repo && targetNumber > 0) {
+    try {
+      const currentHeadSha = fetchPrMeta(targetNumber, repo).headOid;
+      if (currentHeadSha === capturedReviewedHeadSha) {
+        reviewedHeadSha = capturedReviewedHeadSha;
+      } else {
+        console.warn("Review synthesis head marker omitted because the PR head changed during review.");
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(`Review synthesis head marker omitted because PR metadata could not be read: ${message}`);
+    }
+  }
   body = formatReviewComment({
     synthesisBody: summary,
     requestedBy: requestedBy || undefined,
     approvalCommentUrl: approvalCommentUrl || undefined,
+    reviewedHeadSha: reviewedHeadSha || undefined,
   });
 } else if (route === "fix-pr") {
   body = formatFixPrComment({
@@ -86,6 +105,19 @@ if (target === "pr") {
       const message = err instanceof Error ? err.message : String(err);
       console.warn(
         `Failed to collapse previous AI review synthesis comments for ${repo}#${targetNumber}: ${message}`,
+      );
+    }
+  }
+  if (route === "fix-pr" && collapseOldReviews) {
+    try {
+      const collapsed = collapsePreviousFixPrComments({ repo, prNumber: targetNumber });
+      if (collapsed > 0) {
+        console.log(`Collapsed ${collapsed} previous fix-pr status comment(s).`);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(
+        `Failed to collapse previous fix-pr status comments for ${repo}#${targetNumber}: ${message}`,
       );
     }
   }

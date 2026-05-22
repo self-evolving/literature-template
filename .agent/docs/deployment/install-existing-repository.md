@@ -17,11 +17,22 @@ Copy these directories into the target repository:
 
 Copy the current `.github/` directory as a unit so the workflows, composite actions, and prompt templates stay in sync.
 
+Also merge these generated-output rules into the target repository's existing `.gitignore` without replacing target-owned entries:
+
+```gitignore
+.agent/dist/
+.agent/node_modules/
+```
+
+The workflows build `.agent/dist/` on GitHub-hosted runners. Keeping generated runtime outputs ignored prevents them from being committed accidentally.
+
 ## Repository configuration
 
 At minimum, configure:
 
-- GitHub Actions enabled for the repository
+- Issues enabled in `Settings > General > Features > Issues`
+- GitHub Actions enabled in `Settings > Actions > General`
+- the Sepo GitHub App installed on the selected repository
 - `OPENAI_API_KEY` and/or `CLAUDE_CODE_OAUTH_TOKEN` as repository secrets
 
 See [Setup guide](setup-guide.md) for the auth options and trade-offs.
@@ -30,9 +41,16 @@ See [Setup guide](setup-guide.md) for the auth options and trade-offs.
 
 After the files and secrets are in place:
 
-1. open an issue in the target repository
-2. mention `@sepo-agent` in the issue body or a comment
-3. wait for the `👀` reaction and the follow-up workflow run
+1. run `Agent / Onboarding / Check Setup` from GitHub Actions
+2. review the `Sepo setup check` issue that the workflow opens or updates
+3. run a copyable test command from that issue's status comment, or open another issue and mention `@sepo-agent`
+4. wait for the `👀` reaction and the follow-up workflow run
+
+The onboarding workflow is safe to rerun. It creates the built-in trigger labels
+(`agent/answer`, `agent/implement`, `agent/create-action`, `agent/review`,
+`agent/fix-pr`, and `agent/orchestrate`) when they are missing, then updates the
+same setup issue comment with GitHub auth, provider credentials, memory, rubrics,
+remaining setup, and test commands.
 
 ## Memory Setup
 
@@ -44,11 +62,11 @@ That workflow:
 
 - rejects the run if `agent/memory` already exists, so it stays a one-time initializer
 - creates `agent/memory` on the runner when it does not exist yet
-- seeds `PROJECT.md`, `MEMORY.md`, plus `.gitkeep` placeholders in `daily/` and `github/`
+- seeds `PROJECT.md`, `MEMORY.md`, plus `.gitkeep` placeholders in `daily/`, `github/`, and `github/<owner>/<repo>/`
 - commits and pushes the bootstrap branch without requiring a local checkout
 - runs the initial GitHub artifact sync and recent-activity curation inline after the bootstrap commit
 
-The workflow reuses the same branch to populate `github/*.json`, then runs the agentic memory curation pass on top of that seeded state.
+The workflow reuses the same branch to populate `github/<owner>/<repo>/*.json`, then runs the agentic memory curation pass on top of that seeded state.
 
 <details>
   <summary>Alternative: local memory bootstrap</summary>
@@ -62,7 +80,7 @@ git push origin agent/memory</code></pre>
   <ul>
     <li>creates or updates a local <code>agent/memory</code> branch without changing your current checkout</li>
     <li>reuses <code>origin/agent/memory</code> when it already exists locally as a remote-tracking branch, otherwise seeds a fresh branch</li>
-    <li>seeds <code>PROJECT.md</code> and <code>MEMORY.md</code>, plus <code>.gitkeep</code> placeholders in <code>daily/</code> and <code>github/</code></li>
+    <li>seeds <code>PROJECT.md</code> and <code>MEMORY.md</code>, plus <code>.gitkeep</code> placeholders in <code>daily/</code>, <code>github/</code>, and <code>github/&lt;owner&gt;/&lt;repo&gt;/</code></li>
     <li>commits the initialization locally when the branch needs it</li>
   </ul>
   <p>If you skip this step, the GitHub Actions workflows above can bootstrap the branch for you.</p>

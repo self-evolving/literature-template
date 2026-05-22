@@ -11,8 +11,12 @@ inputs:
     description: "Built-in prompt name (resolves to .github/prompts/<name>.md)"
     required: false
   skill:
-    description: "User-defined skill name (resolves to .skills/<name>/SKILL.md)"
+    description: "User-defined skill name (resolves to <skill_root>/<name>/SKILL.md)"
     required: false
+  skill_root:
+    description: "Root directory for user-defined skills"
+    required: false
+    default: ".skills"
   agent:
     description: "acpx agent to use"
     required: false
@@ -26,7 +30,7 @@ inputs:
     required: false
     default: xhigh
   route:
-    description: "Envelope route (implement, review, fix-pr, answer, create-action, dispatch, skill, rubrics-review, rubrics-initialization, rubrics-update)"
+    description: "Envelope route (implement, review, fix-pr, answer, create-action, dispatch, agent-self-approve, agent-self-merge, skill, rubrics-review, rubrics-initialization, rubrics-update)"
     required: true
   lane:
     description: "Logical lane for thread/session identity (defaults to 'default')"
@@ -315,6 +319,7 @@ runs:
         ROUTE: ${{ inputs.route }}
         LANE: ${{ inputs.lane }}
         SESSION_POLICY: ${{ inputs.session_policy }}
+        SESSION_BUNDLE_MODE: ${{ inputs.session_bundle_mode }}
         SESSION_BUNDLE_RESTORE_STATUS: ${{ steps.restore.outputs.restore_status }}
         SESSION_BUNDLE_RESTORE_ERROR: ${{ steps.restore.outputs.restore_error }}
         SESSION_FORK_FROM_THREAD_KEY: ${{ steps.restore.outputs.fork_from_thread_key }}
@@ -322,6 +327,7 @@ runs:
         SESSION_FORK_RESTORE_STATUS: ${{ steps.restore.outputs.fork_restore_status }}
         SESSION_FORK_RESTORE_ERROR: ${{ steps.restore.outputs.fork_restore_error }}
         SKILL_NAME: ${{ inputs.skill }}
+        SKILL_ROOT: ${{ inputs.skill_root }}
         SOURCE_KIND: ${{ inputs.source_kind }}
         TARGET_KIND: ${{ inputs.target_kind }}
         TARGET_NUMBER: ${{ inputs.target_number }}

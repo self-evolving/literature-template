@@ -3,7 +3,7 @@
 // Env: RESPONSE_FILE, TARGET_KIND, AUTHOR_ASSOCIATION, REQUESTED_ROUTE, REQUEST_TEXT,
 //      REQUESTED_SKILL, ACCESS_POLICY, REPOSITORY_PRIVATE
 // Outputs: route, needs_approval, confidence, summary, issue_title, issue_body,
-//          skill
+//          skill, base_pr
 
 import { readFileSync } from "node:fs";
 import { type AccessPolicy, parseAccessPolicy } from "../access-policy.js";
@@ -12,6 +12,7 @@ import {
   normalizeDispatch,
   applyDispatchPolicy,
   buildRequestedRouteDecision,
+  normalizeImplementIssueMetadata,
 } from "../triage.js";
 
 const responseFile = process.env.RESPONSE_FILE || "";
@@ -35,8 +36,19 @@ function loadAccessPolicy(): AccessPolicy | null {
 function emitDecision(accessPolicy: AccessPolicy): void {
   try {
     const isExplicit = Boolean(requestedRoute);
+    const implementMetadata = isExplicit && requestedRoute === "implement" && raw.trim()
+      ? (() => {
+          try {
+            return normalizeImplementIssueMetadata(raw);
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            console.error(`Implement issue metadata was invalid; using fallback metadata: ${msg}`);
+            return null;
+          }
+        })()
+      : null;
     const decision = isExplicit
-      ? buildRequestedRouteDecision(requestedRoute, requestText)
+      ? buildRequestedRouteDecision(requestedRoute, requestText, implementMetadata)
       : normalizeDispatch(raw);
     const result = applyDispatchPolicy(
       decision,
@@ -54,6 +66,7 @@ function emitDecision(accessPolicy: AccessPolicy): void {
     setOutput("issue_title", result.issueTitle);
     setOutput("issue_body", result.issueBody);
     setOutput("skill", result.route === "skill" ? requestedSkill : "");
+    setOutput("base_pr", result.route === "implement" ? result.basePr || "" : "");
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`Dispatch resolution failed: ${msg}`);
@@ -65,6 +78,7 @@ function emitDecision(accessPolicy: AccessPolicy): void {
     setOutput("issue_title", "");
     setOutput("issue_body", "");
     setOutput("skill", "");
+    setOutput("base_pr", "");
   }
 }
 

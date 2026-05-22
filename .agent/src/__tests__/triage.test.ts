@@ -1,12 +1,16 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
 
 import {
+  ROUTES,
   normalizeDispatch,
   applyDispatchPolicy,
   extractRequestedRoute,
   extractRequestedRouteDecision,
   buildRequestedRouteDecision,
+  normalizeImplementIssueMetadata,
   resolveRequestedLabel,
 } from "../triage.js";
 import {
@@ -15,7 +19,33 @@ import {
   parseAccessPolicy,
 } from "../access-policy.js";
 
+const repoRoot = resolve(__dirname, "../../..");
+
+function readRepoFile(relativePath: string): string {
+  return readFileSync(resolve(repoRoot, relativePath), "utf8");
+}
+
 // --- normalizeDispatch ---
+
+test("dispatch prompt enumerates every supported dispatch route", () => {
+  const prompt = readRepoFile(".github/prompts/agent-dispatch.md");
+  const supportedRoutes = [...ROUTES].sort();
+
+  const bulletRoutes = Array.from(
+    prompt.matchAll(/^- `([^`]+)`: /gm),
+    ([, route]) => route,
+  ).sort();
+  assert.deepEqual(bulletRoutes, supportedRoutes);
+
+  const unionMatch = prompt.match(/"route": "([^"]+)"/);
+  assert.ok(unionMatch, "dispatch prompt should document the route JSON union");
+  const unionRoutes = unionMatch[1]
+    .split("|")
+    .map((route) => route.trim())
+    .sort();
+  assert.deepEqual(unionRoutes, supportedRoutes);
+  assert.match(prompt, /Use `orchestrate` when/);
+});
 
 test("normalizeDispatch reads raw JSON", () => {
   const d = normalizeDispatch(
@@ -102,6 +132,10 @@ test("extractRequestedRoute detects explicit slash routes after the agent mentio
     "fix-pr",
   );
   assert.equal(
+    extractRequestedRoute("@sepo-agent /orchestrate continue intelligently", "@sepo-agent"),
+    "orchestrate",
+  );
+  assert.equal(
     extractRequestedRoute("@sepo-agent /create-action monitor flaky tests", "@sepo-agent"),
     "create-action",
   );
@@ -145,9 +179,62 @@ test("buildRequestedRouteDecision builds deterministic implement metadata withou
   assert.match(d.issueBody, /Original request/);
 });
 
+test("buildRequestedRouteDecision falls back to generic implement title without generated metadata", () => {
+  const d = buildRequestedRouteDecision("implement", "@sepo-agent /implement");
+  assert.equal(d.issueTitle, "Implement requested change");
+});
+
+test("buildRequestedRouteDecision uses generated implement issue metadata", () => {
+  const d = buildRequestedRouteDecision(
+    "implement",
+    "Earlier prose mentions /implement add the wrong title.\n\n@sepo-agent /implement",
+    {
+      issueTitle: "Fix webhook dispatch retry handling",
+      issueBody: "## Goal\nFix webhook dispatch retry handling.\n\n## Acceptance criteria\n- Add regression coverage.",
+      basePr: "268",
+    },
+  );
+  assert.equal(d.issueTitle, "Fix webhook dispatch retry handling");
+  assert.doesNotMatch(d.issueTitle, /wrong title/);
+  assert.match(d.issueBody, /webhook dispatch retry/);
+  assert.equal(d.basePr, "268");
+});
+
+test("normalizeImplementIssueMetadata reads generated JSON metadata", () => {
+  const metadata = normalizeImplementIssueMetadata(
+    '```json\n{"issue_title":"Fix PR tracking issue titles","issue_body":"## Goal\\nGenerate title from context.","base_pr":"268"}\n```',
+  );
+  assert.equal(metadata.issueTitle, "Fix PR tracking issue titles");
+  assert.match(metadata.issueBody, /Generate title from context/);
+  assert.equal(metadata.basePr, "268");
+});
+
+test("normalizeImplementIssueMetadata rejects malformed generated metadata", () => {
+  assert.throws(
+    () => normalizeImplementIssueMetadata('{"issue_title":"Missing body"}'),
+    /missing issue_body/,
+  );
+  assert.throws(
+    () => normalizeImplementIssueMetadata('{"issue_title":"Bad base","issue_body":"body","base_pr":"#268"}'),
+    /base_pr must be a positive integer/,
+  );
+  assert.throws(
+    () => normalizeImplementIssueMetadata('{"issue_title":"Bad base","issue_body":"body","base_pr":"0"}'),
+    /base_pr must be a positive integer/,
+  );
+});
+
 test("buildRequestedRouteDecision builds deterministic review metadata", () => {
   const d = buildRequestedRouteDecision("review", "@sepo-agent /review");
   assert.equal(d.route, "review");
+  assert.equal(d.needsApproval, false);
+  assert.equal(d.issueTitle, "");
+  assert.equal(d.issueBody, "");
+});
+
+test("buildRequestedRouteDecision builds deterministic orchestrate metadata", () => {
+  const d = buildRequestedRouteDecision("orchestrate", "@sepo-agent /orchestrate");
+  assert.equal(d.route, "orchestrate");
   assert.equal(d.needsApproval, false);
   assert.equal(d.issueTitle, "");
   assert.equal(d.issueBody, "");
@@ -172,6 +259,7 @@ test("buildRequestedRouteDecision supports skill routes", () => {
 
 test("resolveRequestedLabel maps built-in and skill labels", () => {
   assert.deepEqual(resolveRequestedLabel("agent/review"), { route: "review", skill: "" });
+  assert.deepEqual(resolveRequestedLabel("agent/orchestrate"), { route: "orchestrate", skill: "" });
   assert.deepEqual(resolveRequestedLabel("agent/create-action"), {
     route: "create-action",
     skill: "",
@@ -302,6 +390,24 @@ test("applyDispatchPolicy dispatches review on PR without approval", () => {
   assert.equal(d.needsApproval, false);
 });
 
+test("applyDispatchPolicy dispatches orchestrate on issue without approval", () => {
+  const d = applyDispatchPolicy(
+    normalizeDispatch('{"route":"orchestrate","summary":"orchestrate"}'),
+    "issue",
+    "MEMBER",
+  );
+  assert.equal(d.route, "orchestrate");
+  assert.equal(d.needsApproval, false);
+});
+
+test("applyDispatchPolicy rejects orchestrate requests outside issues and pull requests", () => {
+  const d = applyDispatchPolicy(
+    normalizeDispatch('{"route":"orchestrate","summary":"orchestrate"}'),
+    "discussion",
+  );
+  assert.equal(d.route, "unsupported");
+});
+
 test("applyDispatchPolicy rejects review requests outside pull requests", () => {
   const d = applyDispatchPolicy(
     normalizeDispatch('{"route":"review","summary":"review it"}'),
@@ -344,7 +450,7 @@ test("applyDispatchPolicy rejects routes disallowed by configured access policy"
   assert.match(d.summary, /OWNER, MEMBER, COLLABORATOR/);
 });
 
-test("applyDispatchPolicy uses collaborator-safe defaults for public repos", () => {
+test("applyDispatchPolicy allows contributors by default for public repos", () => {
   const d = applyDispatchPolicy(
     normalizeDispatch('{"route":"answer","summary":"answer it"}'),
     "issue",
@@ -352,8 +458,8 @@ test("applyDispatchPolicy uses collaborator-safe defaults for public repos", () 
     parseAccessPolicy(""),
     true,
   );
-  assert.equal(d.route, "unsupported");
-  assert.match(d.summary, /OWNER, MEMBER, COLLABORATOR/);
+  assert.equal(d.route, "answer");
+  assert.equal(d.needsApproval, false);
 });
 
 test("applyDispatchPolicy allows route overrides to widen public repo access", () => {

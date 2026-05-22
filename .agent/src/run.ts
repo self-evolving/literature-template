@@ -4,8 +4,8 @@
 // the prompt template (base + route), runs acpx directly, and outputs the
 // result.
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
+import { isAbsolute, join, resolve } from "node:path";
 import { randomBytes } from "node:crypto";
 
 import {
@@ -50,6 +50,14 @@ import {
 } from "./runtime-state.js";
 import { configureBotIdentity } from "./git.js";
 import { setOutput } from "./output.js";
+import {
+  buildContinuationPrompt,
+  selectContinuationPromptForResume,
+} from "./prompt-continuation.js";
+import {
+  parseSessionBundleMode,
+  shouldBackupSessionBundles,
+} from "./session-bundle.js";
 
 // --- Logging ---
 
@@ -74,11 +82,18 @@ const SUPPLEMENTAL_PROMPT_VAR_NAMES = [
   "CODEX_REVIEW_FILE",
   "ORCHESTRATOR_SOURCE_ACTION",
   "ORCHESTRATOR_SOURCE_CONCLUSION",
+  "ORCHESTRATOR_SOURCE_RECOMMENDED_NEXT_STEP",
   "ORCHESTRATOR_SOURCE_RUN_ID",
   "ORCHESTRATOR_NEXT_TARGET_NUMBER",
+  "ORCHESTRATOR_SOURCE_HANDOFF_CONTEXT",
+  "ORCHESTRATOR_SELF_APPROVE_ENABLED",
+  "ORCHESTRATOR_SELF_MERGE_ENABLED",
   "ORCHESTRATOR_CONTEXT",
   "ORCHESTRATOR_CURRENT_ROUND",
   "ORCHESTRATOR_MAX_ROUNDS",
+  "SELF_APPROVE_EXPECTED_HEAD_SHA",
+  "SELF_APPROVE_SOURCE_CONCLUSION",
+  "SELF_APPROVE_SOURCE_RECOMMENDED_NEXT_STEP",
 ] as const;
 
 // --- Envelope from env ---
@@ -118,12 +133,27 @@ const PROMPT_TEMPLATES: Record<string, string> = {
   "rubrics-initialization": ".github/prompts/rubrics-initialization.md",
   "rubrics-update": ".github/prompts/rubrics-update.md",
   orchestrator: ".github/prompts/agent-orchestrator.md",
+  "agent-self-approve": ".github/prompts/agent-self-approve.md",
 };
+
+const VALID_SKILL_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
+function isRegularFile(path: string): boolean {
+  try {
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
+}
+
+function isSafeRelativePath(path: string): boolean {
+  return path !== "" && !isAbsolute(path) && !path.split(/[\\/]+/).includes("..");
+}
 
 /**
  * Resolves the prompt template path from multiple sources:
  * 1. PROMPT_NAME env var → look up in PROMPT_TEMPLATES or .github/prompts/<name>.md
- * 2. SKILL_NAME env var → .skills/<name>/SKILL.md
+ * 2. SKILL_NAME env var → <skill_root>/<name>/SKILL.md
  * 3. Fall back to route-based lookup in PROMPT_TEMPLATES
  */
 function resolveTemplatePath(route: string, repoRoot: string): string | null {
@@ -142,9 +172,10 @@ function resolveTemplatePath(route: string, repoRoot: string): string | null {
   }
 
   if (skillName) {
-    // Named skill: .skills/<name>/SKILL.md
-    const p = join(repoRoot, ".skills", skillName, "SKILL.md");
-    if (existsSync(p)) return p;
+    const skillRoot = process.env.SKILL_ROOT?.trim() || ".skills";
+    if (!VALID_SKILL_NAME.test(skillName) || !isSafeRelativePath(skillRoot)) return null;
+    const p = join(repoRoot, skillRoot, skillName, "SKILL.md");
+    if (isRegularFile(p)) return p;
     return null;
   }
 
@@ -319,19 +350,18 @@ function main(): void {
   promptVars.GITHUB_REPOSITORY = promptVars.REPO_SLUG;
 
   const prompt = renderPrompt(templatePath, promptVars, repoRoot);
-  const continuationPrompt = [
-    "Trigger metadata:",
-    `- Triggering source kind: \`${promptVars.REQUEST_SOURCE_KIND || ""}\``,
-    `- Triggering comment/review ID: \`${promptVars.REQUEST_COMMENT_ID || ""}\``,
-    `- Triggering comment/review URL: \`${promptVars.REQUEST_COMMENT_URL || ""}\``,
-    "",
-    promptVars.REQUEST_TEXT,
-  ].join("\n");
+  const continuationPrompt = buildContinuationPrompt(promptVars);
+  const resumeContinuationPrompt = selectContinuationPromptForResume({
+    route: envelope.route,
+    promptVars,
+    continuationPrompt,
+  });
 
   log("info", "Prompt rendered", {
     template: templatePath,
     prompt_length: prompt.length,
     continuation_prompt_length: continuationPrompt.length,
+    resume_prompt_mode: resumeContinuationPrompt ? "continuation" : "full",
   });
 
   // 4. Preflight
@@ -367,8 +397,15 @@ function main(): void {
   const sharedEnv = buildSharedEnv();
   const permissionMode = parsePermissionModeOrSetDefault(process.env.ACPX_PERMISSION_MODE);
   runDirectPath({
-    agent, repoRoot, prompt, continuationPrompt, envelope, permissionMode,
-    sharedEnv, runnerTemp, fileId,
+    agent,
+    repoRoot,
+    prompt,
+    continuationPrompt: resumeContinuationPrompt,
+    envelope,
+    permissionMode,
+    sharedEnv,
+    runnerTemp,
+    fileId,
   });
 }
 
@@ -378,7 +415,7 @@ function runDirectPath(opts: {
   agent: string;
   repoRoot: string;
   prompt: string;
-  continuationPrompt: string;
+  continuationPrompt?: string;
   envelope: RuntimeEnvelope;
   permissionMode: "approve-all" | "approve-reads" | "deny-all";
   sharedEnv: Record<string, string>;
@@ -503,6 +540,7 @@ function runDirectPath(opts: {
   }
 
   log("info", "Running acpx", { agent, route: envelope.route, permission_mode: permissionMode });
+  const sessionBundleMode = parseSessionBundleMode(process.env.SESSION_BUNDLE_MODE);
 
   const result = runAcpx({
     agent,
@@ -512,6 +550,9 @@ function runDirectPath(opts: {
     threadKey: envelope.thread_key,
     permissionMode,
     thoughtLevel: process.env.MODEL_REASONING_EFFORT,
+    preserveExecSession:
+      sessionPolicy === "track-only" && shouldBackupSessionBundles(sessionBundleMode, sessionPolicy),
+    preserveExecThoughtLevel: sessionPolicy === "track-only",
     resumeSessionId,
     continuationPrompt: continuationPromptAllowed ? continuationPrompt : undefined,
     env: sharedEnv,

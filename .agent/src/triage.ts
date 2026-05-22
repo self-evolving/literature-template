@@ -14,6 +14,7 @@ export const ROUTES = new Set([
   "implement",
   "fix-pr",
   "review",
+  "orchestrate",
   "create-action",
   "unsupported",
 ]);
@@ -25,12 +26,14 @@ export interface DispatchDecision {
   summary: string;
   issueTitle: string;
   issueBody: string;
+  basePr?: string;
 }
 
-const EXPLICIT_ROUTE_COMMANDS = ["answer", "implement", "fix-pr", "review", "create-action"] as const;
+const EXPLICIT_ROUTE_COMMANDS = ["answer", "implement", "fix-pr", "review", "orchestrate", "create-action"] as const;
 const LABEL_ROUTE_PREFIX = "agent/";
 const LABEL_SKILL_PREFIX = "agent/s/";
 const VALID_SKILL_LABEL = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+const DEFAULT_IMPLEMENT_ISSUE_TITLE = "Implement requested change";
 
 export interface RequestedLabelDecision {
   route: string;
@@ -40,6 +43,72 @@ export interface RequestedLabelDecision {
 export interface RequestedRouteDecision {
   route: string;
   skill: string;
+}
+
+export interface ImplementIssueMetadata {
+  issueTitle: string;
+  issueBody: string;
+  basePr?: string;
+}
+
+function normalizeOptionalBasePr(value: unknown): string {
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  const raw = String(value).trim();
+  if (!raw) {
+    return "";
+  }
+  if (!/^[1-9]\d*$/.test(raw)) {
+    throw new Error("Implement issue metadata base_pr must be a positive integer");
+  }
+
+  return raw;
+}
+
+function fallbackImplementIssueBody(originalRequest: string): string {
+  return [
+    "## Goal",
+    "Implement the requested change from the agent mention.",
+    "",
+    "## Original request",
+    originalRequest,
+    "",
+    "## Acceptance criteria",
+    "- Implement the requested change.",
+    "- Preserve existing behavior unless the request requires a change.",
+    "- Update tests or validation as needed.",
+  ].join("\n");
+}
+
+export function normalizeImplementIssueMetadata(raw: string): ImplementIssueMetadata {
+  const text = (raw ?? "").trim();
+  if (!text) {
+    throw new Error("Implement issue metadata output was empty");
+  }
+
+  const jsonStr = extractJsonObject(text);
+  if (!jsonStr) {
+    throw new Error("Implement issue metadata output did not contain a JSON object");
+  }
+
+  const payload = JSON.parse(jsonStr) as Record<string, unknown>;
+  const issueTitle = String(payload.issue_title || payload.issueTitle || "")
+    .replace(/[\r\n]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const issueBody = String(payload.issue_body || payload.issueBody || "").trim();
+  const basePr = normalizeOptionalBasePr(payload.base_pr ?? payload.basePr);
+
+  if (!issueTitle) {
+    throw new Error("Implement issue metadata output was missing issue_title");
+  }
+  if (!issueBody) {
+    throw new Error("Implement issue metadata output was missing issue_body");
+  }
+
+  return { issueTitle, issueBody, basePr };
 }
 
 /**
@@ -90,7 +159,11 @@ export function extractRequestedRouteDecision(body: string, mention: string): Re
  * Builds a deterministic routing decision for explicit slash commands so the
  * portal can skip the dispatch agent when the user already picked the route.
  */
-export function buildRequestedRouteDecision(route: string, requestText: string): DispatchDecision {
+export function buildRequestedRouteDecision(
+  route: string,
+  requestText: string,
+  implementMetadata?: ImplementIssueMetadata | null,
+): DispatchDecision {
   const normalizedRoute = String(route || "").trim().toLowerCase();
   if (
     normalizedRoute !== "skill" &&
@@ -101,6 +174,9 @@ export function buildRequestedRouteDecision(route: string, requestText: string):
 
   if (normalizedRoute === "implement") {
     const originalRequest = String(requestText || "").trim() || "No request text provided.";
+    const metadata = implementMetadata?.issueTitle && implementMetadata?.issueBody
+      ? implementMetadata
+      : null;
     return {
       route: "implement",
       // Explicit /implement is itself the approval, so the portal skips the
@@ -109,19 +185,9 @@ export function buildRequestedRouteDecision(route: string, requestText: string):
       needsApproval: false,
       confidence: "high",
       summary: "I’ll start implementing this request.",
-      issueTitle: "Implement requested change",
-      issueBody: [
-        "## Goal",
-        "Implement the requested change from the agent mention.",
-        "",
-        "## Original request",
-        originalRequest,
-        "",
-        "## Acceptance criteria",
-        "- Implement the requested change.",
-        "- Preserve existing behavior unless the request requires a change.",
-        "- Update tests or validation as needed.",
-      ].join("\n"),
+      issueTitle: metadata?.issueTitle || DEFAULT_IMPLEMENT_ISSUE_TITLE,
+      issueBody: metadata?.issueBody || fallbackImplementIssueBody(originalRequest),
+      basePr: metadata?.basePr || "",
     };
   }
 
@@ -166,6 +232,17 @@ export function buildRequestedRouteDecision(route: string, requestText: string):
       needsApproval: false,
       confidence: "high",
       summary: "I’ll start a review pass.",
+      issueTitle: "",
+      issueBody: "",
+    };
+  }
+
+  if (normalizedRoute === "orchestrate") {
+    return {
+      route: "orchestrate",
+      needsApproval: false,
+      confidence: "high",
+      summary: "I’ll start orchestration for this target.",
       issueTitle: "",
       issueBody: "",
     };
@@ -217,6 +294,9 @@ export function resolveRequestedLabel(labelName: string): RequestedLabelDecision
   }
   if (normalized === "agent/review") {
     return { route: "review", skill: "" };
+  }
+  if (normalized === "agent/orchestrate") {
+    return { route: "orchestrate", skill: "" };
   }
   if (normalized === "agent/create-action") {
     return { route: "create-action", skill: "" };
@@ -346,6 +426,25 @@ export function applyDispatchPolicy(
         needsApproval: false,
         summary:
           "Review requests are only supported from pull requests right now.",
+        issueTitle: "",
+        issueBody: "",
+      };
+    }
+
+    normalized.needsApproval = false;
+    normalized.issueTitle = "";
+    normalized.issueBody = "";
+    return normalized;
+  }
+
+  if (normalized.route === "orchestrate") {
+    if (targetKind !== "issue" && targetKind !== "pull_request") {
+      return {
+        ...normalized,
+        route: "unsupported",
+        needsApproval: false,
+        summary:
+          "Orchestration requests are currently supported on issues and pull requests only.",
         issueTitle: "",
         issueBody: "",
       };

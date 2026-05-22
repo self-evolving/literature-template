@@ -1,9 +1,11 @@
 // Agent response parsing and status determination.
 
 import {
+  buildReviewSynthesisHeadMarker,
   buildReviewSynthesisMarker,
   REVIEW_SYNTHESIS_HEADING,
 } from "./review-synthesis.js";
+import { buildFixPrStatusMarker } from "./fix-pr-status.js";
 
 /**
  * Run statuses for post-agent workflow steps.
@@ -36,6 +38,12 @@ export interface StatusCommentData {
   prUrl?: string;
   requestedBy?: string;
   approvalCommentUrl?: string;
+}
+
+function formatMention(loginOrHandle: string): string {
+  const value = String(loginOrHandle || "").trim();
+  if (!value) return "";
+  return value.startsWith("@") ? value : `@${value}`;
 }
 
 export function formatImplementComment(data: StatusCommentData): string {
@@ -76,16 +84,20 @@ export function formatImplementComment(data: StatusCommentData): string {
 }
 
 export function formatFixPrComment(data: StatusCommentData): string {
+  const marker = buildFixPrStatusMarker();
   switch (data.status) {
     case "success": {
       let line = `**Sepo pushed fixes for this PR.** Branch: \`${data.branch ?? ""}\`.`;
-      if (data.requestedBy) line += ` Requested by @${data.requestedBy}.`;
+      const requestedBy = data.requestedBy ? formatMention(data.requestedBy) : "";
+      if (requestedBy) line += ` Requested by ${requestedBy}.`;
       if (data.approvalCommentUrl) line += ` Approval: ${data.approvalCommentUrl}.`;
-      return [line, "", data.summary ?? ""].join("\n");
+      return [line, "", marker, "", data.summary ?? ""].join("\n");
     }
     case "no_changes":
       return [
         "**Sepo did not produce code changes for this PR.**",
+        "",
+        marker,
         "",
         "Please add more context or restate the requested fixes, then try again.",
         "",
@@ -95,6 +107,8 @@ export function formatFixPrComment(data: StatusCommentData): string {
       return [
         "**Sepo made changes, but lightweight verification failed.**",
         "",
+        marker,
+        "",
         "Inspect the workflow logs before retrying the PR fix run.",
         "",
         data.summary ?? "",
@@ -103,12 +117,16 @@ export function formatFixPrComment(data: StatusCommentData): string {
       return [
         "**Sepo could not update this PR automatically.**",
         "",
+        marker,
+        "",
         "PR fix runs currently support open same-repository pull requests only.",
         data.approvalCommentUrl ? `- Approval: ${data.approvalCommentUrl}` : "",
       ].filter(Boolean).join("\n");
     default:
       return [
         "**Sepo could not complete the PR fix run.**",
+        "",
+        marker,
         "",
         "Inspect the workflow logs and retry if appropriate.",
         "",
@@ -121,18 +139,33 @@ export function formatReviewComment(data: {
   synthesisBody: string;
   requestedBy?: string;
   approvalCommentUrl?: string;
+  reviewedHeadSha?: string;
 }): string {
   const lines = [
     REVIEW_SYNTHESIS_HEADING,
     "",
     buildReviewSynthesisMarker(),
-    "",
-    "> Dual-agent review by **Claude** and **Codex**.",
   ];
+  const headMarker = buildReviewSynthesisHeadMarker(data.reviewedHeadSha || "");
+  if (headMarker) lines.push(headMarker);
+  lines.push("", "> Dual-agent review by **Claude** and **Codex**.");
   if (data.requestedBy) lines.push(`> Requested by @${data.requestedBy}.`);
   if (data.approvalCommentUrl) lines.push(`> Approval comment: ${data.approvalCommentUrl}`);
   lines.push("", data.synthesisBody);
   return lines.join("\n");
+}
+
+function escapeMarkdownLinkText(text: string): string {
+  return text.replace(/\\/g, "\\\\").replace(/\]/g, "\\]");
+}
+
+function formatBranchReference(ref: string, repoSlug?: string): string {
+  const normalizedRepoSlug = String(repoSlug || "").trim();
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(normalizedRepoSlug)) {
+    return `\`${ref}\``;
+  }
+  const encodedRef = ref.split("/").map(encodeURIComponent).join("/");
+  return `[\`${escapeMarkdownLinkText(ref)}\`](https://github.com/${normalizedRepoSlug}/tree/${encodedRef})`;
 }
 
 export function formatRubricsUpdateComment(data: {
@@ -140,18 +173,20 @@ export function formatRubricsUpdateComment(data: {
   rubricsRef: string;
   rubricsCommitted: boolean;
   runSucceeded: boolean;
+  repoSlug?: string;
   summary?: string;
 }): string {
   const prNumber = String(data.prNumber || "").trim() || "unknown";
   const rubricsRef = String(data.rubricsRef || "").trim() || "agent/rubrics";
+  const rubricsRefLink = formatBranchReference(rubricsRef, data.repoSlug);
   const lines = ["## Rubrics Update", ""];
 
   if (!data.runSucceeded) {
     lines.push(`Rubrics update did not complete successfully for PR #${prNumber}; inspect the workflow logs.`);
   } else if (data.rubricsCommitted) {
-    lines.push(`Updated \`${rubricsRef}\` from PR #${prNumber}.`);
+    lines.push(`Updated ${rubricsRefLink} from PR #${prNumber}.`);
   } else {
-    lines.push(`No changes were committed to \`${rubricsRef}\` from PR #${prNumber}.`);
+    lines.push(`No changes were committed to ${rubricsRefLink} from PR #${prNumber}.`);
   }
 
   const summary = String(data.summary || "").trim();
