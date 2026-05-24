@@ -4,8 +4,8 @@ title: Prefer explicit structured inputs
 description: >-
   When adding workflow, CLI, planner, or agent-facing inputs, prefer separate
   typed fields with clear validation over encoding multiple meanings or commands
-  into one string value. Fail clearly on ambiguous combinations instead of
-  relying on implicit precedence.
+  into one string value. Avoid duplicate knobs for the same decision, and fail
+  clearly on ambiguous combinations instead of relying on implicit precedence.
 type: generic
 domain: coding_workflow
 applies_to:
@@ -20,3 +20,7 @@ examples:
     note: >-
       The accepted design kept `base_branch` and `base_pr` as separate validated
       inputs rather than overloading one field with a mini-language.
+  - source: https://github.com/self-evolving/repo/pull/337#issuecomment-4526906972
+    note: >-
+      The requester asked to remove a duplicated global provider knob because it
+      made configuration precedence harder to explain.
