@@ -5,7 +5,9 @@ description: >-
   Consult relevant project or product documentation and linked GitHub context,
   such as parent issues, discussions, project plans, and prior review threads,
   before implementing, reviewing, or advising on behavior that is documented,
-  likely to have changed, or part of a larger plan.
+  likely to have changed, version-sensitive, or part of a larger plan. When
+  external tool behavior matters, verify the installed or locked version and
+  provide reference links when advising.
 type: generic
 domain: coding_workflow
 applies_to:
@@ -21,3 +23,8 @@ examples:
   - note: >-
       User explicitly asked the review agent to evaluate the PR in the context
       of the broader project goals in issue #24 and discussion #1.
+  - source: https://github.com/self-evolving/repo/pull/363#issuecomment-4571196495
+    note: >-
+      The requester asked for a final answer-only check against ACPX
+      documentation, including whether the version in use matched the cited
+      behavior and reference links.
