@@ -80,6 +80,7 @@ permissions:
 
 jobs:
   prepare:
+    if: vars.AGENT_ENABLED != 'false'
     permissions:
       actions: read
       contents: read
@@ -122,7 +123,7 @@ jobs:
     # Ordering-only: capture the reviewed head before reviewer lanes when
     # prepare succeeds. Reviewers still run without provenance if prepare fails.
     needs: [prepare]
-    if: ${{ !cancelled() }}
+    if: ${{ vars.AGENT_ENABLED != 'false' && !cancelled() }}
     # Reviewer lanes are best-effort; synthesis fails later if no lane uploads a review.
     continue-on-error: true
     permissions:
@@ -185,8 +186,10 @@ jobs:
         with:
           agent: ${{ matrix.agent }}
           github_token: ${{ steps.auth.outputs.token }}
+          secondary_github_token: ${{ secrets.AGENT_SECONDARY_GITHUB_TOKEN }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           permission_mode: ${{ matrix.permission_mode }}
           prompt: review
           reasoning_effort: ${{ matrix.reasoning_effort }}
@@ -229,6 +232,7 @@ jobs:
           retention-days: 30
 
   rubrics-review:
+    if: vars.AGENT_ENABLED != 'false'
     uses: ./.github/workflows/agent-rubrics-review.yml
     with:
       pr_number: ${{ inputs.pr_number }}
@@ -243,7 +247,7 @@ jobs:
 
   synthesize:
     needs: [prepare, review]
-    if: ${{ !cancelled() }}
+    if: ${{ vars.AGENT_ENABLED != 'false' && !cancelled() }}
     permissions:
       # Synthesize is the only review-path job that writes memory, so it's the
       # only one that needs contents:write. Running after both reviewers
@@ -297,6 +301,8 @@ jobs:
           default_provider: ${{ vars.AGENT_DEFAULT_PROVIDER || 'auto' }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model_policy: ${{ vars.AGENT_MODEL_POLICY || '' }}
 
       - name: Setup agent runtime
         id: runtime
@@ -319,11 +325,15 @@ jobs:
         with:
           agent: ${{ steps.synthesis_provider.outputs.provider }}
           github_token: ${{ steps.auth.outputs.token }}
+          secondary_github_token: ${{ secrets.AGENT_SECONDARY_GITHUB_TOKEN }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           claude_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: ${{ steps.synthesis_provider.outputs.model }}
+          display_model: ${{ vars.AGENT_DISPLAY_MODEL || '' }}
           permission_mode: approve-all
           prompt: review-synthesize
-          reasoning_effort: ${{ steps.synthesis_provider.outputs.provider == 'claude' && 'max' || 'xhigh' }}
+          reasoning_effort: ${{ steps.synthesis_provider.outputs.reasoning_effort || (steps.synthesis_provider.outputs.provider == 'claude' && 'max' || 'xhigh') }}
           lane: synthesize
           memory_ref: ${{ vars.AGENT_MEMORY_REF || 'agent/memory' }}
           memory_policy: ${{ vars.AGENT_MEMORY_POLICY || '' }}
@@ -351,6 +361,7 @@ jobs:
           GH_TOKEN: ${{ steps.auth.outputs.token }}
           REQUESTED_BY: ${{ inputs.requested_by }}
           RESPONSE_FILE: ${{ steps.synthesis.outputs.response_file }}
+          MODEL_DISPLAY: ${{ steps.synthesis.outputs.model_display }}
           REVIEWED_HEAD_SHA: ${{ needs.prepare.outputs.reviewed_head_sha }}
           ROUTE: review
           STATUS: success

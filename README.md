@@ -72,6 +72,10 @@ Optional Giscus overrides:
 
 If any of `GISCUS_REPO`, `GISCUS_REPO_ID`, `GISCUS_CATEGORY`, or `GISCUS_CATEGORY_ID` is overridden, all four must be provided together. Comments render on documentation content pages and can be disabled per page with frontmatter: `comments: false`.
 
+## Sepo controls
+
+Sepo workflows can be paused without disabling GitHub Actions globally by setting the repository variable `AGENT_ENABLED=false`. Remove the variable or set it to `true` to allow packaged `agent-*.yml` jobs to run again.
+
 ## Source sync configuration
 
 The `Sync source docs` GitHub Actions workflow refreshes `content/**` on:

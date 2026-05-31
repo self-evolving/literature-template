@@ -1,4 +1,6 @@
-# Session continuity
+---
+title: "Session continuity"
+---
 
 Persistent session continuity can optionally use GitHub Actions artifacts to carry local agent session files across runs. This is useful when the next run lands on a fresh machine and local `HOME` state is not sticky.
 
@@ -10,6 +12,12 @@ The shared `run-agent-task` action accepts `session_policy`:
 - `track-only`: run one-shot without a stable named ACP session while still updating thread state for run metadata
 - `resume-best-effort`: use a persistent named ACP session when a resumable identity is available, but fall back fresh when continuity cannot be restored
 - `resume-required`: use a persistent named ACP session and fail when an existing thread cannot satisfy the continuity requirement
+
+Codex `none` exec runs that receive a configured reasoning effort may create a
+fresh per-run ACP session only to apply `thought_level`, because ACPX exposes
+that option through session configuration rather than a global exec flag. That
+session name is random, is not written as thread state, and is not restored or
+reused by later runs.
 
 `track-only` intentionally does not ensure or prompt a stable named ACP session.
 Codex `track-only` runs that need a `thought_level` may use a fresh per-run ACP
@@ -91,7 +99,7 @@ flowchart TD
 - resumed orchestrator-launched `fix-pr` runs with non-empty handoff context replay the full current route prompt so the latest planner instructions are not lost to a lightweight continuation prompt
 - self-hosted runners can choose to set `AGENT_SESSION_BUNDLE_MODE=never` to prefer local session state over artifact-backed continuity, but the backend does not switch this automatically
 
-See [Self-hosted GitHub Action runner](../deployment/self-hosted-github-action-runner.md) for the runner side of that trade-off.
+See [Self-hosted GitHub Action runner](../setup/self-hosted-github-action-runner.md) for the runner side of that trade-off.
 
 ## Backed-up session files
 

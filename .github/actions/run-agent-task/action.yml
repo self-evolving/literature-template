@@ -21,16 +21,24 @@ inputs:
     description: "acpx agent to use"
     required: false
     default: codex
+  model:
+    description: "Optional acpx model id to request"
+    required: false
+    default: ""
   permission_mode:
     description: "acpx permission mode (approve-all, approve-reads, deny-all)"
     required: false
     default: approve-all
+  display_model:
+    description: "Whether to expose provider/model/reasoning metadata for comments"
+    required: false
+    default: "false"
   reasoning_effort:
     description: "Model reasoning effort level"
     required: false
     default: xhigh
   route:
-    description: "Envelope route (implement, review, fix-pr, answer, create-action, dispatch, agent-self-approve, agent-self-merge, skill, rubrics-review, rubrics-initialization, rubrics-update)"
+    description: "Envelope route (implement, review, fix-pr, answer, create-action, dispatch, agent-self-approve, agent-self-merge, skill, install, rubrics-review, rubrics-initialization, rubrics-update)"
     required: true
   lane:
     description: "Logical lane for thread/session identity (defaults to 'default')"
@@ -63,6 +71,10 @@ inputs:
   github_token:
     description: "GitHub token for API access"
     required: true
+  secondary_github_token:
+    description: "Optional read-only secondary GitHub token for external repo context"
+    required: false
+    default: ""
   openai_api_key:
     description: "OpenAI API key for Codex"
     required: false
@@ -70,6 +82,10 @@ inputs:
   claude_oauth_token:
     description: "Claude Code OAuth token"
     required: false
+  anthropic_api_key:
+    description: "Anthropic API key for Claude Code"
+    required: false
+    default: ""
   session_policy:
     description: "Session continuity policy (none, track-only, resume-best-effort, resume-required)"
     required: true
@@ -134,6 +150,12 @@ outputs:
   session_name:
     description: "acpx session name (if persistent)"
     value: ${{ steps.run.outputs.session_name }}
+  model:
+    description: "acpx model id reported by the run, or the requested model id"
+    value: ${{ steps.run.outputs.model }}
+  model_display:
+    description: "Markdown-ready provider/model/reasoning footer when display_model is enabled"
+    value: ${{ steps.run.outputs.model_display }}
   acpx_record_id:
     description: "acpx record ID"
     value: ${{ steps.run.outputs.acpx_record_id }}
@@ -200,6 +222,12 @@ outputs:
   rubrics_committed:
     description: "Whether the agent produced rubric edits that were committed and pushed"
     value: ${{ steps.commit_rubrics.outputs.committed }}
+  install_status:
+    description: "Structured /install publish status from install-fork-pr helper"
+    value: ${{ steps.run.outputs.install_status }}
+  install_pr_url:
+    description: "Structured /install target pull request URL from install-fork-pr helper"
+    value: ${{ steps.run.outputs.install_pr_url }}
 
 runs:
   using: composite
@@ -300,10 +328,14 @@ runs:
       shell: bash
       env:
         ACPX_AGENT: ${{ inputs.agent }}
+        MODEL_ID: ${{ inputs.model }}
+        DISPLAY_MODEL: ${{ inputs.display_model }}
         ACPX_PERMISSION_MODE: ${{ inputs.permission_mode }}
         INPUT_GITHUB_TOKEN: ${{ inputs.github_token }}
+        INPUT_SECONDARY_GITHUB_TOKEN: ${{ inputs.secondary_github_token }}
         INPUT_OPENAI_API_KEY: ${{ inputs.openai_api_key }}
         CLAUDE_CODE_OAUTH_TOKEN: ${{ inputs.claude_oauth_token }}
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
         MEMORY_AVAILABLE: ${{ steps.memory.outputs.memory_available }}
         MEMORY_DIR: ${{ steps.memory.outputs.memory_dir }}
         MEMORY_REF: ${{ steps.memory.outputs.memory_ref }}
