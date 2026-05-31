@@ -1,0 +1,26 @@
+schema_version: 1
+id: keep-temporary-migration-notes-out-of-durable-docs
+title: Keep temporary migration notes out of durable docs
+description: >-
+  Avoid putting one-time migration caveats or short-lived operational notices in
+  stable user-facing documentation. Place them in the narrow workflow, prompt,
+  release, or run guidance where affected users will see them, and remove or
+  retire the notice once the transition has passed.
+type: generic
+domain: communication
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 6
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/pull/369#discussion_r3329320441
+    note: >-
+      The requester objected to adding a migration note to stable workflow docs
+      because it would make documentation unsustainable.
+  - source: https://github.com/self-evolving/repo/pull/369#discussion_r3329321294
+    note: >-
+      The requester suggested putting the migration notice in the targeted
+      update prompt instead, with later removal considered.
