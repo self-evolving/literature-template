@@ -1,0 +1,21 @@
+schema_version: 1
+id: implicit-followups-prefer-silence
+title: Prefer silence for ambiguous implicit follow-ups
+description: >-
+  When handling unmentioned comments on agent-labeled threads, use communication
+  rubrics to decide whether the user is clearly addressing Sepo. Respond only to
+  clear follow-up questions or clarification requests, route them as answers,
+  and ignore thanks, status updates, human-to-human discussion, or ambiguous
+  comments. When uncertain, prefer no reply.
+type: specific
+domain: communication
+applies_to:
+  - answer
+severity: should
+weight: 8
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/issues/124#issuecomment-4535732453
+    note: >-
+      The requester asked that implicit follow-up handling have rubrics and learn
+      with the communication model.
