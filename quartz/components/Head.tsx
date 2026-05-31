@@ -4,7 +4,7 @@ import { CSSResourceToStyleElement, JSResourceToScriptElement } from "../util/re
 import { googleFontHref, googleFontSubsetHref } from "../util/theme"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { unescapeHTML } from "../util/escape"
-import { CustomOgImagesEmitterName } from "../plugins/emitters/ogImage"
+import { CustomOgImagesEmitterName } from "../../.quartz/plugins"
 export default (() => {
   const Head: QuartzComponent = ({
     cfg,
@@ -12,11 +12,9 @@ export default (() => {
     externalResources,
     ctx,
   }: QuartzComponentProps) => {
-    const isIndexPage = fileData.slug === "index" || fileData.slug === ""
-    const titleSuffix = isIndexPage ? "" : (cfg.pageTitleSuffix ?? "")
-    const pageTitle = fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title
-    const title = pageTitle + titleSuffix
-    const socialTitle = fileData.frontmatter?.socialTitle ?? pageTitle
+    const titleSuffix = cfg.pageTitleSuffix ?? ""
+    const title =
+      (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title) + titleSuffix
     const description =
       fileData.frontmatter?.socialDescription ??
       fileData.frontmatter?.description ??
@@ -27,8 +25,6 @@ export default (() => {
     const url = new URL(`https://${cfg.baseUrl ?? "example.com"}`)
     const path = url.pathname as FullSlug
     const baseDir = fileData.slug === "404" ? path : pathToRoot(fileData.slug!)
-    const icon16Path = joinSegments(baseDir, "static/icon-16.png")
-    const icon128Path = joinSegments(baseDir, "static/icon-128.png")
     const iconPath = joinSegments(baseDir, "static/icon.png")
 
     // Url of current page
@@ -39,9 +35,6 @@ export default (() => {
       (e) => e.name === CustomOgImagesEmitterName,
     )
     const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image.png`
-    const redirect = fileData.frontmatter?.redirect
-    const redirectUrl = typeof redirect === "string" && redirect.length > 0 ? redirect : undefined
-    const canonicalRedirectUrl = redirectUrl ? new URL(redirectUrl, url).toString() : undefined
 
     return (
       <head>
@@ -57,18 +50,14 @@ export default (() => {
             )}
           </>
         )}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Bitcount+Ink&family=Caveat:wght@600;700&family=DynaPuff:wght@500;600;700&family=Nabla&display=swap"
-        />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <meta name="og:site_name" content={cfg.pageTitle}></meta>
-        <meta property="og:title" content={socialTitle} />
+        <meta property="og:title" content={title} />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={socialTitle} />
+        <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta property="og:description" content={description} />
         <meta property="og:image:alt" content={description} />
@@ -93,22 +82,7 @@ export default (() => {
           </>
         )}
 
-        {redirectUrl && (
-          <>
-            <link rel="canonical" href={canonicalRedirectUrl} />
-            <meta name="robots" content="noindex" />
-            <meta httpEquiv="refresh" content={`0; url=${redirectUrl}`} />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.location.replace(${JSON.stringify(redirectUrl)})`,
-              }}
-            />
-          </>
-        )}
-
-        <link rel="icon" href={icon16Path} sizes="16x16" type="image/png" />
-        <link rel="icon" href={icon128Path} sizes="128x128" type="image/png" />
-        <link rel="icon" href={iconPath} type="image/png" />
+        <link rel="icon" href={iconPath} />
         <meta name="description" content={description} />
         <meta name="generator" content="Quartz" />
 

@@ -96,9 +96,7 @@ async function mouseEnterHandler(
         const targetID = `popover-internal-${el.id}`
         el.id = targetID
       })
-      const elts = [...html.getElementsByClassName("popover-hint")].filter(
-        (elt) => elt.children.length > 0 || (elt.textContent?.trim().length ?? 0) > 0,
-      )
+      const elts = [...html.getElementsByClassName("popover-hint")]
       if (elts.length === 0) return
 
       elts.forEach((elt) => popoverInner.appendChild(elt))
@@ -122,7 +120,7 @@ function clearActivePopover() {
   allPopoverElements.forEach((popoverElement) => popoverElement.classList.remove("active-popover"))
 }
 
-document.addEventListener("nav", () => {
+function setupPopovers() {
   const links = [...document.querySelectorAll("a.internal")] as HTMLAnchorElement[]
   for (const link of links) {
     link.addEventListener("mouseenter", mouseEnterHandler)
@@ -132,4 +130,7 @@ document.addEventListener("nav", () => {
       link.removeEventListener("mouseleave", clearActivePopover)
     })
   }
-})
+}
+
+document.addEventListener("nav", setupPopovers)
+document.addEventListener("render", setupPopovers)
