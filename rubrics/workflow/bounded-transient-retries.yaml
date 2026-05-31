@@ -1,0 +1,24 @@
+schema_version: 1
+id: bounded-transient-retries
+title: Bound transient retries
+description: >-
+  When agent or automation work invokes external services, retry only likely
+  transient server, rate-limit, timeout, or connection failures with a bounded
+  backoff. Keep deterministic failures such as auth denial, missing
+  permissions, invalid refs, validation errors, and non-fast-forward or lease
+  conflicts terminal unless there is a specific proven transient signature.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 7
+status: active
+examples:
+  - source: https://github.com/self-evolving/repo/issues/353#issuecomment-4548532192
+    note: >-
+      The requester asked agents to wait and retry transient in-session errors
+      for only a bounded period, while keeping the harness fix targeted to auth
+      issuing rather than broad retry behavior.
