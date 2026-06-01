@@ -107,6 +107,23 @@ Giscus comments are disabled by default. To enable them, set `GISCUS_ENABLED=tru
 
 This is separate from the future transient-review surface described in issue #65, which should render GitHub content directly rather than committing transient Markdown files.
 
+## Literature workflows
+
+This template includes two opt-in Sepo literature workflows adapted from `self-evolving/literature`:
+
+- `Agent / Daily Literature` (`.github/workflows/agent-literature-daily.yml`) researches recent papers and posts a GitHub Discussion. The Discussion body uses mobile-friendly item cards instead of a giant table, and each item is posted as its own top-level Discussion comment so follow-up can happen per paper/source.
+- `Agent / Add Paper` (`.github/workflows/agent-add-paper.yml`) accepts a paper URL, arXiv ID, DOI, title, PDF URL, or BibTeX entry and opens a PR that updates `bibliography.bib` plus the matching `content/papers/` note.
+
+Both workflows use the `agent-literature` GitHub Environment for research-tool secrets:
+
+```bash
+gh secret set SERPER_API_KEY --env agent-literature --repo OWNER/REPO
+gh secret set S2_API_KEY --env agent-literature --repo OWNER/REPO
+gh secret set JINA_API_KEY --env agent-literature --repo OWNER/REPO
+```
+
+Manual dispatch is available by default. Scheduled daily literature runs are disabled unless the repository variable `AGENT_LITERATURE_DAILY_ENABLED=true` is set.
+
 ## Sepo controls
 
 Sepo workflows can be paused without disabling GitHub Actions globally by setting the repository variable `AGENT_ENABLED=false`. Remove the variable or set it to `true` to allow packaged `agent-*.yml` jobs to run again.
