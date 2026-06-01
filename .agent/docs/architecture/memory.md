@@ -1,8 +1,10 @@
-# Repository memory
+---
+title: "Repository memory"
+---
 
 The agent composes long-lived memory across runs on a dedicated `agent/memory` branch. Memory is **agentic**: the main agent (on `answer`, `implement`, `fix-pr`, `review`, `skill`) reads and writes memory directly during normal tasks, using a pair of CLIs. Dedicated scheduled workflows curate memory outside user-driven work.
 
-Memory is separate from [user/team rubrics](./rubrics.md). Memory captures agent/project continuity and lessons the agent uses to improve its own work; rubrics capture normative user preferences used to steer implementation and score reviews.
+Memory is separate from [user/team rubrics](rubrics.md). Memory captures agent/project continuity and lessons the agent uses to improve its own work; rubrics capture normative user preferences used to steer implementation and score reviews.
 
 ## Branch layout
 
@@ -121,7 +123,7 @@ The dedicated memory workflows can still bootstrap the memory tree when the bran
 
 ## Scheduled workflow policy: `AGENT_SCHEDULE_POLICY`
 
-`AGENT_SCHEDULE_POLICY` is an optional repository variable that controls scheduled workflow runs. It applies only to `schedule` events; manual `workflow_dispatch` runs remain available for debugging and recovery.
+`AGENT_SCHEDULE_POLICY` is an optional repository variable that controls scheduled workflow runs. It applies only to `schedule` events; manual `workflow_dispatch` runs remain available for debugging and recovery. To pause all Sepo workflow entry points, including manual dispatch, set the global `AGENT_ENABLED` repository variable to `false`.
 
 **Default**: scheduled workflows use `skip_no_updates`, with `agent-daily-summary.yml` set to `disabled` and `agent-memory-sync.yml` set to `always_run`.
 

@@ -94,6 +94,10 @@ exit 1
     const log = readFileSync(logPath, "utf8");
     assert.match(log, /^label create agent\/answer --color 1f883d --description Ask Sepo to answer/m);
     assert.match(log, /^label create agent\/orchestrate --color fb8c00 --description Ask Sepo to run/m);
+    assert.match(
+      log,
+      /^label create agent-goal --color 5319e7 --description Marks an issue as a repository-level goal for Sepo planning/m,
+    );
     assert.match(log, /^issue create --title Sepo setup check --body-file .+ --repo self-evolving\/repo$/m);
     assert.match(log, /^issue comment 77 --body <!-- sepo-agent-onboarding-check -->/m);
     const issueBody = readOnboardingIssueBody(
@@ -109,14 +113,20 @@ exit 1
     assert.match(log, /Agent provider: `codex` \(OPENAI_API_KEY is configured\)/);
     assert.match(log, /Memory: initialized \(`agent\/memory`\)/);
     assert.match(log, /Rubrics: not initialized/);
-    assert.match(log, /Optional: run \*\*Actions > Agent \/ Rubrics \/ Initialization\*\*\./);
+    assert.match(
+      log,
+      /Optional: run \*\*\[Actions > Agent \/ Rubrics \/ Initialization\]\(https:\/\/github.com\/self-evolving\/repo\/actions\/workflows\/agent-rubrics-initialization\.yml\)\*\*\./,
+    );
     assert.match(log, /### Remaining setup/);
-    assert.match(log, /Optional: initialize rubrics branch `agent\/rubrics`\./);
+    assert.match(
+      log,
+      /Optional: run \[Agent \/ Rubrics \/ Initialization\]\(https:\/\/github.com\/self-evolving\/repo\/actions\/workflows\/agent-rubrics-initialization\.yml\) to initialize rubrics branch `agent\/rubrics`\./,
+    );
     assert.match(log, /### Test Sepo/);
     assert.match(log, /@sepo-agent \/answer Is Sepo configured correctly in this repository\?/);
     assert.match(log, /@sepo-agent \/implement Create a small README update that verifies the agent can open a PR\./);
     assert.match(log, /@sepo-agent \/review/);
-    assert.match(log, /Last checked: https:\/\/github.com\/self-evolving\/repo\/actions\/runs\/1/);
+    assert.match(log, /Last checked: \[GitHub Actions run\]\(https:\/\/github.com\/self-evolving\/repo\/actions\/runs\/1\)/);
     assert.doesNotMatch(log, /Built-in trigger labels:/);
     assert.doesNotMatch(log, /`agent\/fix-pr` ->/);
     assert.match(log, /agent\/fix-pr/);
@@ -180,11 +190,74 @@ exit 1
     assert.match(log, /^api -X PATCH repos\/self-evolving\/repo\/issues\/comments\/123 -f body=<!-- sepo-agent-onboarding-check -->/m);
     assert.match(log, /GitHub App\/auth: not resolved/);
     assert.match(log, /Model credentials: not configured/);
-    assert.match(log, /Add `OPENAI_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` as a repository secret\./);
+    assert.match(
+      log,
+      /Add `OPENAI_API_KEY`, `CLAUDE_CODE_OAUTH_TOKEN`, or `ANTHROPIC_API_KEY` in \[repository Actions secrets\]\(https:\/\/github.com\/self-evolving\/repo\/settings\/secrets\/actions\)\./,
+    );
     assert.match(log, /Memory: not initialized/);
-    assert.match(log, /Run \*\*Actions > Agent \/ Memory \/ Initialization\*\*\./);
-    assert.match(log, /Configure one model provider credential\./);
+    assert.match(
+      log,
+      /Run \*\*\[Actions > Agent \/ Memory \/ Initialization\]\(https:\/\/github.com\/self-evolving\/repo\/actions\/workflows\/agent-memory-bootstrap\.yml\)\*\*\./,
+    );
+    assert.match(
+      log,
+      /Configure one model provider credential in \[repository Actions secrets\]\(https:\/\/github.com\/self-evolving\/repo\/settings\/secrets\/actions\)\./,
+    );
     assert.doesNotMatch(log, /Built-in trigger labels:/);
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("onboarding-check CLI reports configured Anthropic API key", () => {
+  const tempDir = mkdtempSync(join(tmpdir(), "agent-onboarding-"));
+
+  try {
+    const logPath = join(tempDir, "gh.log");
+    writeFakeGh(
+      tempDir,
+      `#!/usr/bin/env bash
+printf '%s\\n' "$*" >> "$FAKE_GH_LOG"
+if [ "$1" = "label" ] && [ "$2" = "list" ]; then
+  printf '%s\\n' "$4"
+  exit 0
+fi
+if [ "$1" = "api" ] && [[ "$2" == repos/*/git/matching-refs/heads/* ]]; then
+  exit 0
+fi
+if [ "$1" = "issue" ] && [ "$2" = "list" ]; then
+  printf '[{"number":9,"title":"Sepo setup check"}]'
+  exit 0
+fi
+if [ "$1" = "api" ] && [[ "$2" == repos/*/issues/9/comments ]]; then
+  printf '[{"id":456,"body":"<!-- sepo-agent-onboarding-check --> old"}]'
+  exit 0
+fi
+if [ "$1" = "issue" ] && [ "$2" = "edit" ]; then
+  exit 0
+fi
+if [ "$1" = "api" ] && [ "$2" = "-X" ] && [ "$3" = "PATCH" ]; then
+  exit 0
+fi
+printf 'unexpected gh args: %s\\n' "$*" >&2
+exit 1
+`,
+    );
+
+    const result = runOnboarding(tempDir, {
+      AGENT_PROVIDER: "claude",
+      AGENT_PROVIDER_REASON: "ANTHROPIC_API_KEY is configured",
+      ANTHROPIC_API_KEY_CONFIGURED: "true",
+      AUTH_MODE: "oidc_broker",
+      FAKE_GH_LOG: logPath,
+      GITHUB_REPOSITORY: "self-evolving/repo",
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    const log = readFileSync(logPath, "utf8");
+    assert.match(log, /Model credentials: `ANTHROPIC_API_KEY` configured/);
+    assert.match(log, /Agent provider: `claude` \(ANTHROPIC_API_KEY is configured\)/);
+    assert.doesNotMatch(log, /Model credentials: not configured/);
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }

@@ -6,6 +6,15 @@ import { BUILT_IN_TRIGGER_LABELS } from "./trigger-labels.js";
 
 const ONBOARDING_TITLE = "Sepo setup check";
 const COMMENT_MARKER = "<!-- sepo-agent-onboarding-check -->";
+const SEPO_APP_INSTALL_URL = "https://github.com/apps/sepo-agent-app/installations/select_target";
+const SEPO_SETUP_GUIDE_URL = "https://github.com/self-evolving/repo/blob/main/.agent/docs/setup/setup-guide.md";
+const REPOSITORY_MANAGEMENT_LABELS = [
+  {
+    name: "agent-goal",
+    color: "5319e7",
+    description: "Marks an issue as a repository-level goal for Sepo planning",
+  },
+];
 
 export interface OnboardingOptions {
   repo: string;
@@ -14,6 +23,7 @@ export interface OnboardingOptions {
   providerReason: string;
   openaiConfigured: boolean;
   claudeConfigured: boolean;
+  anthropicConfigured: boolean;
   memoryRef: string;
   rubricsRef: string;
   runUrl: string;
@@ -30,8 +40,48 @@ interface ExistingComment {
   body: string;
 }
 
+interface OnboardingLinks {
+  actionsSecretsUrl: string;
+  memoryWorkflowUrl: string;
+  rubricsWorkflowUrl: string;
+  onboardingWorkflowUrl: string;
+}
+
 function apiPath(repo: string, suffix: string): string {
   return `repos/${repo}/${suffix}`;
+}
+
+function githubRepoUrl(repo: string): string {
+  const [owner = "", name = ""] = repo.trim().split("/");
+  if (!owner || !name) return "";
+  return `https://github.com/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`;
+}
+
+function onboardingLinks(repo: string): OnboardingLinks {
+  const repoUrl = githubRepoUrl(repo);
+  if (!repoUrl) {
+    return {
+      actionsSecretsUrl: "",
+      memoryWorkflowUrl: "",
+      rubricsWorkflowUrl: "",
+      onboardingWorkflowUrl: "",
+    };
+  }
+
+  return {
+    actionsSecretsUrl: `${repoUrl}/settings/secrets/actions`,
+    memoryWorkflowUrl: `${repoUrl}/actions/workflows/agent-memory-bootstrap.yml`,
+    rubricsWorkflowUrl: `${repoUrl}/actions/workflows/agent-rubrics-initialization.yml`,
+    onboardingWorkflowUrl: `${repoUrl}/actions/workflows/agent-onboarding.yml`,
+  };
+}
+
+function link(label: string, url: string): string {
+  return url ? `[${label}](${url})` : label;
+}
+
+function workflowActionLink(label: string, url: string): string {
+  return link(`Actions > ${label}`, url);
 }
 
 function branchExists(repo: string, branch: string): boolean {
@@ -112,7 +162,8 @@ function writeOnboardingIssueBody(opts: OnboardingOptions): string {
   return bodyFile;
 }
 
-function authStatusBody(authMode: string): string {
+function authStatusBody(opts: OnboardingOptions): string {
+  const authMode = opts.authMode;
   const resolvedMode = authMode.trim();
   if (resolvedMode) {
     return `- [x] GitHub App/auth: resolved via \`${resolvedMode}\``;
@@ -120,7 +171,7 @@ function authStatusBody(authMode: string): string {
 
   return [
     "- [ ] GitHub App/auth: not resolved",
-    "  - Install the Sepo GitHub App or configure a supported auth path.",
+    `  - ${link("Install the Sepo GitHub App", SEPO_APP_INSTALL_URL)} or choose another auth path from the ${link("setup guide", SEPO_SETUP_GUIDE_URL)}.`,
   ].join("\n");
 }
 
@@ -128,6 +179,7 @@ function credentialNames(opts: OnboardingOptions): string[] {
   const names: string[] = [];
   if (opts.openaiConfigured) names.push("`OPENAI_API_KEY`");
   if (opts.claudeConfigured) names.push("`CLAUDE_CODE_OAUTH_TOKEN`");
+  if (opts.anthropicConfigured) names.push("`ANTHROPIC_API_KEY`");
   return names;
 }
 
@@ -144,12 +196,12 @@ function providerDetailBody(opts: OnboardingOptions): string[] {
   return [`  - Agent provider: \`${provider}\`${reason ? ` (${reason})` : ""}`];
 }
 
-function modelStatusBody(opts: OnboardingOptions): string {
+function modelStatusBody(opts: OnboardingOptions, links: OnboardingLinks): string {
   const names = credentialNames(opts);
   if (names.length === 0) {
     return [
       "- [ ] Model credentials: not configured",
-      "  - Add `OPENAI_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN` as a repository secret.",
+      `  - Add \`OPENAI_API_KEY\`, \`CLAUDE_CODE_OAUTH_TOKEN\`, or \`ANTHROPIC_API_KEY\` in ${link("repository Actions secrets", links.actionsSecretsUrl)}.`,
       "  - Optional: configure `AGENT_DEFAULT_PROVIDER`.",
       ...providerDetailBody(opts),
     ].join("\n");
@@ -161,7 +213,14 @@ function modelStatusBody(opts: OnboardingOptions): string {
   ].join("\n");
 }
 
-function branchStatusBody(label: string, ref: string, ready: boolean, actionName: string, optional = false): string {
+function branchStatusBody(
+  label: string,
+  ref: string,
+  ready: boolean,
+  actionName: string,
+  actionUrl: string,
+  optional = false,
+): string {
   if (ready) {
     return `- [x] ${label}: initialized (\`${ref}\`)`;
   }
@@ -169,23 +228,28 @@ function branchStatusBody(label: string, ref: string, ready: boolean, actionName
   const prefix = optional ? "Optional: run" : "Run";
   return [
     `- [ ] ${label}: not initialized`,
-    `  - ${prefix} **Actions > ${actionName}**.`,
+    `  - ${prefix} **${workflowActionLink(actionName, actionUrl)}**.`,
   ].join("\n");
 }
 
-function remainingSetupBody(opts: OnboardingOptions, memoryReady: boolean, rubricsReady: boolean): string {
+function remainingSetupBody(
+  opts: OnboardingOptions,
+  memoryReady: boolean,
+  rubricsReady: boolean,
+  links: OnboardingLinks,
+): string {
   const items: string[] = [];
   if (!opts.authMode.trim()) {
-    items.push("Resolve GitHub App/auth.");
+    items.push(`${link("Install the Sepo GitHub App", SEPO_APP_INSTALL_URL)} or choose another auth path from the ${link("setup guide", SEPO_SETUP_GUIDE_URL)}.`);
   }
   if (credentialNames(opts).length === 0) {
-    items.push("Configure one model provider credential.");
+    items.push(`Configure one model provider credential in ${link("repository Actions secrets", links.actionsSecretsUrl)}.`);
   }
   if (!memoryReady) {
-    items.push(`Initialize memory branch \`${opts.memoryRef}\`.`);
+    items.push(`Run ${link("Agent / Memory / Initialization", links.memoryWorkflowUrl)} to initialize memory branch \`${opts.memoryRef}\`.`);
   }
   if (!rubricsReady) {
-    items.push(`Optional: initialize rubrics branch \`${opts.rubricsRef}\`.`);
+    items.push(`Optional: run ${link("Agent / Rubrics / Initialization", links.rubricsWorkflowUrl)} to initialize rubrics branch \`${opts.rubricsRef}\`.`);
   }
 
   if (items.length === 0) {
@@ -196,19 +260,24 @@ function remainingSetupBody(opts: OnboardingOptions, memoryReady: boolean, rubri
 }
 
 function checklistBody(opts: OnboardingOptions, memoryReady: boolean, rubricsReady: boolean): string {
+  const links = onboardingLinks(opts.repo);
+  const lastChecked = opts.runUrl
+    ? link("GitHub Actions run", opts.runUrl)
+    : link("GitHub Actions", links.onboardingWorkflowUrl);
+
   return `${COMMENT_MARKER}
 ## Sepo setup status
 
 ### Current status
 
-${authStatusBody(opts.authMode)}
-${modelStatusBody(opts)}
-${branchStatusBody("Memory", opts.memoryRef, memoryReady, "Agent / Memory / Initialization")}
-${branchStatusBody("Rubrics", opts.rubricsRef, rubricsReady, "Agent / Rubrics / Initialization", true)}
+${authStatusBody(opts)}
+${modelStatusBody(opts, links)}
+${branchStatusBody("Memory", opts.memoryRef, memoryReady, "Agent / Memory / Initialization", links.memoryWorkflowUrl)}
+${branchStatusBody("Rubrics", opts.rubricsRef, rubricsReady, "Agent / Rubrics / Initialization", links.rubricsWorkflowUrl, true)}
 
 ### Remaining setup
 
-${remainingSetupBody(opts, memoryReady, rubricsReady)}
+${remainingSetupBody(opts, memoryReady, rubricsReady, links)}
 
 ### Test Sepo
 
@@ -230,12 +299,20 @@ On an open pull request:
 @sepo-agent /review
 \`\`\`
 
-Last checked: ${opts.runUrl || "GitHub Actions"}
+Last checked: ${lastChecked}
 `;
 }
 
 export function runOnboardingCheck(opts: OnboardingOptions): number {
   for (const label of BUILT_IN_TRIGGER_LABELS) {
+    ensureLabel({
+      name: label.name,
+      color: label.color,
+      description: label.description,
+      repo: opts.repo,
+    });
+  }
+  for (const label of REPOSITORY_MANAGEMENT_LABELS) {
     ensureLabel({
       name: label.name,
       color: label.color,
