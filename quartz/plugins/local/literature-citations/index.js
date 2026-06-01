@@ -2,6 +2,70 @@ const defaultOptions = {
   papersRoot: "papers",
 }
 
+const popupCss = `
+.citation-bib-popover-wrap {
+  display: inline-block;
+  position: relative;
+}
+
+.citation-bib-popup {
+  position: absolute;
+  z-index: 1000;
+  bottom: calc(100% + 0.45rem);
+  left: 50%;
+  width: min(24rem, calc(100vw - 2rem));
+  max-width: max-content;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 0.65rem;
+  background: var(--light);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
+  color: var(--darkgray);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(0.2rem);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.citation-bib-popup::after {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-right: 1px solid var(--lightgray);
+  border-bottom: 1px solid var(--lightgray);
+  background: var(--light);
+  content: "";
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.citation-bib-popover-wrap:hover .citation-bib-popup,
+.citation-bib-popover-wrap:focus-within .citation-bib-popup {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.citation-bib-popup-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--secondary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.055em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.citation-bib-popup-entry {
+  display: block;
+}
+`
+
 function decodeCitekey(rawCitekey) {
   try {
     return decodeURIComponent(rawCitekey)
@@ -48,7 +112,7 @@ function pathToRoot(slug) {
 
 function addClasses(existing, classesToAdd) {
   const classes = Array.isArray(existing)
-    ? existing
+    ? [...existing]
     : typeof existing === "string"
       ? existing.split(/\s+/).filter(Boolean)
       : []
@@ -80,6 +144,79 @@ function citationTarget(citekey, papersRoot) {
   return joinSegments(papersRoot, slug)
 }
 
+function cloneWithoutIds(node) {
+  if (!node || typeof node !== "object") {
+    return node
+  }
+
+  const cloned = Array.isArray(node) ? [...node] : { ...node }
+  if (cloned.properties && typeof cloned.properties === "object") {
+    cloned.properties = { ...cloned.properties }
+    delete cloned.properties.id
+  }
+
+  if (Array.isArray(cloned.children)) {
+    cloned.children = cloned.children.map((child) => cloneWithoutIds(child))
+  }
+
+  return cloned
+}
+
+function citationPopup(citekey, bibliographyEntry) {
+  const entry = cloneWithoutIds(bibliographyEntry)
+  entry.tagName = "span"
+  entry.properties = {
+    ...(entry.properties ?? {}),
+    className: addClasses(entry.properties?.className, ["citation-bib-popup-entry"]),
+  }
+
+  return {
+    type: "element",
+    tagName: "span",
+    properties: {
+      className: ["citation-bib-popup"],
+      role: "tooltip",
+      "data-citekey": citekey,
+    },
+    children: [
+      {
+        type: "element",
+        tagName: "span",
+        properties: { className: ["citation-bib-popup-label"] },
+        children: [{ type: "text", value: "Reference" }],
+      },
+      entry,
+    ],
+  }
+}
+
+function collectBibliographyEntries(tree) {
+  const entries = new Map()
+
+  const visit = (node) => {
+    if (!node || typeof node !== "object") {
+      return
+    }
+
+    if (node.type === "element") {
+      const id = typeof node.properties?.id === "string" ? node.properties.id : undefined
+      const match = id?.match(/^bib-(.+)$/)
+      if (match) {
+        entries.set(decodeCitekey(match[1]), node)
+      }
+    }
+
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) {
+        visit(child)
+      }
+    }
+  }
+
+  visit(tree)
+  return entries
+}
+
 export function LiteratureCitations(userOptions = {}) {
   const options = { ...defaultOptions, ...userOptions }
   const papersRoot = stripSlashes(options.papersRoot ?? defaultOptions.papersRoot)
@@ -89,9 +226,11 @@ export function LiteratureCitations(userOptions = {}) {
     htmlPlugins(ctx) {
       return [
         () => (tree, file) => {
-          const visit = (node) => {
+          const bibliographyEntries = collectBibliographyEntries(tree)
+
+          const transform = (node) => {
             if (!node || typeof node !== "object") {
-              return
+              return node
             }
 
             if (node.type === "element" && node.tagName === "a") {
@@ -119,20 +258,45 @@ export function LiteratureCitations(userOptions = {}) {
                   delete properties.dataNoPopover
 
                   addOutgoingLink(file, targetSlug)
+                  return node
+                }
+
+                const bibliographyEntry = bibliographyEntries.get(citekey)
+                if (bibliographyEntry) {
+                  properties.className = addClasses(properties.className, ["citation-bib-link"])
+                  properties["data-citekey"] = citekey
+                  properties.title = `Show bibliography entry for ${citekey}`
+
+                  return {
+                    type: "element",
+                    tagName: "span",
+                    properties: { className: ["citation-bib-popover-wrap"] },
+                    children: [node, citationPopup(citekey, bibliographyEntry)],
+                  }
                 }
               }
             }
 
             if (Array.isArray(node.children)) {
-              for (const child of node.children) {
-                visit(child)
-              }
+              node.children = node.children.map((child) => transform(child))
             }
+
+            return node
           }
 
-          visit(tree)
+          transform(tree)
         },
       ]
+    },
+    externalResources() {
+      return {
+        css: [
+          {
+            content: popupCss,
+            inline: true,
+          },
+        ],
+      }
     },
   }
 }
