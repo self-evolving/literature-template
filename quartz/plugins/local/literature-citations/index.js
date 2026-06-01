@@ -1,5 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
+import matter from "gray-matter"
 
 const defaultOptions = {
   bibliographyFile: "./bibliography.bib",
@@ -282,32 +283,62 @@ function readBibliography(filePath) {
   }
 }
 
-function frontmatterBlock(markdown) {
-  const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---/)
-  return match?.[1]
-}
-
-function frontmatterBoolean(markdown, key) {
-  const frontmatter = frontmatterBlock(markdown)
-  if (!frontmatter) return false
-
-  const pattern = new RegExp(`^\\s*${key}\\s*:\\s*['\"]?true['\"]?\\s*(?:#.*)?$`, "im")
-  return pattern.test(frontmatter)
-}
-
 function markdownPathForSlug(ctx, slug) {
   return path.resolve(process.cwd(), ctx.argv?.directory ?? "content", `${slug}.md`)
 }
 
-function hasPublishablePaperNote(ctx, targetSlug) {
+function contentForSlug(ctx, slug) {
+  const filePath = markdownPathForSlug(ctx, slug)
+  const markdown = fs.readFileSync(filePath, "utf-8")
+  const parsed = matter(markdown)
+
+  return [
+    { type: "root", children: [] },
+    {
+      path: filePath,
+      value: markdown,
+      data: {
+        slug,
+        filePath,
+        relativePath: `${slug}.md`,
+        frontmatter: parsed.data ?? {},
+      },
+    },
+  ]
+}
+
+function shouldPublishByActiveFilters(ctx, content) {
+  const filters = ctx.cfg?.plugins?.filters ?? []
+
+  for (const filter of filters) {
+    try {
+      if (filter.shouldPublish(ctx, content) === false) {
+        return false
+      }
+    } catch {
+      return false
+    }
+  }
+
+  return true
+}
+
+function hasPublishablePaperNote(ctx, targetSlug, cache) {
   if (!targetSlug || !ctx.allSlugs.includes(targetSlug)) return false
 
-  try {
-    const markdown = fs.readFileSync(markdownPathForSlug(ctx, targetSlug), "utf-8")
-    return !frontmatterBoolean(markdown, "draft")
-  } catch {
-    return false
+  if (cache.has(targetSlug)) {
+    return cache.get(targetSlug)
   }
+
+  let publishable = false
+  try {
+    publishable = shouldPublishByActiveFilters(ctx, contentForSlug(ctx, targetSlug))
+  } catch {
+    publishable = false
+  }
+
+  cache.set(targetSlug, publishable)
+  return publishable
 }
 
 function paperCitekey(file, papersRoot) {
@@ -445,7 +476,31 @@ function paperBibTexSection(_citekey, bibtex) {
   ]
 }
 
+function hasElementId(tree, id) {
+  let found = false
+
+  const visit = (node) => {
+    if (found || !node || typeof node !== "object") return
+
+    if (node.type === "element" && node.properties?.id === id) {
+      found = true
+      return
+    }
+
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) visit(child)
+    }
+  }
+
+  visit(tree)
+  return found
+}
+
 function appendPaperBibTex(tree, file, bibliography, papersRoot) {
+  if (hasElementId(tree, "bibtex")) {
+    return
+  }
+
   const citekey = paperCitekey(file, papersRoot)
   if (!citekey || !bibliography) {
     return
@@ -540,6 +595,8 @@ export function LiteratureCitations(userOptions = {}) {
   return {
     name: "LiteratureCitations",
     htmlPlugins(ctx) {
+      const publishablePaperSlugs = new Map()
+
       return [
         () => (tree, file) => {
           linkifyReferenceEntries(tree)
@@ -558,7 +615,7 @@ export function LiteratureCitations(userOptions = {}) {
               if (match) {
                 const citekey = decodeCitekey(match[1])
                 const targetSlug = citationTarget(citekey, papersRoot)
-                const hasPaperNote = hasPublishablePaperNote(ctx, targetSlug)
+                const hasPaperNote = hasPublishablePaperNote(ctx, targetSlug, publishablePaperSlugs)
 
                 if (hasPaperNote) {
                   properties.href = joinSegments(pathToRoot(file.data.slug), targetSlug)

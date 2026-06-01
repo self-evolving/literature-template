@@ -3,7 +3,34 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
   "scripts": {
     "build": "node -e \"\""
+  },
+  "quartz": {
+    "name": "literature-citations",
+    "displayName": "literature-citations",
+    "category": "transformer",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.0.0",
+    "dependencies": [
+      "github:quartz-community/citations"
+    ],
+    "defaultOrder": 86,
+    "defaultEnabled": true,
+    "defaultOptions": {
+      "bibliographyFile": "./bibliography.bib",
+      "papersRoot": "papers"
+    },
+    "optionSchema": {
+      "bibliographyFile": {
+        "type": "string"
+      },
+      "papersRoot": {
+        "type": "string"
+      }
+    }
   }
 }
