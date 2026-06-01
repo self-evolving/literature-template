@@ -2,7 +2,88 @@ const defaultOptions = {
   papersRoot: "papers",
 }
 
-const popupCss = `
+const citationCss = `
+#refs.references.csl-bib-body {
+  counter-reset: reference;
+  margin: 2rem 0 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 0.95rem;
+  background: color-mix(in srgb, var(--lightgray) 22%, transparent);
+  color: var(--darkgray);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+#refs.references.csl-bib-body::before {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--secondary);
+  content: "References";
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.065em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+#refs.references.csl-bib-body .csl-entry {
+  counter-increment: reference;
+  position: relative;
+  margin: 0;
+  padding: 0.85rem 0.85rem 0.85rem 2.65rem;
+  border-top: 1px solid color-mix(in srgb, var(--lightgray) 78%, transparent);
+  border-radius: 0.65rem;
+}
+
+#refs.references.csl-bib-body .csl-entry:first-of-type {
+  border-top: 0;
+}
+
+#refs.references.csl-bib-body .csl-entry::before {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--secondary) 10%, var(--light));
+  color: var(--secondary);
+  content: counter(reference);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+#refs.references.csl-bib-body .csl-entry:target {
+  background: color-mix(in srgb, var(--secondary) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--secondary) 28%, transparent);
+}
+
+#refs.references.csl-bib-body .csl-entry i {
+  color: var(--dark);
+}
+
+@media all and (max-width: 600px) {
+  #refs.references.csl-bib-body {
+    padding: 0.85rem;
+    font-size: 0.84rem;
+  }
+
+  #refs.references.csl-bib-body .csl-entry {
+    padding-right: 0.35rem;
+    padding-left: 2.3rem;
+  }
+
+  #refs.references.csl-bib-body .csl-entry::before {
+    left: 0.2rem;
+  }
+}
+
 .citation-bib-popover-wrap {
   display: inline-block;
   position: relative;
@@ -292,7 +373,7 @@ export function LiteratureCitations(userOptions = {}) {
       return {
         css: [
           {
-            content: popupCss,
+            content: citationCss,
             inline: true,
           },
         ],
