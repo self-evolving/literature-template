@@ -43,6 +43,12 @@ function needsBuild(pluginDir) {
   return !fs.existsSync(distDir)
 }
 
+function throwIfPluginFailures(action, failed) {
+  if (failed > 0) {
+    throw new Error(`${failed} plugin(s) failed to ${action}`)
+  }
+}
+
 /**
  * After pruning devDependencies, peerDependencies that reference other Quartz
  * plugins (e.g. @quartz-community/bases-page) won't be installed as npm
@@ -170,10 +176,9 @@ export async function handlePluginInstall() {
   const lockfile = readLockfile()
 
   if (!lockfile) {
-    console.log(
-      styleText("yellow", "⚠ No quartz.lock.json found. Run 'npx quartz plugin add <repo>' first."),
-    )
-    return
+    const message = "No quartz.lock.json found. Run 'npx quartz plugin add <repo>' first."
+    console.log(styleText("red", `✗ ${message}`))
+    throw new Error(message)
   }
 
   if (!fs.existsSync(PLUGINS_DIR)) {
@@ -288,7 +293,8 @@ export async function handlePluginInstall() {
   if (failed === 0) {
     console.log(styleText("green", `✓ Installed ${installed} plugin(s)`))
   } else {
-    console.log(styleText("yellow", `⚠ Installed ${installed} plugin(s), ${failed} failed`))
+    console.log(styleText("red", `✗ Installed ${installed} plugin(s), ${failed} failed`))
+    throwIfPluginFailures("install", failed)
   }
 }
 
@@ -742,10 +748,11 @@ export async function handlePluginList() {
 export async function handlePluginRestore() {
   const lockfile = readLockfile()
   if (!lockfile) {
-    console.log(styleText("red", "✗ No quartz.lock.json found. Cannot restore."))
+    const message = "No quartz.lock.json found. Cannot restore."
+    console.log(styleText("red", `✗ ${message}`))
     console.log()
     console.log("Run 'npx quartz plugin add <repo>' to install plugins from scratch.")
-    return
+    throw new Error(message)
   }
 
   console.log(styleText("cyan", "→ Restoring plugins from lockfile..."))
@@ -823,7 +830,8 @@ export async function handlePluginRestore() {
   if (failed === 0) {
     console.log(styleText("green", `✓ Restored ${installed} plugin(s)`))
   } else {
-    console.log(styleText("yellow", `⚠ Restored ${installed} plugin(s), ${failed} failed`))
+    console.log(styleText("red", `✗ Restored ${installed} plugin(s), ${failed} failed`))
+    throwIfPluginFailures("restore", failed)
   }
 }
 
