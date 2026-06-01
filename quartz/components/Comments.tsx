@@ -26,17 +26,8 @@ function boolToStringBool(b: boolean): string {
   return b ? "1" : "0"
 }
 
-function normalizeBaseUrl(url?: string): string | undefined {
-  return url?.replace(/^https?:\/\//, "").replace(/\/$/, "")
-}
-
-function defaultGiscusThemeUrl(baseUrl?: string): string {
-  const normalizedBaseUrl = normalizeBaseUrl(baseUrl)
-  return normalizedBaseUrl ? `https://${normalizedBaseUrl}/static/giscus` : "/static/giscus"
-}
-
 export default ((opts: Options) => {
-  const Comments: QuartzComponent = ({ displayClass, fileData, cfg }: QuartzComponentProps) => {
+  const Comments: QuartzComponent = ({ displayClass, fileData }: QuartzComponentProps) => {
     // check if comments should be displayed according to frontmatter
     const disableComment: boolean =
       typeof fileData.frontmatter?.comments !== "undefined" &&
@@ -66,8 +57,7 @@ export default ((opts: Options) => {
           data-input-position={opts.options.inputPosition ?? "bottom"}
           data-light-theme={opts.options.lightTheme ?? "light"}
           data-dark-theme={opts.options.darkTheme ?? "dark"}
-          data-theme-url={opts.options.themeUrl ?? defaultGiscusThemeUrl(cfg.baseUrl)}
-          data-site-base-url={normalizeBaseUrl(cfg.baseUrl) ?? ""}
+          data-theme-url={opts.options.themeUrl ?? "/static/giscus"}
           data-lang={opts.options.lang ?? "en"}
         ></div>
       </section>
