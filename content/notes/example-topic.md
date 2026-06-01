@@ -19,3 +19,5 @@ How can attention-based architectures and tooling patterns inform the way we org
 ## Synthesis
 
 Use this space to compare papers, extract recurring patterns, and collect open questions that are broader than a single paper.
+
+This note also cites a bibliography-only paper [@templeton2024scaling]. Because there is no `content/papers/templeton2024scaling.md` page, the citation should keep its bibliography anchor and show the lightweight BibTeX popup.
