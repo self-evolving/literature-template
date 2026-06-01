@@ -1714,59 +1714,6 @@ test("branch cleanup retargets stacked PRs before deleting merged branches", () 
   assert.ok(retargetIndex < deleteIndex);
 });
 
-test("branch cleanup treats missing branch delete refs as already deleted", async () => {
-  const calls: string[] = [];
-  const missingRefError = Object.assign(new Error("Reference does not exist"), { status: 422 });
-
-  const pullsList = async (): Promise<never[]> => [];
-  const github = {
-    paginate: async (endpoint: unknown, options: Record<string, unknown>) => {
-      calls.push("pulls.list");
-      assert.equal(endpoint, pullsList);
-      assert.equal(options.base, "agent/merged-branch");
-      return [];
-    },
-    rest: {
-      pulls: {
-        list: pullsList,
-        update: async () => {
-          calls.push("pulls.update");
-        },
-      },
-      git: {
-        deleteRef: async (options: Record<string, unknown>) => {
-          calls.push(`git.deleteRef:${String(options.ref)}`);
-          throw missingRefError;
-        },
-      },
-    },
-  };
-  const context = {
-    repo: { owner: "self-evolving", repo: "repo" },
-    payload: {
-      pull_request: {
-        head: { ref: "agent/merged-branch" },
-        base: { ref: "main" },
-      },
-    },
-  };
-  const core = {
-    info: (message: string) => {
-      calls.push(`core.info:${message}`);
-    },
-    setFailed: (message: string) => {
-      calls.push(`core.setFailed:${message}`);
-    },
-  };
-
-  await runBranchCleanupScript({ github, context, core });
-  assert.deepEqual(calls, [
-    "pulls.list",
-    "git.deleteRef:heads/agent/merged-branch",
-    "core.info:Branch agent/merged-branch was already deleted.",
-  ]);
-});
-
 test("branch cleanup preserves merged branch when dependent PR retarget fails", async () => {
   const calls: string[] = [];
   const retargetError = new Error("retarget failed");

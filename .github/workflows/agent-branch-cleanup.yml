@@ -76,9 +76,7 @@ jobs:
               });
               core.info(`Deleted merged agent branch ${branch}.`);
             } catch (error) {
-              const status = error && typeof error === "object" && "status" in error ? error.status : undefined;
-              const message = error instanceof Error ? error.message : "";
-              if (status === 404 || (status === 422 && message.includes("Reference does not exist"))) {
+              if (error && typeof error === "object" && "status" in error && error.status === 404) {
                 core.info(`Branch ${branch} was already deleted.`);
                 return;
               }
