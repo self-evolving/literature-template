@@ -1,8 +1,9 @@
 import fs from "node:fs"
 import path from "node:path"
+import { minimatch } from "minimatch"
 
-export const defaultDocsRoot = "content/docs"
-export const defaultDocsSlugPrefix = "docs"
+export const defaultDocsRoot = "content"
+export const defaultDocsSlugPrefix = ""
 
 function toPosix(filePath) {
   return filePath.split(path.sep).join("/")
@@ -15,6 +16,54 @@ function normalizeRel(filePath) {
 
 function posixJoin(...segments) {
   return segments.filter(Boolean).join("/")
+}
+
+const minimatchOptions = { dot: true }
+
+function isMetaFile(rel) {
+  return rel.split("/").pop() === "_meta.json"
+}
+
+function hasGlobMagic(pattern) {
+  return /[*?[\]{}()!+@]/.test(pattern)
+}
+
+function normalizeIgnorePattern(pattern) {
+  return toPosix(pattern).replace(/^\.\//, "")
+}
+
+function matchesIgnorePattern(rel, pattern) {
+  if (!pattern) {
+    return false
+  }
+
+  if (minimatch(rel, pattern, minimatchOptions)) {
+    return true
+  }
+
+  if (!hasGlobMagic(pattern)) {
+    return rel === pattern || rel.startsWith(`${pattern}/`)
+  }
+
+  return false
+}
+
+function shouldIgnorePath(rel, ignorePatterns) {
+  if (!rel) {
+    return false
+  }
+
+  return ignorePatterns.some((rawPattern) => {
+    const pattern = normalizeIgnorePattern(rawPattern)
+
+    // Quartz ignores _meta.json as publishable content, but the custom navigation
+    // needs those manifests for every visible folder.
+    if (isMetaFile(rel) && pattern.includes("_meta.json")) {
+      return false
+    }
+
+    return matchesIgnorePattern(rel, pattern)
+  })
 }
 
 function docsRootLabel(docsRoot) {
@@ -50,14 +99,20 @@ function isDirectory(filePath) {
   }
 }
 
-function walk(dir) {
+function walk(dir, rootDir = dir, ignorePatterns = []) {
   const entries = fs.readdirSync(dir, { withFileTypes: true })
   const files = []
 
   for (const entry of entries) {
     const absPath = path.join(dir, entry.name)
+    const rel = normalizeRel(path.relative(rootDir, absPath))
+
+    if (shouldIgnorePath(rel, ignorePatterns)) {
+      continue
+    }
+
     if (entry.isDirectory()) {
-      files.push(...walk(absPath))
+      files.push(...walk(absPath, rootDir, ignorePatterns))
     } else if (entry.isFile()) {
       files.push(absPath)
     }
@@ -204,8 +259,14 @@ function recordReference(referencedMarkdown, fileRel, metaRel, rootLabel) {
   referencedMarkdown.set(fileRel, metaRel)
 }
 
-function validateCompleteness(docsRoot, referencedMarkdown, reachedFolders, rootLabel) {
-  const files = walk(docsRoot)
+function validateCompleteness(
+  docsRoot,
+  referencedMarkdown,
+  reachedFolders,
+  rootLabel,
+  ignorePatterns,
+) {
+  const files = walk(docsRoot, docsRoot, ignorePatterns)
   const markdownFolders = new Set([""])
   const metaFolders = new Set()
   const orphanMarkdown = []
@@ -284,6 +345,7 @@ function validateCompleteness(docsRoot, referencedMarkdown, reachedFolders, root
 export function buildDocsNav({
   docsRoot = defaultDocsRoot,
   slugPrefix = defaultDocsSlugPrefix,
+  ignorePatterns = [],
 } = {}) {
   const resolvedDocsRoot = path.resolve(docsRoot)
   const rootLabel = docsRootLabel(resolvedDocsRoot)
@@ -305,8 +367,9 @@ export function buildDocsNav({
       const childFolderRel = posixJoin(folderRel, segment)
       const filePath = path.join(folderPath, `${segment}.md`)
       const childFolderPath = path.join(folderPath, segment)
-      const hasMarkdownFile = isFile(filePath)
-      const hasFolder = isDirectory(childFolderPath)
+      const hasMarkdownFile = isFile(filePath) && !shouldIgnorePath(fileRel, ignorePatterns)
+      const hasFolder =
+        isDirectory(childFolderPath) && !shouldIgnorePath(childFolderRel, ignorePatterns)
       const metaRel = posixJoin(folderRel, "_meta.json")
 
       if (hasMarkdownFile && hasFolder) {
@@ -353,7 +416,13 @@ export function buildDocsNav({
   }
 
   const root = buildFolder("")
-  validateCompleteness(resolvedDocsRoot, referencedMarkdown, reachedFolders, rootLabel)
+  validateCompleteness(
+    resolvedDocsRoot,
+    referencedMarkdown,
+    reachedFolders,
+    rootLabel,
+    ignorePatterns,
+  )
 
   return {
     root: {
