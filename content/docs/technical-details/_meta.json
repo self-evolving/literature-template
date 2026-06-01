@@ -1,9 +1,0 @@
-{
-  "label": "Technical details",
-  "pages": [
-    "key-concepts",
-    "session-continuity",
-    "versioning",
-    "developer-notes"
-  ]
-}

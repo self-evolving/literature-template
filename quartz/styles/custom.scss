@@ -844,7 +844,7 @@ body:not([data-slug="index"]) {
 }
 
 // Quartz v5 renders sidebar components through community plugins/local shims,
-// so keep the Sepo v4 sidebar treatment here as global overrides.
+// so keep the compact sidebar treatment here as global overrides.
 .graph {
   display: flex;
   flex: 0 0 auto;
@@ -1139,15 +1139,9 @@ ul.toc-content.overflow {
   }
 }
 
-// Documentation pages use an AM-style card header: breadcrumb context + title
-// in a full-width strip with a bottom underline.
-body[data-slug="docs"] .page-listing,
-body[data-slug="docs/index"] .page-listing {
-  display: none;
-}
-
-body[data-slug="docs"] .page > #quartz-body .center,
-body[data-slug^="docs/"] .page > #quartz-body .center {
+// Library pages use a card header: breadcrumb context + title in a full-width
+// strip with a bottom underline.
+body:not([data-slug="index"]) .page > #quartz-body .center {
   overflow: hidden;
 
   .page-header {

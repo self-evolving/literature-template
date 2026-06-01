@@ -10,14 +10,14 @@ type HeaderCrumb = {
   href: string
 }
 
-const DOCS_ROOT = "docs/index" as FullSlug
+const LIBRARY_ROOT = "index" as FullSlug
 
 const titleCase = (segment: string) =>
   segment.replaceAll("-", " ").replace(/\b\w/g, (char) => char.toUpperCase())
 
 const titleFromSlug = (slug: string) => {
   const parts = slug.split("/").filter((part) => part.length > 0 && part !== "index")
-  return titleCase(parts.at(-1) ?? "Documentation")
+  return titleCase(parts.at(-1) ?? "Literature Notes")
 }
 
 const displayName = (name: string) => name.replaceAll("-", " ")
@@ -43,11 +43,11 @@ const DocPageHeader: QuartzComponent = ({
 
   const crumbs: HeaderCrumb[] = [
     {
-      label: "Docs",
-      href: resolveRelative(slug, DOCS_ROOT),
+      label: "Home",
+      href: resolveRelative(slug, LIBRARY_ROOT),
     },
     ...ancestorNodes
-      .filter((node) => !["docs", "index"].includes(node.slugSegment))
+      .filter((node) => !["index"].includes(node.slugSegment))
       .map((node) => ({
         label: displayName(node.displayName),
         href: resolveRelative(slug, simplifySlug(node.slug)),

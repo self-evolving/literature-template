@@ -1,9 +1,0 @@
-{
-  "label": "Setup",
-  "pages": [
-    "setup-guide",
-    "install-existing-repository",
-    "self-hosted-github-action-runner",
-    "using-your-own-github-app"
-  ]
-}

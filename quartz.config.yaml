@@ -1,17 +1,18 @@
 # yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-  pageTitle: Sepo
-  pageTitleSuffix: " | Sepo Docs"
+  pageTitle: Literature Notes
+  pageTitleSuffix: " | Literature Notes"
   enableSPA: true
   enablePopovers: true
   analytics:
     provider: plausible
   locale: en-US
-  baseUrl: repo-docs.vercel.app
+  baseUrl: literature-template.vercel.app
   ignorePatterns:
     - private
     - templates
     - .obsidian
+    - "**/_meta.json"
   defaultDateType: modified
   theme:
     fontOrigin: googleFonts
@@ -48,6 +49,14 @@ plugins:
       includeAll: false
       includedProperties:
         - description
+        - type
+        - citekey
+        - authors
+        - year
+        - venue
+        - doi
+        - url
+        - status
         - tags
         - aliases
       excludedProperties: []
@@ -104,7 +113,11 @@ plugins:
       renderEngine: katex
     order: 80
   - source: github:quartz-community/citations
-    enabled: false
+    enabled: true
+    options:
+      bibliographyFile: ./bibliography.bib
+      suppressBibliography: false
+      linkCitations: true
     order: 85
   - source: github:quartz-community/hard-line-breaks
     enabled: false
@@ -175,25 +188,25 @@ plugins:
       priority: 30
       condition: not-index
   - source: github:quartz-community/article-title
-    enabled: true
+    enabled: false
     layout:
       position: beforeBody
       priority: 10
-      condition: not-docs-page
+      condition: not-index
   - source: github:quartz-community/content-meta
-    enabled: true
+    enabled: false
     options:
       showReadingTime: false
     layout:
       position: beforeBody
       priority: 20
-      condition: not-index-or-docs-page
+      condition: not-index
   - source: github:quartz-community/tag-list
     enabled: false
     layout:
       position: beforeBody
       priority: 30
-      condition: not-docs-page
+      condition: not-index
   - source: github:quartz-community/page-title
     enabled: true
     layout:
@@ -224,29 +237,29 @@ plugins:
       display: desktop-only
       condition: not-index
   - source: github:quartz-community/breadcrumbs
-    enabled: true
+    enabled: false
     layout:
       position: beforeBody
       priority: 5
-      condition: not-index-or-docs-page
+      condition: not-index
   - source: ./quartz/plugins/local/doc-page-header
     enabled: true
     layout:
       position: beforeBody
       priority: 1
-      condition: docs-page
+      condition: library-page
   - source: ./quartz/plugins/local/docs-explorer
     enabled: true
     layout:
       position: left
       priority: 50
-      condition: not-index
+      condition: library-page
   - source: ./quartz/plugins/local/sepo-comments
     enabled: true
     layout:
       position: afterBody
       priority: 10
-      condition: docs-content-page
+      condition: library-page
   - source: github:quartz-community/comments
     enabled: false
     options:

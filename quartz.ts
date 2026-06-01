@@ -13,31 +13,15 @@ const normalizeBaseUrl = (url?: string) => url?.replace(/^https?:\/\//, "").repl
 const siteBaseUrl =
   normalizeBaseUrl(
     process.env.SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL,
-  ) ?? "repo-docs.vercel.app"
+  ) ?? "literature-template.vercel.app"
 
-const isDocumentationPage = (slug?: string) =>
-  slug === "docs" || slug === "docs/index" || (slug?.startsWith("docs/") ?? false)
+const isLibraryPage = (slug?: string) =>
+  Boolean(slug && slug !== "index" && !slug.startsWith("tags/"))
 
-const isDocumentationContentPage = (slug?: string) =>
-  isDocumentationPage(slug) && slug !== "docs" && slug !== "docs/index"
-
-registerCondition("docs-page", (page) => isDocumentationPage(page.fileData.slug))
-registerCondition("docs-content-page", (page) => isDocumentationContentPage(page.fileData.slug))
-registerCondition("not-docs-page", (page) => !isDocumentationPage(page.fileData.slug))
-registerCondition(
-  "not-index-or-docs-page",
-  (page) => page.fileData.slug !== "index" && !isDocumentationPage(page.fileData.slug),
-)
+registerCondition("library-page", (page) => isLibraryPage(page.fileData.slug))
 
 type GiscusMapping = "url" | "title" | "og:title" | "specific" | "number" | "pathname"
 type GiscusInputPosition = "top" | "bottom"
-
-const defaultGiscusConfig = {
-  repo: "self-evolving/repo-discussions",
-  repoId: "R_kgDOSjgnjQ",
-  category: "General",
-  categoryId: "DIC_kwDOSjgnjc4C9gaF",
-} as const
 
 const giscusRequiredEnv = [
   "GISCUS_REPO",
@@ -67,24 +51,20 @@ function enumEnv<T extends string>(name: string, allowed: readonly T[], defaultV
 }
 
 function giscusComments() {
-  if (!booleanEnv("GISCUS_ENABLED", true)) {
+  if (!booleanEnv("GISCUS_ENABLED", false)) {
     return undefined
   }
 
   const envConfig = Object.fromEntries(giscusRequiredEnv.map((name) => [name, envValue(name)]))
-  const hasEnvConfig = Object.values(envConfig).some(Boolean)
-
-  if (hasEnvConfig) {
-    const missing = giscusRequiredEnv.filter((name) => !envConfig[name])
-    if (missing.length > 0) {
-      throw new Error(`Incomplete Giscus configuration. Missing: ${missing.join(", ")}`)
-    }
+  const missing = giscusRequiredEnv.filter((name) => !envConfig[name])
+  if (missing.length > 0) {
+    throw new Error(`GISCUS_ENABLED=true requires: ${missing.join(", ")}`)
   }
 
-  const repo = envConfig.GISCUS_REPO ?? defaultGiscusConfig.repo
-  const repoId = envConfig.GISCUS_REPO_ID ?? defaultGiscusConfig.repoId
-  const category = envConfig.GISCUS_CATEGORY ?? defaultGiscusConfig.category
-  const categoryId = envConfig.GISCUS_CATEGORY_ID ?? defaultGiscusConfig.categoryId
+  const repo = envConfig.GISCUS_REPO as string
+  const repoId = envConfig.GISCUS_REPO_ID as string
+  const category = envConfig.GISCUS_CATEGORY as string
+  const categoryId = envConfig.GISCUS_CATEGORY_ID as string
 
   if (!repo.includes("/")) {
     throw new Error("GISCUS_REPO must use the owner/name format")
@@ -119,7 +99,7 @@ function giscusComments() {
 
 const EmptyComponent: QuartzComponent = () => null
 const commentsComponent = giscusComments() ?? EmptyComponent
-const SepoComments = (() => commentsComponent) satisfies QuartzComponentConstructor
+const LiteratureComments = (() => commentsComponent) satisfies QuartzComponentConstructor
 
 componentRegistry.register("doc-page-header", DocPageHeader, "local")
 componentRegistry.register("docs-explorer", DocsExplorer, "local")
@@ -127,7 +107,7 @@ componentRegistry.register("graph", SepoGraph, "local")
 componentRegistry.register("page-title", SepoPageTitle, "local")
 componentRegistry.register("PageTitle", SepoPageTitle, "local")
 componentRegistry.register("search", SepoSearch, "local")
-componentRegistry.register("sepo-comments", SepoComments, "local")
+componentRegistry.register("sepo-comments", LiteratureComments, "local")
 
 const config = await loadQuartzConfig({ baseUrl: siteBaseUrl })
 export default config

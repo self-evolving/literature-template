@@ -11,14 +11,14 @@ import script from "./scripts/docsExplorer.inline"
 let docsNavCache: { key: string; data: DocsNavData } | undefined
 
 function docsNavForContentRoot(contentRoot: string, buildId: string) {
-  const docsRoot = path.resolve(contentRoot, "docs")
-  const key = `${buildId}:${docsRoot}`
+  const navRoot = path.resolve(contentRoot)
+  const key = `${buildId}:${navRoot}`
 
   if (docsNavCache?.key === key) {
     return docsNavCache.data
   }
 
-  const data = buildDocsNav({ docsRoot })
+  const data = buildDocsNav({ docsRoot: navRoot, slugPrefix: "" })
   docsNavCache = { key, data }
   return data
 }
@@ -103,10 +103,10 @@ function renderNavItem(currentSlug: FullSlug, item: DocsNavItem) {
 const DocsExplorer: QuartzComponent = ({ ctx, fileData, displayClass }: QuartzComponentProps) => {
   const currentSlug = fileData.slug as FullSlug
   const docsNavData = docsNavForContentRoot(ctx.argv.directory, ctx.buildId)
-  const rootActive = currentSlug === "docs" || currentSlug === docsNavData.root.slug
+  const rootActive = currentSlug === docsNavData.root.slug
 
   return (
-    <nav class={classNames(displayClass, "docs-explorer")} aria-label="Documentation navigation">
+    <nav class={classNames(displayClass, "docs-explorer")} aria-label="Literature navigation">
       <ul class="docs-nav-root">
         <li class={["docs-root-link", rootActive ? "active" : undefined].filter(Boolean).join(" ")}>
           <a
