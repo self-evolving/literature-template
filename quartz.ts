@@ -4,6 +4,7 @@ import { componentRegistry } from "./quartz/components/registry"
 import type { QuartzComponent, QuartzComponentConstructor } from "./quartz/components/types"
 import DocPageHeader from "./quartz/components/DocPageHeader"
 import DocsExplorer from "./quartz/components/DocsExplorer"
+import SepoPageTitle from "./quartz/components/SepoPageTitle"
 import Comments from "./quartz/components/Comments"
 
 const normalizeBaseUrl = (url?: string) => url?.replace(/^https?:\/\//, "").replace(/\/$/, "")
@@ -120,6 +121,8 @@ const SepoComments = (() => commentsComponent) satisfies QuartzComponentConstruc
 
 componentRegistry.register("doc-page-header", DocPageHeader, "local")
 componentRegistry.register("docs-explorer", DocsExplorer, "local")
+componentRegistry.register("page-title", SepoPageTitle, "local")
+componentRegistry.register("PageTitle", SepoPageTitle, "local")
 componentRegistry.register("sepo-comments", SepoComments, "local")
 
 const config = await loadQuartzConfig({ baseUrl: siteBaseUrl })
