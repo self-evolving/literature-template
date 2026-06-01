@@ -72,6 +72,51 @@
   font-weight: 500;
 }
 
+.doc-paper-citekey {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--secondary);
+  font-family: var(--codeFont);
+  font-size: 0.82em;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doc-paper-source-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.doc-paper-source-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 999px;
+  color: var(--secondary);
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+
+  &:hover {
+    border-color: var(--secondary);
+    background: color-mix(in srgb, var(--secondary) 10%, transparent);
+    color: var(--secondary);
+  }
+
+  svg {
+    width: 0.82rem;
+    height: 0.82rem;
+  }
+}
+
 .doc-page-title.article-title {
   margin: 0.45rem 0 0;
   color: var(--dark);
@@ -90,43 +135,10 @@
   p {
     margin: 0;
   }
-
-  p + p {
-    margin-top: 0.25rem;
-  }
-
-  a {
-    color: var(--secondary);
-    font-weight: 600;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-  }
 }
 
 .doc-paper-byline {
   color: var(--darkgray);
-}
-
-.doc-paper-identifiers {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.doc-paper-citekey {
-  color: var(--secondary);
-  font-family: var(--codeFont);
-  font-size: 0.82em;
-  font-weight: 700;
-}
-
-.doc-paper-meta-sep {
-  color: var(--gray);
 }
 
 .popover > .popover-inner > .popover-hint:first-child:not(article) .doc-page-header {
@@ -181,8 +193,13 @@
   white-space: nowrap;
 }
 
-.popover > .popover-inner > .popover-hint:first-child:not(article) .doc-paper-identifiers {
-  gap: 0.25rem;
+.popover > .popover-inner > .popover-hint:first-child:not(article) .doc-paper-citekey {
+  flex-shrink: 1;
+}
+
+.popover > .popover-inner > .popover-hint:first-child:not(article) .doc-paper-source-link {
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 @media all and ($mobile) {
