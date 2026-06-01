@@ -14,6 +14,7 @@
   "scripts": {
     "quartz": "./quartz/bootstrap-cli.mjs",
     "sync:source-docs": "node scripts/sync-source-docs.mjs",
+    "postinstall": "node scripts/link-local-quartz-bin.mjs",
     "docs": "npm run quartz -- build --serve -d docs",
     "build": "npm run quartz -- build",
     "check": "npm run install-plugins && tsc --noEmit && npx prettier . --check",
