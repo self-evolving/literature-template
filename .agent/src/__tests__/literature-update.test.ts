@@ -69,3 +69,48 @@ Body.
   assert.equal(parsed.body, "## Research Update\n\nBody.");
   assert.deepEqual(parsed.comments, []);
 });
+
+test("parseLiteratureUpdate rejects an unclosed item comment block", () => {
+  assert.throws(
+    () => parseLiteratureUpdate(`
+## Research Update
+
+Body.
+
+## Item Comments
+
+<!-- literature-item-comment -->
+### [Paper](https://example.com)
+`),
+    /without a matching closing marker/,
+  );
+});
+
+test("parseLiteratureUpdate rejects a stray closing item comment marker", () => {
+  assert.throws(
+    () => parseLiteratureUpdate(`
+## Research Update
+
+Body.
+
+<!-- /literature-item-comment -->
+`),
+    /without a matching opening marker/,
+  );
+});
+
+test("parseLiteratureUpdate leaves marker examples inside fenced code in the body", () => {
+  const parsed = parseLiteratureUpdate(`
+## Research Update
+
+\`\`\`md
+<!-- literature-item-comment -->
+example only
+<!-- /literature-item-comment -->
+\`\`\`
+`);
+
+  assert.match(parsed.body, /```md/);
+  assert.match(parsed.body, /literature-item-comment/);
+  assert.deepEqual(parsed.comments, []);
+});

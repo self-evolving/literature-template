@@ -26,7 +26,7 @@ permissions:
   id-token: write # required for GitHub Actions OIDC broker exchange
 
 concurrency:
-  group: agent-add-paper-${{ github.repository }}-${{ github.run_id }}
+  group: agent-add-paper-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -53,6 +53,27 @@ jobs:
           app_private_key: ${{ secrets.AGENT_APP_PRIVATE_KEY }}
           pat: ${{ secrets.AGENT_PAT }}
           fallback_token: ${{ github.token }}
+
+      - name: Validate literature environment secrets
+        shell: bash
+        env:
+          SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
+          S2_API_KEY: ${{ secrets.S2_API_KEY }}
+          JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          missing=()
+          for name in SERPER_API_KEY S2_API_KEY JINA_API_KEY; do
+            if [ -z "${!name:-}" ]; then
+              missing+=("$name")
+            fi
+          done
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            printf 'Missing required agent-literature environment secrets: %s\n' "${missing[*]}" >&2
+            exit 1
+          fi
 
       - name: Resolve add-paper provider
         id: provider
@@ -151,6 +172,33 @@ jobs:
         id: verify
         run: node .agent/dist/cli/verify.js
 
+      - name: Validate generated site
+        if: steps.agent.outcome == 'success' && steps.verify.outputs.has_changes == 'true'
+        id: site_validation
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run check
+          npm run build
+
+      - name: Resolve validation result
+        if: always()
+        id: validation_result
+        env:
+          VERIFY_EXIT_CODE: ${{ steps.verify.outputs.verify_exit_code }}
+          SITE_VALIDATION_OUTCOME: ${{ steps.site_validation.outcome || 'skipped' }}
+        run: |
+          set -euo pipefail
+          verify_exit="${VERIFY_EXIT_CODE:-1}"
+          site_outcome="${SITE_VALIDATION_OUTCOME:-skipped}"
+          resolved="0"
+          if [ "$verify_exit" != "0" ]; then
+            resolved="$verify_exit"
+          elif [ "$site_outcome" = "failure" ] || [ "$site_outcome" = "cancelled" ]; then
+            resolved="1"
+          fi
+          echo "verify_exit_code=${resolved}" >> "$GITHUB_OUTPUT"
+
       - name: Parse response
         if: always()
         id: response
@@ -158,7 +206,7 @@ jobs:
           AGENT_EXIT_CODE: ${{ steps.agent.outcome == 'success' && '0' || '1' }}
           HAS_CHANGES: ${{ steps.verify.outputs.has_changes }}
           RESPONSE_FILE: ${{ steps.agent.outputs.response_file }}
-          VERIFY_EXIT_CODE: ${{ steps.verify.outputs.verify_exit_code }}
+          VERIFY_EXIT_CODE: ${{ steps.validation_result.outputs.verify_exit_code }}
         run: node .agent/dist/cli/parse-response.js
 
       - name: Commit and push
