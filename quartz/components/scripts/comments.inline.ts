@@ -34,6 +34,31 @@ const getThemeName = (theme: string) => {
   return theme === "dark" ? darkGiscus : lightGiscus
 }
 
+const normalizeBaseUrl = (url?: string) => url?.replace(/^https?:\/\//, "").replace(/\/$/, "")
+
+const absoluteUrlPattern = /^https?:\/\//i
+
+const getThemeRootUrl = (themeRoot: string, giscusContainer: GiscusElement) => {
+  const trimmedThemeRoot = themeRoot.replace(/\/$/, "")
+
+  if (absoluteUrlPattern.test(trimmedThemeRoot)) {
+    return trimmedThemeRoot
+  }
+
+  if (trimmedThemeRoot.startsWith("//")) {
+    return `${window.location.protocol}${trimmedThemeRoot}`
+  }
+
+  const siteBaseUrl = normalizeBaseUrl(giscusContainer.dataset.siteBaseUrl)
+  const baseUrl =
+    window.location.protocol === "https:" || !siteBaseUrl
+      ? window.location.origin
+      : `https://${siteBaseUrl}`
+  const themePath =
+    window.location.protocol === "https:" ? trimmedThemeRoot : trimmedThemeRoot.replace(/^\/+/, "")
+  return new URL(themePath, `${baseUrl.replace(/\/$/, "")}/`).toString().replace(/\/$/, "")
+}
+
 const getThemeUrl = (theme: string) => {
   const giscusContainer = document.querySelector(".giscus") as GiscusElement
   if (!giscusContainer) {
@@ -41,7 +66,7 @@ const getThemeUrl = (theme: string) => {
   }
 
   const themeRoot = giscusContainer.dataset.themeUrl ?? "https://giscus.app/themes"
-  return new URL(`${themeRoot.replace(/\/$/, "")}/${theme}.css`, window.location.origin).toString()
+  return `${getThemeRootUrl(themeRoot, giscusContainer)}/${theme}.css`
 }
 
 type GiscusElement = Omit<HTMLElement, "dataset"> & {
@@ -51,6 +76,7 @@ type GiscusElement = Omit<HTMLElement, "dataset"> & {
     category: string
     categoryId: string
     themeUrl: string
+    siteBaseUrl: string
     lightTheme: string
     darkTheme: string
     mapping: "url" | "title" | "og:title" | "specific" | "number" | "pathname"
