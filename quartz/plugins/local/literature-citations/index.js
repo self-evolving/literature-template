@@ -72,64 +72,6 @@ const citationCss = `
   color: var(--dark);
 }
 
-.paper-bibtex {
-  margin: 2rem 0 0;
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--lightgray);
-  border-radius: 0.95rem;
-  background: color-mix(in srgb, var(--lightgray) 22%, transparent);
-  color: var(--darkgray);
-  font-size: 0.9rem;
-  line-height: 1.55;
-}
-
-.paper-bibtex h2 {
-  margin: 0 0 0.75rem;
-  color: var(--secondary);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.065em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.paper-bibtex pre {
-  position: relative;
-  margin: 0;
-  padding: 0.85rem 0.85rem 0.85rem 2.65rem;
-  border-top: 1px solid color-mix(in srgb, var(--lightgray) 78%, transparent);
-  border-radius: 0.65rem;
-  background: transparent;
-  overflow-x: auto;
-}
-
-.paper-bibtex pre::before {
-  position: absolute;
-  top: 0.85rem;
-  left: 0.35rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.45rem;
-  height: 1.45rem;
-  border: 1px solid color-mix(in srgb, var(--secondary) 35%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--secondary) 10%, var(--light));
-  color: var(--secondary);
-  content: "Bib";
-  font-size: 0.58rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-.paper-bibtex code {
-  color: var(--darkgray);
-  font-size: 0.82rem;
-  line-height: 1.5;
-  white-space: pre;
-}
-
 @media all and (max-width: 600px) {
   #refs.references.csl-bib-body {
     padding: 0.85rem;
@@ -145,18 +87,6 @@ const citationCss = `
     left: 0.2rem;
   }
 
-  .paper-bibtex {
-    padding: 0.85rem;
-  }
-
-  .paper-bibtex pre {
-    padding-right: 0.35rem;
-    padding-left: 2.3rem;
-  }
-
-  .paper-bibtex pre::before {
-    left: 0.2rem;
-  }
 }
 
 .citation-bib-popover-wrap {
@@ -366,36 +296,28 @@ function paperCitekey(file, papersRoot) {
   return slug.split("/").at(-1)
 }
 
-function paperBibTexSection(citekey, bibtex) {
-  return {
-    type: "element",
-    tagName: "section",
-    properties: {
-      className: ["paper-bibtex"],
-      "aria-labelledby": `bibtex-${slugifyCitationKey(citekey)}`,
+function paperBibTexSection(_citekey, bibtex) {
+  return [
+    {
+      type: "element",
+      tagName: "h2",
+      properties: { id: "bibtex" },
+      children: [{ type: "text", value: "BibTeX" }],
     },
-    children: [
-      {
-        type: "element",
-        tagName: "h2",
-        properties: { id: `bibtex-${slugifyCitationKey(citekey)}` },
-        children: [{ type: "text", value: "BibTeX" }],
-      },
-      {
-        type: "element",
-        tagName: "pre",
-        properties: {},
-        children: [
-          {
-            type: "element",
-            tagName: "code",
-            properties: { className: ["language-bibtex"] },
-            children: [{ type: "text", value: bibtex }],
-          },
-        ],
-      },
-    ],
-  }
+    {
+      type: "element",
+      tagName: "pre",
+      properties: {},
+      children: [
+        {
+          type: "element",
+          tagName: "code",
+          properties: { className: ["language-bibtex"] },
+          children: [{ type: "text", value: bibtex }],
+        },
+      ],
+    },
+  ]
 }
 
 function appendPaperBibTex(tree, file, bibliography, papersRoot) {
@@ -409,7 +331,7 @@ function appendPaperBibTex(tree, file, bibliography, papersRoot) {
     return
   }
 
-  tree.children.push(paperBibTexSection(citekey, bibtex))
+  tree.children.push(...paperBibTexSection(citekey, bibtex))
 }
 
 function cloneWithoutIds(node) {
