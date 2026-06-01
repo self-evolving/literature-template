@@ -76,14 +76,14 @@ Folder listing pages follow the nearest `_meta.json` `pages` array when it exist
 
 Entries should omit `.md`. Pages not listed in `_meta.json` fall back to the default folder-page sort.
 
-### Graph type tags
+### Graph paper styling
 
-The initial graph differentiation convention is tag-based:
+The graph keeps tag nodes hidden by default, but it uses lightweight type hints to style paper nodes differently from synthesis notes:
 
-- paper notes include `paper`
-- synthesis notes include `note`
+- paper notes include `paper` and live under `content/papers/`
+- synthesis notes include `note` and live under `content/notes/`
 
-The template enables graph tag nodes so papers and notes can be visually associated with `#paper` and `#note`. This is intentionally simple; a future graph renderer can use frontmatter `type` or paths for richer colors/shapes without changing content.
+When a note cites or links to a paper page, the paper node appears as a same-size hollow circle with an accent outline. This keeps the graph focused on pages while still making cited papers visually distinct.
 
 ## Local development
 
