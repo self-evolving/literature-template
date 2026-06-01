@@ -17,8 +17,19 @@ function posixJoin(...segments) {
   return segments.filter(Boolean).join("/")
 }
 
-function docsPath(rel) {
-  return rel ? `docs/${rel}` : "docs"
+function docsRootLabel(docsRoot) {
+  const relative = normalizeRel(path.relative(process.cwd(), docsRoot))
+
+  if (relative && relative !== ".." && !relative.startsWith("../") && !path.isAbsolute(relative)) {
+    return relative
+  }
+
+  return toPosix(docsRoot)
+}
+
+function docsPath(rel, rootLabel) {
+  const root = toPosix(rootLabel)
+  return rel ? `${root}/${rel}` : root
 }
 
 function isFile(filePath) {
@@ -73,87 +84,97 @@ function unquoteYamlString(value) {
   return trimmed
 }
 
-function markdownTitle(filePath, fileRel) {
+function markdownTitle(filePath, fileRel, rootLabel) {
   const markdown = fs.readFileSync(filePath, "utf8")
   const match = frontmatterMatch(markdown)
   const titleMatch = match?.[1]?.match(/^title\s*:\s*(.+?)\s*$/m)
 
   if (!titleMatch) {
-    throw new Error(`${docsPath(fileRel)} must define frontmatter with a title field`)
+    throw new Error(`${docsPath(fileRel, rootLabel)} must define frontmatter with a title field`)
   }
 
   let title
   try {
     title = unquoteYamlString(titleMatch[1])
   } catch (error) {
-    throw new Error(`Could not parse title in ${docsPath(fileRel)}: ${error.message}`)
+    throw new Error(`Could not parse title in ${docsPath(fileRel, rootLabel)}: ${error.message}`)
   }
 
   if (typeof title !== "string" || title.trim().length === 0) {
-    throw new Error(`${docsPath(fileRel)} must define frontmatter with a non-empty title field`)
+    throw new Error(
+      `${docsPath(fileRel, rootLabel)} must define frontmatter with a non-empty title field`,
+    )
   }
 
   return title.trim()
 }
 
-function validatePageSegment(segment, metaRel) {
+function validatePageSegment(segment, metaRel, rootLabel) {
   if (typeof segment !== "string") {
-    throw new Error(`${docsPath(metaRel)} pages entries must be strings`)
+    throw new Error(`${docsPath(metaRel, rootLabel)} pages entries must be strings`)
   }
 
   if (segment.trim() !== segment || segment.length === 0) {
-    throw new Error(`${docsPath(metaRel)} has an invalid pages entry ${JSON.stringify(segment)}`)
+    throw new Error(
+      `${docsPath(metaRel, rootLabel)} has an invalid pages entry ${JSON.stringify(segment)}`,
+    )
   }
 
   if (segment === "index") {
-    throw new Error(`${docsPath(metaRel)} must not list index; index.md is implicit`)
+    throw new Error(`${docsPath(metaRel, rootLabel)} must not list index; index.md is implicit`)
   }
 
   if (segment.endsWith(".md")) {
-    throw new Error(`${docsPath(metaRel)} pages entry ${JSON.stringify(segment)} must omit .md`)
+    throw new Error(
+      `${docsPath(metaRel, rootLabel)} pages entry ${JSON.stringify(segment)} must omit .md`,
+    )
   }
 
   if (segment.includes("/") || segment.includes("\\") || segment === "." || segment === "..") {
     throw new Error(
-      `${docsPath(metaRel)} pages entry ${JSON.stringify(segment)} must be a single slug segment`,
+      `${docsPath(metaRel, rootLabel)} pages entry ${JSON.stringify(
+        segment,
+      )} must be a single slug segment`,
     )
   }
 }
 
-function readMeta(folderPath, folderRel) {
+function readMeta(folderPath, folderRel, rootLabel) {
   const metaRel = posixJoin(folderRel, "_meta.json")
   const metaPath = path.join(folderPath, "_meta.json")
 
   if (!isFile(metaPath)) {
-    throw new Error(`${docsPath(metaRel)} is required for docs navigation`)
+    throw new Error(`${docsPath(metaRel, rootLabel)} is required for navigation`)
   }
 
   let parsed
   try {
     parsed = JSON.parse(fs.readFileSync(metaPath, "utf8"))
   } catch (error) {
-    throw new Error(`Could not parse ${docsPath(metaRel)}: ${error.message}`)
+    throw new Error(`Could not parse ${docsPath(metaRel, rootLabel)}: ${error.message}`)
   }
 
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new Error(`${docsPath(metaRel)} must be a JSON object`)
+    throw new Error(`${docsPath(metaRel, rootLabel)} must be a JSON object`)
   }
 
   const { label, pages } = parsed
   if (typeof label !== "string" || label.trim().length === 0) {
-    throw new Error(`${docsPath(metaRel)} must define a non-empty label string`)
+    throw new Error(`${docsPath(metaRel, rootLabel)} must define a non-empty label string`)
   }
 
   if (!Array.isArray(pages)) {
-    throw new Error(`${docsPath(metaRel)} must define a pages array`)
+    throw new Error(`${docsPath(metaRel, rootLabel)} must define a pages array`)
   }
 
   const seen = new Set()
   for (const segment of pages) {
-    validatePageSegment(segment, metaRel)
+    validatePageSegment(segment, metaRel, rootLabel)
 
     if (seen.has(segment)) {
-      throw new Error(`${docsPath(metaRel)} lists ${JSON.stringify(segment)} more than once`)
+      throw new Error(
+        `${docsPath(metaRel, rootLabel)} lists ${JSON.stringify(segment)} more than once`,
+      )
     }
     seen.add(segment)
   }
@@ -169,18 +190,21 @@ function slugForFolder(folderRel, slugPrefix) {
   return posixJoin(slugPrefix, folderRel, "index")
 }
 
-function recordReference(referencedMarkdown, fileRel, metaRel) {
+function recordReference(referencedMarkdown, fileRel, metaRel, rootLabel) {
   const existing = referencedMarkdown.get(fileRel)
   if (existing) {
     throw new Error(
-      `${docsPath(fileRel)} is referenced by both ${docsPath(existing)} and ${docsPath(metaRel)}`,
+      `${docsPath(fileRel, rootLabel)} is referenced by both ${docsPath(
+        existing,
+        rootLabel,
+      )} and ${docsPath(metaRel, rootLabel)}`,
     )
   }
 
   referencedMarkdown.set(fileRel, metaRel)
 }
 
-function validateCompleteness(docsRoot, referencedMarkdown, reachedFolders) {
+function validateCompleteness(docsRoot, referencedMarkdown, reachedFolders, rootLabel) {
   const files = walk(docsRoot)
   const markdownFolders = new Set([""])
   const metaFolders = new Set()
@@ -228,30 +252,30 @@ function validateCompleteness(docsRoot, referencedMarkdown, reachedFolders) {
 
   if (missingMetaFolders.length > 0) {
     throw new Error(
-      "Docs navigation is missing _meta.json manifests:\n" +
+      "Navigation is missing _meta.json manifests:\n" +
         missingMetaFolders
           .sort()
-          .map((rel) => `- ${docsPath(posixJoin(rel, "_meta.json"))}`)
+          .map((rel) => `- ${docsPath(posixJoin(rel, "_meta.json"), rootLabel)}`)
           .join("\n"),
     )
   }
 
   if (orphanMarkdown.length > 0) {
     throw new Error(
-      "Docs navigation is missing markdown pages:\n" +
+      "Navigation is missing markdown pages:\n" +
         orphanMarkdown
           .sort()
-          .map((rel) => `- ${docsPath(rel)}`)
+          .map((rel) => `- ${docsPath(rel, rootLabel)}`)
           .join("\n"),
     )
   }
 
   if (orphanMetaFolders.length > 0) {
     throw new Error(
-      "Docs navigation is missing folders with _meta.json manifests:\n" +
+      "Navigation is missing folders with _meta.json manifests:\n" +
         orphanMetaFolders
           .sort()
-          .map((rel) => `- ${docsPath(rel)}`)
+          .map((rel) => `- ${docsPath(rel, rootLabel)}`)
           .join("\n"),
     )
   }
@@ -262,9 +286,10 @@ export function buildDocsNav({
   slugPrefix = defaultDocsSlugPrefix,
 } = {}) {
   const resolvedDocsRoot = path.resolve(docsRoot)
+  const rootLabel = docsRootLabel(resolvedDocsRoot)
 
   if (!isDirectory(resolvedDocsRoot)) {
-    throw new Error(`Could not find docs directory at ${resolvedDocsRoot}`)
+    throw new Error(`Could not find navigation root at ${rootLabel} (${resolvedDocsRoot})`)
   }
 
   const referencedMarkdown = new Map()
@@ -272,7 +297,7 @@ export function buildDocsNav({
 
   function buildFolder(folderRel) {
     const folderPath = path.join(resolvedDocsRoot, folderRel)
-    const meta = readMeta(folderPath, folderRel)
+    const meta = readMeta(folderPath, folderRel, rootLabel)
     const items = []
 
     for (const segment of meta.pages) {
@@ -286,24 +311,30 @@ export function buildDocsNav({
 
       if (hasMarkdownFile && hasFolder) {
         throw new Error(
-          `${docsPath(metaRel)} pages entry ${JSON.stringify(
+          `${docsPath(metaRel, rootLabel)} pages entry ${JSON.stringify(
             segment,
-          )} is ambiguous because both ${docsPath(fileRel)} and ${docsPath(childFolderRel)} exist`,
+          )} is ambiguous because both ${docsPath(fileRel, rootLabel)} and ${docsPath(
+            childFolderRel,
+            rootLabel,
+          )} exist`,
         )
       }
 
       if (!hasMarkdownFile && !hasFolder) {
         throw new Error(
-          `${docsPath(metaRel)} pages entry ${JSON.stringify(
+          `${docsPath(metaRel, rootLabel)} pages entry ${JSON.stringify(
             segment,
-          )} does not resolve to ${docsPath(fileRel)} or ${docsPath(childFolderRel)}/`,
+          )} does not resolve to ${docsPath(fileRel, rootLabel)} or ${docsPath(
+            childFolderRel,
+            rootLabel,
+          )}/`,
         )
       }
 
       if (hasMarkdownFile) {
-        recordReference(referencedMarkdown, fileRel, metaRel)
+        recordReference(referencedMarkdown, fileRel, metaRel, rootLabel)
         items.push({
-          title: markdownTitle(filePath, fileRel),
+          title: markdownTitle(filePath, fileRel, rootLabel),
           slug: slugForMarkdown(fileRel, slugPrefix),
         })
         continue
@@ -322,7 +353,7 @@ export function buildDocsNav({
   }
 
   const root = buildFolder("")
-  validateCompleteness(resolvedDocsRoot, referencedMarkdown, reachedFolders)
+  validateCompleteness(resolvedDocsRoot, referencedMarkdown, reachedFolders, rootLabel)
 
   return {
     root: {

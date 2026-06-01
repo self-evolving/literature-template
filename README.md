@@ -56,13 +56,28 @@ tags:
 
 A synthesis note should link back to the relevant paper notes and make the relationship between papers explicit.
 
+### Navigation manifests
+
+The left navigation is driven by `_meta.json` files next to your notes. Every folder under `content/` that contains Markdown needs a `_meta.json` manifest with a human-readable `label` and a `pages` array of child slugs.
+
+For example, after adding `content/papers/new-paper.md`, add its slug without `.md` to `content/papers/_meta.json`:
+
+```json
+{
+  "label": "Papers",
+  "pages": ["example-paper", "new-paper"]
+}
+```
+
+Folder index pages are implicit: keep `index.md` in the folder, but do not list `"index"` in `pages`. For nested folders, add the folder slug to the parent manifest and give the nested folder its own `_meta.json`.
+
 ## Local development
 
 Use Node `22.x`:
 
 ```bash
 npm ci
-npx quartz plugin restore
+npm run install-plugins
 npm run dev
 ```
 
@@ -81,7 +96,7 @@ Import the repository into Vercel with:
 
 - Framework preset: **Other**
 - Install command: `npm ci`
-- Build command: `npx quartz plugin restore && npx quartz build`
+- Build command: `npm run build`
 - Output directory: `public`
 
 These settings are also captured in `vercel.json`.

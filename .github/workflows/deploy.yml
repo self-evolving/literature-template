@@ -62,10 +62,10 @@ jobs:
         run: npm run sync:source-docs -- source-repo
 
       - name: Restore Quartz plugins
-        run: npx quartz plugin restore
+        run: npm run install-plugins
 
       - name: Verify Quartz build
-        run: npx quartz build
+        run: npm run quartz -- build
 
       - name: Commit synchronized docs
         run: |
