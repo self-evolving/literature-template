@@ -4,7 +4,9 @@ Add or update one durable paper note in this Quartz literature site.
 
 The requested paper or source is provided in `${REQUEST_TEXT}`. It may be an
 arXiv URL/ID, DOI, PDF URL, paper title, project page, BibTeX entry, or a short
-natural-language request.
+natural-language request. The request text may also include an additional
+natural-language request, just like an inline agent request, such as asking to
+update a specific synthesis note or add a particular connection.
 
 Repository conventions:
 
@@ -53,14 +55,17 @@ Instructions:
 ## Open questions
 ```
 
-6. Link related synthesis notes when the request names a topic or the repository
+6. Follow any additional natural-language request from the workflow input. For
+   example, update a named synthesis note, add the paper under a requested
+   section, or create a specific connection when asked.
+7. Link related synthesis notes when the request names a topic or the repository
    already has an obvious matching note. Do not invent a broad synthesis note
    unless the user explicitly asked for one.
-7. Update `content/papers/_meta.json` if needed so the new note appears in the
+8. Update `content/papers/_meta.json` if needed so the new note appears in the
    literature navigation.
-8. Run focused validation when practical, such as `npx quartz build` or at least
+9. Run focused validation when practical, such as `npx quartz build` or at least
    checking modified Markdown/BibTeX for obvious syntax errors.
-9. Do not commit. Leave changes in the working tree.
+10. Do not commit. Leave changes in the working tree.
 
 Return exactly one JSON object and nothing else:
 

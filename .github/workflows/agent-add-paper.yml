@@ -7,8 +7,8 @@ on:
         description: "Paper URL, arXiv ID, DOI, title, PDF URL, or BibTeX entry."
         required: true
         type: string
-      notes:
-        description: "Optional instructions, topic context, or synthesis-note links."
+      additional_request:
+        description: "Optional natural-language request, such as notes to update or connections to add."
         required: false
         default: ""
         type: string
@@ -36,7 +36,7 @@ jobs:
     environment: agent-literature
     env:
       PAPER_INPUT: ${{ inputs.paper }}
-      NOTES_INPUT: ${{ inputs.notes || '' }}
+      ADDITIONAL_REQUEST_INPUT: ${{ inputs.additional_request || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -157,8 +157,8 @@ jobs:
 
             ${{ env.PAPER_INPUT }}
 
-            Optional notes/context:
-            ${{ env.NOTES_INPUT }}
+            Additional natural-language request:
+            ${{ env.ADDITIONAL_REQUEST_INPUT }}
           requested_by: ${{ github.actor }}
           source_kind: workflow_dispatch
           target_kind: repository

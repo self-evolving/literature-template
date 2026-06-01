@@ -112,7 +112,7 @@ This is separate from the future transient-review surface described in issue #65
 This template includes two opt-in Sepo literature workflows adapted from `self-evolving/literature`:
 
 - `Agent / Daily Literature` (`.github/workflows/agent-literature-daily.yml`) researches recent papers and posts a GitHub Discussion. The Discussion body uses mobile-friendly item cards instead of a giant table, and each item is posted as its own top-level Discussion comment so follow-up can happen per paper/source.
-- `Agent / Add Paper` (`.github/workflows/agent-add-paper.yml`) accepts a paper URL, arXiv ID, DOI, title, PDF URL, or BibTeX entry and opens a PR that updates `bibliography.bib` plus the matching `content/papers/` note.
+- `Agent / Add Paper` (`.github/workflows/agent-add-paper.yml`) accepts a paper URL, arXiv ID, DOI, title, PDF URL, or BibTeX entry, plus an optional natural-language additional request such as which synthesis note to update. It opens a PR that updates `bibliography.bib` plus the matching `content/papers/` note.
 
 Both workflows use the `agent-literature` GitHub Environment for research-tool secrets:
 

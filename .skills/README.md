@@ -32,9 +32,10 @@ topic is provided, the prompt infers the focus from repository context and open
 ## Add Paper Workflow
 
 `Agent / Add Paper` (`.github/workflows/agent-add-paper.yml`) accepts a paper
-URL, arXiv ID, DOI, title, PDF URL, or BibTeX entry and opens a PR that updates
-`bibliography.bib`, adds or updates the matching `content/papers/` note, and
-updates navigation metadata when needed.
+URL, arXiv ID, DOI, title, PDF URL, or BibTeX entry plus an optional
+natural-language additional request, such as which synthesis note to update. It
+opens a PR that updates `bibliography.bib`, adds or updates the matching
+`content/papers/` note, and updates navigation metadata when needed.
 
 ## GitHub Environment Secrets
 
