@@ -1,4 +1,8 @@
+import fs from "node:fs"
+import path from "node:path"
+
 const defaultOptions = {
+  bibliographyFile: "./bibliography.bib",
   papersRoot: "papers",
 }
 
@@ -68,6 +72,40 @@ const citationCss = `
   color: var(--dark);
 }
 
+.paper-bibtex {
+  margin: 2rem 0 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 0.95rem;
+  background: color-mix(in srgb, var(--secondary) 8%, transparent);
+}
+
+.paper-bibtex h2 {
+  margin: 0 0 0.75rem;
+  color: var(--secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.065em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.paper-bibtex pre {
+  margin: 0;
+  padding: 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--secondary) 18%, var(--lightgray));
+  border-radius: 0.7rem;
+  background: var(--light);
+  overflow-x: auto;
+}
+
+.paper-bibtex code {
+  color: var(--darkgray);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
 @media all and (max-width: 600px) {
   #refs.references.csl-bib-body {
     padding: 0.85rem;
@@ -81,6 +119,14 @@ const citationCss = `
 
   #refs.references.csl-bib-body .csl-entry::before {
     left: 0.2rem;
+  }
+
+  .paper-bibtex {
+    padding: 0.85rem;
+  }
+
+  .paper-bibtex pre {
+    padding: 0.75rem;
   }
 }
 
@@ -225,6 +271,118 @@ function citationTarget(citekey, papersRoot) {
   return joinSegments(papersRoot, slug)
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+function extractBibTexEntry(bibliography, citekey) {
+  const entryStart = new RegExp(`@\\w+\\s*[{(]\\s*${escapeRegExp(citekey)}\\s*,`, "i").exec(
+    bibliography,
+  )
+  if (!entryStart) {
+    return undefined
+  }
+
+  const start = entryStart.index
+  const openIndex = bibliography.slice(start).search(/[{(]/)
+  if (openIndex < 0) {
+    return undefined
+  }
+
+  const absoluteOpenIndex = start + openIndex
+  const openChar = bibliography[absoluteOpenIndex]
+  const closeChar = openChar === "(" ? ")" : "}"
+  let depth = 0
+
+  for (let index = absoluteOpenIndex; index < bibliography.length; index++) {
+    const char = bibliography[index]
+    if (char === openChar) {
+      depth++
+    } else if (char === closeChar) {
+      depth--
+      if (depth === 0) {
+        return bibliography.slice(start, index + 1).trim()
+      }
+    }
+  }
+
+  return undefined
+}
+
+function readBibliography(filePath) {
+  const resolved = path.resolve(process.cwd(), filePath)
+  try {
+    return fs.readFileSync(resolved, "utf-8")
+  } catch {
+    return undefined
+  }
+}
+
+function paperCitekey(file, papersRoot) {
+  const slug = file.data.slug
+  if (typeof slug !== "string") {
+    return undefined
+  }
+
+  const normalizedPapersRoot = stripSlashes(papersRoot)
+  if (!slug.startsWith(`${normalizedPapersRoot}/`)) {
+    return undefined
+  }
+
+  const frontmatterCitekey = file.data.frontmatter?.citekey
+  if (typeof frontmatterCitekey === "string" && frontmatterCitekey.trim().length > 0) {
+    return frontmatterCitekey.trim()
+  }
+
+  return slug.split("/").at(-1)
+}
+
+function paperBibTexSection(citekey, bibtex) {
+  return {
+    type: "element",
+    tagName: "section",
+    properties: {
+      className: ["paper-bibtex"],
+      "aria-labelledby": `bibtex-${slugifyCitationKey(citekey)}`,
+    },
+    children: [
+      {
+        type: "element",
+        tagName: "h2",
+        properties: { id: `bibtex-${slugifyCitationKey(citekey)}` },
+        children: [{ type: "text", value: "BibTeX" }],
+      },
+      {
+        type: "element",
+        tagName: "pre",
+        properties: {},
+        children: [
+          {
+            type: "element",
+            tagName: "code",
+            properties: { className: ["language-bibtex"] },
+            children: [{ type: "text", value: bibtex }],
+          },
+        ],
+      },
+    ],
+  }
+}
+
+function appendPaperBibTex(tree, file, bibliography, papersRoot) {
+  const citekey = paperCitekey(file, papersRoot)
+  if (!citekey || !bibliography) {
+    return
+  }
+
+  const bibtex = extractBibTexEntry(bibliography, citekey)
+  if (!bibtex) {
+    return
+  }
+
+  tree.children.push(paperBibTexSection(citekey, bibtex))
+}
+
 function cloneWithoutIds(node) {
   if (!node || typeof node !== "object") {
     return node
@@ -301,6 +459,7 @@ function collectBibliographyEntries(tree) {
 export function LiteratureCitations(userOptions = {}) {
   const options = { ...defaultOptions, ...userOptions }
   const papersRoot = stripSlashes(options.papersRoot ?? defaultOptions.papersRoot)
+  const bibliography = readBibliography(options.bibliographyFile)
 
   return {
     name: "LiteratureCitations",
@@ -366,6 +525,7 @@ export function LiteratureCitations(userOptions = {}) {
           }
 
           transform(tree)
+          appendPaperBibTex(tree, file, bibliography, papersRoot)
         },
       ]
     },
