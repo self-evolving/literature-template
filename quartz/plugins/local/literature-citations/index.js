@@ -77,7 +77,10 @@ const citationCss = `
   padding: 1rem 1.1rem;
   border: 1px solid var(--lightgray);
   border-radius: 0.95rem;
-  background: color-mix(in srgb, var(--secondary) 8%, transparent);
+  background: color-mix(in srgb, var(--lightgray) 22%, transparent);
+  color: var(--darkgray);
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
 .paper-bibtex h2 {
@@ -91,12 +94,33 @@ const citationCss = `
 }
 
 .paper-bibtex pre {
+  position: relative;
   margin: 0;
-  padding: 0.9rem;
-  border: 1px solid color-mix(in srgb, var(--secondary) 18%, var(--lightgray));
-  border-radius: 0.7rem;
-  background: var(--light);
+  padding: 0.85rem 0.85rem 0.85rem 2.65rem;
+  border-top: 1px solid color-mix(in srgb, var(--lightgray) 78%, transparent);
+  border-radius: 0.65rem;
+  background: transparent;
   overflow-x: auto;
+}
+
+.paper-bibtex pre::before {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--secondary) 10%, var(--light));
+  color: var(--secondary);
+  content: "Bib";
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 .paper-bibtex code {
@@ -126,7 +150,12 @@ const citationCss = `
   }
 
   .paper-bibtex pre {
-    padding: 0.75rem;
+    padding-right: 0.35rem;
+    padding-left: 2.3rem;
+  }
+
+  .paper-bibtex pre::before {
+    left: 0.2rem;
   }
 }
 
