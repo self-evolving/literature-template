@@ -39,7 +39,7 @@ tags:
 ---
 ```
 
-Use the `paper` tag as a lightweight type tag. The graph view can show this tag node, which gives readers a first-pass way to distinguish paper notes from synthesis notes without a custom graph renderer.
+Use the `paper` tag as a lightweight type hint. Graph tag nodes stay hidden by default; the template uses this hint together with the `content/papers/` path to render paper page nodes differently from synthesis notes.
 
 Markdown citations such as `[@author2026paper]` still render from the matching BibTeX entry in `bibliography.bib`. The local literature-citations layer then checks whether `content/papers/author2026paper.md` exists. If it does, the rendered citation link opens that paper note and uses Quartz's normal internal-link popover.
 

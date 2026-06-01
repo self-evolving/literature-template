@@ -1,6 +1,10 @@
 import fs from "node:fs"
 import path from "node:path"
 import matter from "gray-matter"
+import remarkParse from "remark-parse"
+import remarkRehype from "remark-rehype"
+import { unified } from "unified"
+import { VFile } from "vfile"
 
 const defaultOptions = {
   bibliographyFile: "./bibliography.bib",
@@ -287,24 +291,26 @@ function markdownPathForSlug(ctx, slug) {
   return path.resolve(process.cwd(), ctx.argv?.directory ?? "content", `${slug}.md`)
 }
 
+function markdownToHast(markdown) {
+  const processor = unified().use(remarkParse).use(remarkRehype, { allowDangerousHtml: true })
+  const mdast = processor.parse(markdown)
+  return processor.runSync(mdast)
+}
+
 function contentForSlug(ctx, slug) {
   const filePath = markdownPathForSlug(ctx, slug)
   const markdown = fs.readFileSync(filePath, "utf-8")
   const parsed = matter(markdown)
+  const file = new VFile({ path: filePath, value: markdown })
+  file.data = {
+    ...file.data,
+    slug,
+    filePath,
+    relativePath: `${slug}.md`,
+    frontmatter: parsed.data ?? {},
+  }
 
-  return [
-    { type: "root", children: [] },
-    {
-      path: filePath,
-      value: markdown,
-      data: {
-        slug,
-        filePath,
-        relativePath: `${slug}.md`,
-        frontmatter: parsed.data ?? {},
-      },
-    },
-  ]
+  return [markdownToHast(parsed.content), file]
 }
 
 function shouldPublishByActiveFilters(ctx, content) {

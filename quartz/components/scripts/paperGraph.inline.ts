@@ -22,6 +22,7 @@ const paperGraphPatchKey = "__sepoPaperGraphPatched"
 const graphCircleKey = "__sepoGraphCircle"
 const graphStyledKey = "__sepoPaperGraphStyled"
 const paperSlugs = new Set<string>()
+const pendingGraphLabels: PIXI.Text[] = []
 
 function markBundledScript(src: string) {
   // The community graph script skips its CDN loader when a matching script tag
@@ -85,21 +86,38 @@ function shouldHideGraphTags() {
 
 function prepareGraphData() {
   fetchData.then((data) => {
-    const hideTags = shouldHideGraphTags()
-
     for (const [slug, details] of Object.entries(data)) {
       const normalized = simplifySlug(slug)
-
-      if (hideTags && normalized.startsWith("tags/")) {
-        delete data[slug]
-        continue
-      }
 
       if (isPaperNode(normalized, details)) {
         paperSlugs.add(normalized)
       }
     }
   })
+}
+
+function hideGraphTagNode(gfx: PIXI.Graphics, label?: PIXI.Text) {
+  gfx.visible = false
+  gfx.eventMode = "none"
+
+  if (label) {
+    label.visible = false
+    label.alpha = 0
+  }
+}
+
+function renderGraphNode(gfx: unknown) {
+  const patched = gfx as PIXI.Graphics & { label?: unknown }
+  const id = patched.label
+  if (typeof id !== "string") return
+
+  const label = pendingGraphLabels.shift()
+  if (id.startsWith("tags/") && shouldHideGraphTags()) {
+    hideGraphTagNode(patched, label)
+    return
+  }
+
+  restylePaperNode(patched)
 }
 
 function restylePaperNode(gfx: unknown) {
@@ -151,7 +169,13 @@ function patchPixiForPaperNodes(Pixi: typeof PIXI) {
   const originalAddChild = Pixi.Container.prototype.addChild
   Pixi.Container.prototype.addChild = function (...children: PIXI.ContainerChild[]) {
     const result = originalAddChild.apply(this, children)
-    for (const child of children) restylePaperNode(child)
+    for (const child of children) {
+      if (child instanceof Pixi.Text) {
+        pendingGraphLabels.push(child)
+      } else {
+        renderGraphNode(child)
+      }
+    }
     return result
   }
 
