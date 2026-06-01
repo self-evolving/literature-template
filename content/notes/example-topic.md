@@ -14,7 +14,7 @@ How can attention-based architectures and tooling patterns inform the way we org
 
 ## Linked papers
 
-- [Attention Is All You Need](../papers/example-paper.md) [@vaswani2017attention]
+- [Attention Is All You Need](../papers/vaswani2017attention.md) [@vaswani2017attention]
 
 ## Synthesis
 

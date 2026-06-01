@@ -21,7 +21,7 @@ tags:
   - transformers
 ---
 
-This is an example consolidated paper note. It is linked to the BibTeX key `vaswani2017attention` and can be cited in Markdown as [@vaswani2017attention].
+This is an example consolidated paper note. Its filename matches the BibTeX key `vaswani2017attention`, so Markdown citations such as `[@vaswani2017attention]` from other notes link back to this paper page.
 
 ## Summary
 

@@ -169,6 +169,12 @@
       "commit": "3dcfedcb5ae5e28b71248a72665ccb881e82c185",
       "installedAt": "2026-05-31T23:14:24.480Z"
     },
+    "literature-citations": {
+      "source": "./quartz/plugins/local/literature-citations",
+      "resolved": "./quartz/plugins/local/literature-citations",
+      "commit": "local",
+      "installedAt": "2026-06-01T02:40:00.000Z"
+    },
     "note-properties": {
       "source": "github:quartz-community/note-properties",
       "resolved": "https://github.com/quartz-community/note-properties.git",
