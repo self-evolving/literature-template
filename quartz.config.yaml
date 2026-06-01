@@ -158,8 +158,10 @@ plugins:
     order: 50
   - source: github:quartz-community/content-page
     enabled: true
-  - source: github:quartz-community/folder-page
+  - source: ./quartz/plugins/local/folder-page
     enabled: true
+    options:
+      orderFromMeta: true
   - source: github:quartz-community/tag-page
     enabled: true
   - source: github:quartz-community/explorer
@@ -171,9 +173,9 @@ plugins:
     enabled: true
     options:
       localGraph:
-        showTags: false
+        showTags: true
       globalGraph:
-        showTags: false
+        showTags: true
     layout:
       position: right
       priority: 10

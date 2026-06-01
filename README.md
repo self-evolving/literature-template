@@ -39,6 +39,8 @@ tags:
 ---
 ```
 
+Use the `paper` tag as a lightweight type tag. The graph view can show this tag node, which gives readers a first-pass way to distinguish paper notes from synthesis notes without a custom graph renderer.
+
 Markdown citations such as `[@author2026paper]` still render from the matching BibTeX entry in `bibliography.bib`. The local literature-citations layer then checks whether `content/papers/author2026paper.md` exists. If it does, the rendered citation link opens that paper note and uses Quartz's normal internal-link popover.
 
 The `citekey` frontmatter should match the filename for readability and future validation, but the filename is the canonical citation-to-note mapping. If no matching paper note exists, Quartz keeps the default bibliography-link behavior.
@@ -52,11 +54,36 @@ Synthesis notes live under `content/notes/` and capture topic-level understandin
 title: "Topic or synthesis title"
 type: note
 tags:
+  - note
   - synthesis
 ---
 ```
 
+Use the `note` tag as the corresponding lightweight type tag for durable synthesis notes. Additional topical tags such as `synthesis`, `methods`, or `evaluation` are optional.
+
 A synthesis note should link back to the relevant paper notes and make the relationship between papers explicit.
+
+### Ordering folder listings
+
+Folder listing pages follow the nearest `_meta.json` `pages` array when it exists. For example, `content/notes/_meta.json` controls the order shown on `/notes/`:
+
+```json
+{
+  "label": "Notes",
+  "pages": ["example-topic", "attention-patterns"]
+}
+```
+
+Entries should omit `.md`. Pages not listed in `_meta.json` fall back to the default folder-page sort.
+
+### Graph type tags
+
+The initial graph differentiation convention is tag-based:
+
+- paper notes include `paper`
+- synthesis notes include `note`
+
+The template enables graph tag nodes so papers and notes can be visually associated with `#paper` and `#note`. This is intentionally simple; a future graph renderer can use frontmatter `type` or paths for richer colors/shapes without changing content.
 
 ## Local development
 

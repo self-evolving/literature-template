@@ -38,12 +38,14 @@ const isActive = (currentSlug: FullSlug, item: DocsNavItem) => {
 const docsNavSectionId = (item: DocsNavItem) =>
   `docs-nav-${item.slug.replace(/\/index$/, "").replace(/[^a-z0-9_-]+/gi, "-")}`
 
-function renderNavItem(currentSlug: FullSlug, item: DocsNavItem) {
+function renderNavItem(currentSlug: FullSlug, item: DocsNavItem, allSlugs: FullSlug[]) {
   const active = isActive(currentSlug, item)
   const current = currentSlug === item.slug
   const hasChildren = item.children && item.children.length > 0
   const sectionId = hasChildren ? docsNavSectionId(item) : undefined
   const expanded = active
+  const itemHref = resolveRelative(currentSlug, item.slug)
+  const hasPage = allSlugs.includes(item.slug)
 
   return (
     <li
@@ -57,41 +59,64 @@ function renderNavItem(currentSlug: FullSlug, item: DocsNavItem) {
     >
       {hasChildren ? (
         <>
-          <button
-            type="button"
-            class={["docs-nav-link docs-nav-section-button", current ? "active" : undefined]
+          <div
+            class={["docs-nav-link docs-nav-section-row", current ? "active" : undefined]
               .filter(Boolean)
               .join(" ")}
-            aria-controls={sectionId}
-            aria-expanded={expanded}
-            aria-label={`${expanded ? "Collapse" : "Expand"} ${item.title}`}
-            data-title={item.title}
-            data-href={resolveRelative(currentSlug, item.slug)}
           >
-            <span>{item.title}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="fold"
+            {hasPage ? (
+              <a
+                class="docs-nav-section-anchor"
+                href={itemHref}
+                data-controls={sectionId}
+                data-title={item.title}
+              >
+                <span>{item.title}</span>
+              </a>
+            ) : (
+              <button
+                type="button"
+                class="docs-nav-section-anchor docs-nav-section-action"
+                aria-controls={sectionId}
+                aria-expanded={expanded}
+                aria-label={`${expanded ? "Collapse" : "Expand"} ${item.title}`}
+                data-title={item.title}
+              >
+                <span>{item.title}</span>
+              </button>
+            )}
+            <button
+              type="button"
+              class="docs-nav-section-toggle"
+              aria-controls={sectionId}
+              aria-expanded={expanded}
+              aria-label={`${expanded ? "Collapse" : "Expand"} ${item.title}`}
+              data-title={item.title}
             >
-              <path d="M9 5l7 7-7 7"></path>
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="fold"
+              >
+                <path d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </div>
           <ul id={sectionId} class="docs-nav-children" hidden={!expanded}>
-            {item.children!.map((child) => renderNavItem(currentSlug, child))}
+            {item.children!.map((child) => renderNavItem(currentSlug, child, allSlugs))}
           </ul>
         </>
       ) : (
         <a
           class={["docs-nav-link", current ? "active" : undefined].filter(Boolean).join(" ")}
-          href={resolveRelative(currentSlug, item.slug)}
+          href={itemHref}
         >
           {item.title}
         </a>
@@ -116,7 +141,7 @@ const DocsExplorer: QuartzComponent = ({ ctx, fileData, displayClass }: QuartzCo
             {docsNavData.root.title}
           </a>
         </li>
-        {docsNavData.items.map((item) => renderNavItem(currentSlug, item))}
+        {docsNavData.items.map((item) => renderNavItem(currentSlug, item, ctx.allSlugs))}
       </ul>
     </nav>
   )

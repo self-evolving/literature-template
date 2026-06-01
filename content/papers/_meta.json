@@ -1,4 +1,4 @@
 {
   "label": "Papers",
-  "pages": ["vaswani2017attention"]
+  "pages": ["vaswani2017attention", "devlin2019bert", "brown2020language"]
 }

@@ -150,6 +150,11 @@ const citationCss = `
 .citation-bib-popup-entry {
   display: block;
 }
+
+.references .csl-entry a {
+  color: var(--secondary);
+  overflow-wrap: anywhere;
+}
 `
 
 function decodeCitekey(rawCitekey) {
@@ -296,6 +301,93 @@ function paperCitekey(file, papersRoot) {
   return slug.split("/").at(-1)
 }
 
+function externalReferenceLink(value, href) {
+  return {
+    type: "element",
+    tagName: "a",
+    properties: {
+      href,
+      target: "_blank",
+      rel: ["noopener", "noreferrer"],
+    },
+    children: [{ type: "text", value }],
+  }
+}
+
+function linkifyReferenceText(value) {
+  const children = []
+  const urlPattern = /https?:\/\/[^\s<>"']+/g
+  let cursor = 0
+
+  for (const match of value.matchAll(urlPattern)) {
+    const rawUrl = match[0]
+    const trailingPunctuation = rawUrl.match(/[.,;:!?)]*$/)?.[0] ?? ""
+    const url = trailingPunctuation ? rawUrl.slice(0, -trailingPunctuation.length) : rawUrl
+    const index = match.index ?? 0
+
+    if (!url) continue
+
+    if (index > cursor) {
+      children.push({ type: "text", value: value.slice(cursor, index) })
+    }
+
+    children.push(externalReferenceLink(url, url))
+    if (trailingPunctuation) {
+      children.push({ type: "text", value: trailingPunctuation })
+    }
+    cursor = index + rawUrl.length
+  }
+
+  if (cursor < value.length) {
+    children.push({ type: "text", value: value.slice(cursor) })
+  }
+
+  return children.length > 0 ? children : [{ type: "text", value }]
+}
+
+function isReferencesEntry(node) {
+  const className = node?.properties?.className
+  const classes = Array.isArray(className)
+    ? className
+    : typeof className === "string"
+      ? className.split(/\s+/)
+      : []
+  return classes.includes("csl-entry")
+}
+
+function linkifyReferenceEntry(node) {
+  if (!node || typeof node !== "object" || !Array.isArray(node.children)) return
+
+  node.children = node.children.flatMap((child) => {
+    if (child?.type === "text") {
+      return linkifyReferenceText(child.value ?? "")
+    }
+
+    if (child?.type === "element" && child.tagName !== "a" && child.tagName !== "code") {
+      linkifyReferenceEntry(child)
+    }
+
+    return [child]
+  })
+}
+
+function linkifyReferenceEntries(tree) {
+  const visit = (node) => {
+    if (!node || typeof node !== "object") return
+
+    if (node.type === "element" && isReferencesEntry(node)) {
+      linkifyReferenceEntry(node)
+      return
+    }
+
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) visit(child)
+    }
+  }
+
+  visit(tree)
+}
+
 function paperBibTexSection(_citekey, bibtex) {
   return [
     {
@@ -417,6 +509,7 @@ export function LiteratureCitations(userOptions = {}) {
     htmlPlugins(ctx) {
       return [
         () => (tree, file) => {
+          linkifyReferenceEntries(tree)
           const bibliographyEntries = collectBibliographyEntries(tree)
 
           const transform = (node) => {
