@@ -328,7 +328,9 @@ export async function handlePluginAdd(sources) {
     fs.mkdirSync(PLUGINS_DIR, { recursive: true })
   }
 
+  let failed = 0
   const addedPlugins = []
+  const builtPlugins = []
 
   for (const source of sources) {
     try {
@@ -345,6 +347,7 @@ export async function handlePluginAdd(sources) {
         const resolvedPath = path.resolve(url)
         if (!fs.existsSync(resolvedPath)) {
           console.log(styleText("red", `✗ Local path does not exist: ${resolvedPath}`))
+          failed++
           continue
         }
         console.log(styleText("cyan", `→ Adding ${name} from local path ${resolvedPath}...`))
@@ -381,50 +384,64 @@ export async function handlePluginAdd(sources) {
       }
     } catch (error) {
       console.log(styleText("red", `✗ Failed to add ${source}: ${error}`))
+      failed++
     }
   }
 
   if (addedPlugins.length > 0) {
     console.log()
     console.log(styleText("cyan", "→ Building plugins..."))
-    for (const { name, pluginDir } of addedPlugins) {
+    for (const plugin of addedPlugins) {
+      const { name, pluginDir } = plugin
       if (buildPlugin(pluginDir, name)) {
         console.log(styleText("green", `  ✓ ${name} built`))
+        builtPlugins.push(plugin)
+      } else {
+        failed++
+        delete lockfile.plugins[name]
+        removePluginDir(pluginDir)
       }
     }
-    await regeneratePluginIndex()
   }
 
-  writeLockfile(lockfile)
-  const pluginsJson = readPluginsJson()
-  if (pluginsJson?.plugins) {
-    for (const { pluginDir, source } of addedPlugins) {
-      const manifest = readManifestFromPackageJson(pluginDir)
-      const newEntry = {
-        source,
-        enabled: manifest?.defaultEnabled ?? true,
-        options: manifest?.defaultOptions ?? {},
-        order: manifest?.defaultOrder ?? 50,
-      }
+  if (builtPlugins.length > 0) {
+    await regeneratePluginIndex()
+    writeLockfile(lockfile)
+    const pluginsJson = readPluginsJson()
+    if (pluginsJson?.plugins) {
+      for (const { pluginDir, source } of builtPlugins) {
+        const manifest = readManifestFromPackageJson(pluginDir)
+        const newEntry = {
+          source,
+          enabled: manifest?.defaultEnabled ?? true,
+          options: manifest?.defaultOptions ?? {},
+          order: manifest?.defaultOrder ?? 50,
+        }
 
-      if (manifest?.components) {
-        const firstComponentKey = Object.keys(manifest.components)[0]
-        const comp = manifest.components[firstComponentKey]
-        if (comp?.defaultPosition) {
-          newEntry.layout = {
-            position: comp.defaultPosition,
-            priority: comp.defaultPriority ?? 50,
-            display: "all",
+        if (manifest?.components) {
+          const firstComponentKey = Object.keys(manifest.components)[0]
+          const comp = manifest.components[firstComponentKey]
+          if (comp?.defaultPosition) {
+            newEntry.layout = {
+              position: comp.defaultPosition,
+              priority: comp.defaultPriority ?? 50,
+              display: "all",
+            }
           }
         }
-      }
 
-      pluginsJson.plugins.push(newEntry)
+        pluginsJson.plugins.push(newEntry)
+      }
+      writePluginsJson(pluginsJson)
     }
-    writePluginsJson(pluginsJson)
+    console.log()
+    console.log(styleText("gray", "Updated quartz.lock.json"))
+  } else if (addedPlugins.length > 0 || failed > 0) {
+    console.log()
+    console.log(styleText("gray", "No plugin changes were written"))
   }
-  console.log()
-  console.log(styleText("gray", "Updated quartz.lock.json"))
+
+  throwIfPluginFailures("add", failed)
 }
 
 export async function handlePluginRemove(names) {
@@ -650,33 +667,37 @@ export async function handlePluginUpdate(names) {
     return
   }
 
-  const pluginsToUpdate = names || Object.keys(lockfile.plugins)
+  const pluginsToUpdate = names?.length ? names : Object.keys(lockfile.plugins)
   const updatedPlugins = []
+  let failed = 0
 
   for (const name of pluginsToUpdate) {
     const entry = lockfile.plugins[name]
     if (!entry) {
-      console.log(styleText("yellow", `⚠ ${name} is not installed`))
+      console.log(styleText("red", `✗ ${name} is not installed`))
+      failed++
       continue
     }
 
     const pluginDir = path.join(PLUGINS_DIR, name)
     if (!fs.existsSync(pluginDir)) {
       console.log(
-        styleText("yellow", `⚠ ${name} directory missing. Run 'npx quartz plugin install'.`),
+        styleText("red", `✗ ${name} directory missing. Run 'npm run quartz -- plugin restore'.`),
       )
+      failed++
       continue
     }
 
     // Local plugins: just rebuild, no git operations
     if (entry.commit === "local") {
       console.log(styleText("cyan", `→ Rebuilding local plugin ${name}...`))
-      updatedPlugins.push({ name, pluginDir })
+      updatedPlugins.push({ name, pluginDir, lockfileChanged: false })
       continue
     }
 
     try {
       console.log(styleText("cyan", `→ Updating ${name}...`))
+      const previousEntry = { ...entry }
       const fetchRef = entry.ref || ""
       const resetTarget = entry.ref ? `origin/${entry.ref}` : "origin/HEAD"
       execSync(`git fetch --depth 1 origin${fetchRef ? " " + fetchRef : ""}`, {
@@ -689,30 +710,47 @@ export async function handlePluginUpdate(names) {
       if (newCommit !== entry.commit) {
         entry.commit = newCommit
         entry.installedAt = new Date().toISOString()
-        updatedPlugins.push({ name, pluginDir })
+        updatedPlugins.push({ name, pluginDir, previousEntry, lockfileChanged: true })
         console.log(styleText("green", `✓ Updated ${name} to ${newCommit.slice(0, 7)}`))
       } else {
         console.log(styleText("gray", `✓ ${name} already up to date`))
       }
     } catch (error) {
       console.log(styleText("red", `✗ Failed to update ${name}: ${error}`))
+      failed++
     }
   }
 
+  let rebuilt = 0
+  let lockfileChanged = false
   if (updatedPlugins.length > 0) {
     console.log()
     console.log(styleText("cyan", "→ Rebuilding updated plugins..."))
-    for (const { name, pluginDir } of updatedPlugins) {
+    for (const plugin of updatedPlugins) {
+      const { name, pluginDir } = plugin
       if (buildPlugin(pluginDir, name)) {
         console.log(styleText("green", `  ✓ ${name} rebuilt`))
+        rebuilt++
+        lockfileChanged ||= plugin.lockfileChanged
+      } else {
+        failed++
+        if (plugin.previousEntry) {
+          lockfile.plugins[name] = plugin.previousEntry
+        }
       }
     }
-    await regeneratePluginIndex()
   }
 
-  writeLockfile(lockfile)
-  console.log()
-  console.log(styleText("gray", "Updated quartz.lock.json"))
+  if (rebuilt > 0) {
+    await regeneratePluginIndex()
+  }
+  if (lockfileChanged) {
+    writeLockfile(lockfile)
+    console.log()
+    console.log(styleText("gray", "Updated quartz.lock.json"))
+  }
+
+  throwIfPluginFailures("update", failed)
 }
 
 export async function handlePluginList() {
@@ -1007,6 +1045,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
   }
 
   const installed = []
+  const builtPlugins = []
   let failed = 0
 
   for (const entry of missing) {
@@ -1023,7 +1062,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
             commit: "local",
             installedAt: new Date().toISOString(),
           }
-          installed.push({ name, pluginDir })
+          installed.push({ name, pluginDir, created: false })
           continue
         }
         console.log(styleText("yellow", `⚠ ${name} directory already exists, updating lockfile`))
@@ -1035,7 +1074,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
           ...(ref && { ref }),
           installedAt: new Date().toISOString(),
         }
-        installed.push({ name, pluginDir })
+        installed.push({ name, pluginDir, created: false })
         continue
       }
 
@@ -1056,7 +1095,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
           commit: "local",
           installedAt: new Date().toISOString(),
         }
-        installed.push({ name, pluginDir })
+        installed.push({ name, pluginDir, created: true })
         console.log(styleText("green", `✓ Linked ${name} (local)`))
       } else {
         console.log(styleText("cyan", `→ Cloning ${name} from ${url}...`))
@@ -1076,7 +1115,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
           installedAt: new Date().toISOString(),
         }
 
-        installed.push({ name, pluginDir })
+        installed.push({ name, pluginDir, created: true })
         console.log(styleText("green", `✓ Cloned ${name}@${commit.slice(0, 7)}`))
       }
     } catch (error) {
@@ -1088,22 +1127,34 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
   if (installed.length > 0) {
     console.log()
     console.log(styleText("cyan", "→ Building plugins..."))
-    for (const { name, pluginDir } of installed) {
+    for (const plugin of installed) {
+      const { name, pluginDir } = plugin
       if (!buildPlugin(pluginDir, name)) {
         failed++
+        delete lockfile.plugins[name]
+        if (plugin.created) {
+          removePluginDir(pluginDir)
+        }
       } else {
         console.log(styleText("green", `  ✓ ${name} built`))
+        builtPlugins.push(plugin)
       }
     }
-    await regeneratePluginIndex()
   }
 
-  writeLockfile(lockfile)
+  if (builtPlugins.length > 0) {
+    await regeneratePluginIndex()
+    writeLockfile(lockfile)
+  }
+
   console.log()
   if (failed === 0) {
-    console.log(styleText("green", `✓ Resolved ${installed.length} plugin(s)`))
+    console.log(styleText("green", `✓ Resolved ${builtPlugins.length} plugin(s)`))
   } else {
-    console.log(styleText("yellow", `⚠ Resolved ${installed.length} plugin(s), ${failed} failed`))
+    console.log(styleText("red", `✗ Resolved ${builtPlugins.length} plugin(s), ${failed} failed`))
+    throwIfPluginFailures("resolve", failed)
   }
-  console.log(styleText("gray", "Updated quartz.lock.json"))
+  if (builtPlugins.length > 0) {
+    console.log(styleText("gray", "Updated quartz.lock.json"))
+  }
 }

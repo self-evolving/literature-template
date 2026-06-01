@@ -14,12 +14,13 @@
   "scripts": {
     "quartz": "./quartz/bootstrap-cli.mjs",
     "sync:source-docs": "node scripts/sync-source-docs.mjs",
-    "docs": "npx quartz build --serve -d docs",
+    "docs": "npm run quartz -- build --serve -d docs",
+    "build": "npm run quartz -- build",
     "check": "npm run install-plugins && tsc --noEmit && npx prettier . --check",
     "format": "npx prettier . --write",
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
-    "install-plugins": "npx quartz plugin restore",
+    "install-plugins": "npm run quartz -- plugin restore",
     "prebuild": "npm run install-plugins"
   },
   "engines": {

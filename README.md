@@ -18,8 +18,8 @@ From this repository:
 ```bash
 npm ci
 npm run sync:source-docs -- ../sepo
-npx quartz plugin restore
-npx quartz build --serve
+npm run install-plugins
+npm run quartz -- build --serve
 ```
 
 Use a different source checkout by passing its path:
@@ -34,7 +34,7 @@ Import `self-evolving/repo-docs` into Vercel with:
 
 - Framework preset: **Other**
 - Install command: `npm ci`
-- Build command: `npx quartz plugin restore && npx quartz build`
+- Build command: `npm run build`
 - Output directory: `public`
 
 These are also captured in `vercel.json`.
