@@ -24,10 +24,9 @@ export async function loadComponentsFromPackage(
     for (const [exportName, componentManifest] of componentEntries) {
       const component = componentsModule[exportName]
       if (!component) {
-        console.warn(
+        throw new Error(
           `Component "${exportName}" declared in manifest but not found in ${pluginName}/components`,
         )
-        continue
       }
 
       // Register under the fully-qualified key (pluginName/exportName)
@@ -64,9 +63,12 @@ export async function loadComponentsFromPackage(
         )
       }
     }
-  } catch {
+  } catch (err) {
     if (manifest.components && Object.keys(manifest.components).length > 0) {
-      console.warn(`Plugin "${pluginName}" declares components but failed to load them`)
+      const message = err instanceof Error ? err.message : String(err)
+      throw new Error(
+        `Plugin "${pluginName}" declares components but failed to load them: ${message}`,
+      )
     }
   }
 }

@@ -23,26 +23,25 @@ export async function loadFramesFromPackage(
     for (const [exportName, _frameMeta] of Object.entries(manifest.frames)) {
       const frame = framesModule[exportName]
       if (!frame) {
-        console.warn(
+        throw new Error(
           `Frame "${exportName}" declared in manifest but not found in ${pluginName}/frames`,
         )
-        continue
       }
 
       const pageFrame = frame as PageFrame
       if (!pageFrame.name || typeof pageFrame.render !== "function") {
-        console.warn(
+        throw new Error(
           `Frame "${exportName}" from ${pluginName} is not a valid PageFrame (missing name or render)`,
         )
-        continue
       }
 
       // Register under the frame's declared name
       frameRegistry.register(pageFrame.name, pageFrame, pluginName)
     }
-  } catch {
+  } catch (err) {
     if (manifest.frames && Object.keys(manifest.frames).length > 0) {
-      console.warn(`Plugin "${pluginName}" declares frames but failed to load them`)
+      const message = err instanceof Error ? err.message : String(err)
+      throw new Error(`Plugin "${pluginName}" declares frames but failed to load them: ${message}`)
     }
   }
 }
