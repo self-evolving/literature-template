@@ -49,6 +49,26 @@ function throwIfPluginFailures(action, failed) {
   }
 }
 
+function pluginPathExists(pluginDir) {
+  try {
+    fs.lstatSync(pluginDir)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function removePluginDir(pluginDir) {
+  if (!pluginPathExists(pluginDir)) return
+
+  const stat = fs.lstatSync(pluginDir)
+  if (stat.isSymbolicLink() || stat.isFile()) {
+    fs.rmSync(pluginDir, { force: true })
+  } else {
+    fs.rmSync(pluginDir, { recursive: true, force: true })
+  }
+}
+
 /**
  * After pruning devDependencies, peerDependencies that reference other Quartz
  * plugins (e.g. @quartz-community/bases-page) won't be installed as npm
@@ -770,12 +790,7 @@ export async function handlePluginRestore() {
   for (const [name, entry] of Object.entries(lockfile.plugins)) {
     const pluginDir = path.join(pluginsDir, name)
 
-    if (fs.existsSync(pluginDir)) {
-      console.log(styleText("yellow", `⚠ ${name}: directory exists, skipping`))
-      continue
-    }
-
-    // Local plugin: re-symlink
+    // Local plugin: re-symlink and rebuild if the existing link is incomplete.
     if (entry.commit === "local") {
       const localTarget = path.resolve(entry.resolved)
       try {
@@ -784,6 +799,31 @@ export async function handlePluginRestore() {
           failed++
           continue
         }
+
+        if (pluginPathExists(pluginDir)) {
+          const stat = fs.lstatSync(pluginDir)
+          let alreadyLinked = false
+          if (stat.isSymbolicLink()) {
+            try {
+              alreadyLinked = fs.realpathSync(pluginDir) === fs.realpathSync(localTarget)
+            } catch {}
+          }
+
+          if (alreadyLinked) {
+            if (needsBuild(pluginDir)) {
+              console.log(styleText("cyan", `→ ${name}: local symlink exists, rebuilding...`))
+              restoredPlugins.push({ name, pluginDir })
+            } else {
+              console.log(styleText("gray", `✓ ${name} already restored (local symlink)`))
+            }
+            installed++
+            continue
+          }
+
+          console.log(styleText("cyan", `→ ${name}: replacing existing local plugin...`))
+          removePluginDir(pluginDir)
+        }
+
         fs.mkdirSync(path.dirname(pluginDir), { recursive: true })
         fs.symlinkSync(localTarget, pluginDir, "dir")
         console.log(styleText("green", `✓ ${name} restored (local symlink)`))
@@ -797,12 +837,38 @@ export async function handlePluginRestore() {
     }
 
     try {
+      if (pluginPathExists(pluginDir)) {
+        const currentCommit = getGitCommit(pluginDir)
+        if (currentCommit === entry.commit) {
+          if (needsBuild(pluginDir)) {
+            console.log(
+              styleText("cyan", `→ ${name}: locked commit present, rebuilding missing dist...`),
+            )
+            restoredPlugins.push({ name, pluginDir })
+          } else {
+            console.log(styleText("gray", `✓ ${name}@${entry.commit.slice(0, 7)} already restored`))
+          }
+          installed++
+          continue
+        }
+
+        console.log(
+          styleText(
+            "yellow",
+            `⚠ ${name}: existing ${currentCommit.slice(0, 7)} does not match lockfile ${entry.commit.slice(0, 7)}, re-cloning`,
+          ),
+        )
+        removePluginDir(pluginDir)
+      }
+
       console.log(
         styleText("cyan", `→ ${name}: cloning ${entry.resolved}@${entry.commit.slice(0, 7)}...`),
       )
       const branchArg = entry.ref ? ` --branch ${entry.ref}` : ""
       execSync(`git clone${branchArg} ${entry.resolved} ${pluginDir}`, { stdio: "ignore" })
-      execSync(`git checkout ${entry.commit}`, { cwd: pluginDir, stdio: "ignore" })
+      if (entry.commit !== "unknown") {
+        execSync(`git checkout ${entry.commit}`, { cwd: pluginDir, stdio: "ignore" })
+      }
       console.log(styleText("green", `✓ ${name} restored`))
       restoredPlugins.push({ name, pluginDir })
       installed++
@@ -823,8 +889,9 @@ export async function handlePluginRestore() {
         console.log(styleText("green", `  ✓ ${name} built`))
       }
     }
-    await regeneratePluginIndex()
   }
+
+  await regeneratePluginIndex()
 
   console.log()
   if (failed === 0) {
