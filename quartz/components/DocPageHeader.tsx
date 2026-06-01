@@ -106,7 +106,7 @@ const DocPageHeader: QuartzComponent = ({
   ]
 
   const frontmatter = fileData.frontmatter
-  const isPaper = frontmatter?.type === "paper" || slug.startsWith("papers/")
+  const isPaper = frontmatter?.type === "paper"
   const authors = textList(frontmatter?.authors)
   const metadataLine = [
     authors.length > 0 ? formatAuthors(authors) : undefined,

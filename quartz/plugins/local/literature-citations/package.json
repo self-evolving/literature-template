@@ -1,9 +1,25 @@
 {
   "name": "literature-citations",
   "version": "1.0.0",
-  "private": true,
   "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
   "scripts": {
-    "build": "node -e \"\""
+    "build": "mkdir -p dist && cp index.js dist/index.js && printf 'export {}\\n' > dist/index.d.ts"
+  },
+  "quartz": {
+    "name": "literature-citations",
+    "displayName": "literature-citations",
+    "description": "Links rendered citations to matching paper notes and appends BibTeX to paper pages.",
+    "category": "transformer",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.0.0",
+    "dependencies": [],
+    "defaultEnabled": true,
+    "defaultOptions": {
+      "bibliographyFile": "./bibliography.bib",
+      "papersRoot": "papers"
+    }
   }
 }
