@@ -282,6 +282,34 @@ function readBibliography(filePath) {
   }
 }
 
+function frontmatterBlock(markdown) {
+  const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+  return match?.[1]
+}
+
+function frontmatterBoolean(markdown, key) {
+  const frontmatter = frontmatterBlock(markdown)
+  if (!frontmatter) return false
+
+  const pattern = new RegExp(`^\\s*${key}\\s*:\\s*['\"]?true['\"]?\\s*(?:#.*)?$`, "im")
+  return pattern.test(frontmatter)
+}
+
+function markdownPathForSlug(ctx, slug) {
+  return path.resolve(process.cwd(), ctx.argv?.directory ?? "content", `${slug}.md`)
+}
+
+function hasPublishablePaperNote(ctx, targetSlug) {
+  if (!targetSlug || !ctx.allSlugs.includes(targetSlug)) return false
+
+  try {
+    const markdown = fs.readFileSync(markdownPathForSlug(ctx, targetSlug), "utf-8")
+    return !frontmatterBoolean(markdown, "draft")
+  } catch {
+    return false
+  }
+}
+
 function paperCitekey(file, papersRoot) {
   const slug = file.data.slug
   if (typeof slug !== "string") {
@@ -293,12 +321,17 @@ function paperCitekey(file, papersRoot) {
     return undefined
   }
 
+  const filenameCitekey = slug.split("/").at(-1)
+  if (filenameCitekey && filenameCitekey !== "index") {
+    return filenameCitekey
+  }
+
   const frontmatterCitekey = file.data.frontmatter?.citekey
   if (typeof frontmatterCitekey === "string" && frontmatterCitekey.trim().length > 0) {
     return frontmatterCitekey.trim()
   }
 
-  return slug.split("/").at(-1)
+  return undefined
 }
 
 function externalReferenceLink(value, href) {
@@ -525,7 +558,7 @@ export function LiteratureCitations(userOptions = {}) {
               if (match) {
                 const citekey = decodeCitekey(match[1])
                 const targetSlug = citationTarget(citekey, papersRoot)
-                const hasPaperNote = targetSlug && ctx.allSlugs.includes(targetSlug)
+                const hasPaperNote = hasPublishablePaperNote(ctx, targetSlug)
 
                 if (hasPaperNote) {
                   properties.href = joinSegments(pathToRoot(file.data.slug), targetSlug)

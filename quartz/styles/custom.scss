@@ -1216,7 +1216,8 @@ ul.toc-content.overflow {
 // Library pages use a card header: breadcrumb context + title in a full-width
 // strip with a bottom underline.
 body:not([data-slug="index"]) .page > #quartz-body .center {
-  overflow: hidden;
+  // Keep popovers/tooltips from being clipped by the rounded content card.
+  overflow: visible;
 
   .page-header {
     margin-top: 0;

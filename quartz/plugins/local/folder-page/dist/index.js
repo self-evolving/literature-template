@@ -1,7 +1,8 @@
 import fs from "node:fs"
 import path from "node:path"
 import { h } from "preact"
-import { htmlToJsx } from "../../../util/jsx.tsx"
+import { Fragment, jsx, jsxs } from "preact/jsx-runtime"
+import { toJsxRuntime } from "hast-util-to-jsx-runtime"
 import { isFolderPath, joinSegments, resolveRelative } from "@quartz-community/utils/path"
 
 const defaultOptions = {
@@ -60,6 +61,30 @@ const pageListCss = `
   margin: 0;
 }
 `
+
+function childrenToString(children) {
+  if (typeof children === "string") return children
+  if (Array.isArray(children)) return children.map(childrenToString).join("")
+  return String(children ?? "")
+}
+
+const customComponents = {
+  table: (props) => h("div", { class: "table-container" }, h("table", props)),
+  style: ({ children, ...rest }) =>
+    h("style", { ...rest, dangerouslySetInnerHTML: { __html: childrenToString(children) } }),
+  script: ({ children, ...rest }) =>
+    h("script", { ...rest, dangerouslySetInnerHTML: { __html: childrenToString(children) } }),
+}
+
+function htmlToJsx(tree) {
+  return toJsxRuntime(tree, {
+    Fragment,
+    jsx,
+    jsxs,
+    elementAttributeNameCase: "html",
+    components: customComponents,
+  })
+}
 
 function pageDate(page, cfg) {
   const dates = page?.dates
@@ -341,10 +366,7 @@ function FolderContentComponent(userOptions) {
 
     const cssClasses = fileData?.frontmatter?.cssclasses ?? []
     const classes = Array.isArray(cssClasses) ? cssClasses.join(" ") : String(cssClasses)
-    const content =
-      tree?.children?.length === 0
-        ? fileData?.description
-        : htmlToJsx(fileData?.relativePath ?? "", tree)
+    const content = tree?.children?.length === 0 ? fileData?.description : htmlToJsx(tree)
     const pageListContent = PageList(listProps)
 
     return h("div", { class: "popover-hint" }, [

@@ -3,7 +3,7 @@ import { classNames } from "../util/lang"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 
 // @ts-ignore
-import script from "./scripts/sepoGraph.inline"
+import paperGraphScript from "./scripts/paperGraph.inline"
 
 export interface D3Config {
   drag: boolean
@@ -106,7 +106,7 @@ export default ((opts?: Partial<GraphOptions>) => {
     )
   }
 
-  Graph.afterDOMLoaded = script
+  Graph.afterDOMLoaded = paperGraphScript
 
   return Graph
 }) satisfies QuartzComponentConstructor<Partial<GraphOptions>>
