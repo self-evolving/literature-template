@@ -22,6 +22,57 @@ const titleFromSlug = (slug: string) => {
 
 const displayName = (name: string) => name.replaceAll("-", " ")
 
+const textValue = (value: unknown) => {
+  if (typeof value === "string") {
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : undefined
+  }
+
+  if (typeof value === "number") {
+    return String(value)
+  }
+
+  return undefined
+}
+
+const textList = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => {
+      const text = textValue(item)
+      return text ? [text] : []
+    })
+  }
+
+  const text = textValue(value)
+  return text ? [text] : []
+}
+
+const formatAuthors = (authors: string[]) =>
+  authors.length > 3 ? `${authors.slice(0, 3).join(", ")} et al.` : authors.join(", ")
+
+const doiHref = (doi: string) => {
+  const normalized = doi.replace(/^https?:\/\/(dx\.)?doi\.org\//i, "")
+  return `https://doi.org/${normalized}`
+}
+
+const SourceIcon = () => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 16 16"
+    width="14"
+    height="14"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M6.5 3.5h-3v9h9v-3" />
+    <path d="M8.5 3.5h4v4" />
+    <path d="m6.5 9.5 6-6" />
+  </svg>
+)
+
 const DocPageHeader: QuartzComponent = ({
   cfg,
   fileData,
@@ -54,6 +105,26 @@ const DocPageHeader: QuartzComponent = ({
       })),
   ]
 
+  const frontmatter = fileData.frontmatter
+  const isPaper = frontmatter?.type === "paper" || slug.startsWith("papers/")
+  const authors = textList(frontmatter?.authors)
+  const metadataLine = [
+    authors.length > 0 ? formatAuthors(authors) : undefined,
+    textValue(frontmatter?.year),
+    textValue(frontmatter?.venue),
+  ]
+    .filter(Boolean)
+    .join(" · ")
+  const citekey = textValue(frontmatter?.citekey)
+  const doi = textValue(frontmatter?.doi)
+  const url = textValue(frontmatter?.url)
+  const paperLinks = [
+    doi ? { label: "DOI", href: doiHref(doi) } : undefined,
+    url ? { label: "Source", href: url } : undefined,
+  ].filter((link): link is { label: string; href: string } => Boolean(link))
+  const hasPaperMeta = isPaper && metadataLine
+  const hasPaperHeaderMeta = isPaper && (citekey || paperLinks.length > 0)
+
   return (
     <header class={classNames(displayClass, "doc-page-header")}>
       <div class="doc-header-topline">
@@ -74,8 +145,38 @@ const DocPageHeader: QuartzComponent = ({
             </span>
           </>
         )}
+        {hasPaperHeaderMeta && citekey && (
+          <>
+            <span class="meta-sep">·</span>
+            <span class="doc-paper-citekey">@{citekey}</span>
+          </>
+        )}
+        {hasPaperHeaderMeta && paperLinks.length > 0 && (
+          <>
+            <span class="meta-sep">·</span>
+            <span class="doc-paper-source-links" aria-label="Paper sources">
+              {paperLinks.map((link) => (
+                <a
+                  class="doc-paper-source-link"
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={link.label}
+                  aria-label={link.label}
+                >
+                  <SourceIcon />
+                </a>
+              ))}
+            </span>
+          </>
+        )}
       </div>
       <h1 class="article-title doc-page-title">{title}</h1>
+      {hasPaperMeta && (
+        <div class="doc-paper-meta">
+          <p class="doc-paper-byline">{metadataLine}</p>
+        </div>
+      )}
     </header>
   )
 }

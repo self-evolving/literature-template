@@ -5,7 +5,9 @@ description: "Consolidated notes for individual papers."
 
 Use this section for durable paper notes. Each page should identify the paper with citation metadata in frontmatter and, when available, a matching BibTeX key in `bibliography.bib`.
 
-The `citekey` frontmatter field is a template convention; Quartz citations are rendered from inline citation syntax like `[@vaswani2017attention]`. To link to a paper note from another page, use a normal internal link such as `[Attention Is All You Need](example-paper.md)`.
+Paper note filenames should match their BibTeX citekeys. For example, the citation `[@vaswani2017attention]` resolves to `content/papers/vaswani2017attention.md` when that note exists. This lets citation links open the paper note and show its Quartz popover.
+
+The `citekey` frontmatter field should match the filename for readability and future validation, but the filename is the canonical citation-to-note mapping.
 
 ## Paper note shape
 
