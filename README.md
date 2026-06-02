@@ -14,7 +14,13 @@ Transient review streams are intentionally not stored as Markdown. The intended 
 
 ### Paper notes
 
-Paper notes live under `content/papers/` and should include citation-oriented frontmatter:
+Paper notes live under `content/papers/`. Name each paper note after its BibTeX citekey:
+
+```text
+content/papers/author2026paper.md
+```
+
+Each paper note should include citation-oriented frontmatter:
 
 ```yaml
 ---
@@ -33,13 +39,9 @@ tags:
 ---
 ```
 
-Quartz's citations plugin does **not** read `citekey` frontmatter directly. The `citekey` field is a template convention for humans, agents, and future tooling to match a paper note to an entry in `bibliography.bib`.
+Markdown citations such as `[@author2026paper]` still render from the matching BibTeX entry in `bibliography.bib`. The local literature-citations layer then checks whether `content/papers/author2026paper.md` exists. If it does, the rendered citation link opens that paper note and uses Quartz's normal internal-link popover.
 
-Markdown citations such as `[@author2026paper]` render from the matching BibTeX entry. Links to paper-note pages should still use normal internal links. When you want both a paper-note link and an academic citation, write them together:
-
-```md
-[Paper title](../papers/paper-slug.md) [@author2026paper]
-```
+The `citekey` frontmatter should match the filename for readability and future validation, but the filename is the canonical citation-to-note mapping. If no matching paper note exists, Quartz keeps the default bibliography-link behavior.
 
 ### Synthesis notes
 
@@ -85,10 +87,11 @@ Useful commands:
 
 ```bash
 npm run check
+npm run check:site
 npm run build
 ```
 
-`npm run dev` serves the Quartz site locally. `npm run build` writes the static site to `public/`.
+`npm run check` runs the fast TypeScript and formatting checks. `npm run check:site` also restores Quartz plugins and builds the static site. `npm run dev` serves the Quartz site locally. `npm run build` restores Quartz plugins and writes the static site to `public/`.
 
 ## Vercel configuration
 

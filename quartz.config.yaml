@@ -119,6 +119,12 @@ plugins:
       suppressBibliography: false
       linkCitations: true
     order: 85
+  - source: ./quartz/plugins/local/literature-citations
+    enabled: true
+    options:
+      bibliographyFile: ./bibliography.bib
+      papersRoot: papers
+    order: 86
   - source: github:quartz-community/hard-line-breaks
     enabled: false
     order: 90
