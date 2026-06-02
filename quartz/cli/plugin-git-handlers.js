@@ -949,7 +949,12 @@ export async function handlePluginRestore() {
       )
       clonePluginRepo(entry.resolved, pluginDir, entry.ref)
       if (entry.commit !== "unknown") {
-        git(["checkout", validateGitCommit(entry.commit, "locked commit")], {
+        const commit = validateGitCommit(entry.commit, "locked commit")
+        git(["fetch", "--depth", "1", "origin", commit], {
+          cwd: pluginDir,
+          stdio: "ignore",
+        })
+        git(["checkout", commit], {
           cwd: pluginDir,
           stdio: "ignore",
         })
