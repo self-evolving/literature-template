@@ -39,6 +39,8 @@ tags:
 ---
 ```
 
+Use the `paper` tag as a lightweight type hint. Graph tag nodes stay hidden by default; the template uses this hint together with the `content/papers/` path to render paper page nodes differently from synthesis notes.
+
 Markdown citations such as `[@author2026paper]` still render from the matching BibTeX entry in `bibliography.bib`. The local literature-citations layer then checks whether `content/papers/author2026paper.md` exists. If it does, the rendered citation link opens that paper note and uses Quartz's normal internal-link popover.
 
 The `citekey` frontmatter should match the filename for readability and future validation, but the filename is the canonical citation-to-note mapping. If no matching paper note exists, Quartz keeps the default bibliography-link behavior.
@@ -52,26 +54,47 @@ Synthesis notes live under `content/notes/` and capture topic-level understandin
 title: "Topic or synthesis title"
 type: note
 tags:
+  - note
   - synthesis
 ---
 ```
 
+Use the `note` tag as the corresponding lightweight type tag for durable synthesis notes. Additional topical tags such as `synthesis`, `methods`, or `evaluation` are optional.
+
 A synthesis note should link back to the relevant paper notes and make the relationship between papers explicit.
 
-### Navigation manifests
+### Navigation manifests and folder ordering
 
-The left navigation is driven by `_meta.json` files next to your notes. Every folder under `content/` that contains Markdown needs a `_meta.json` manifest with a human-readable `label` and a `pages` array of child slugs.
+The left navigation is driven by `_meta.json` files next to your notes. Every folder under `content/` that contains Markdown should have a `_meta.json` manifest with a human-readable `label` and a `pages` array of child slugs.
 
 For example, after adding `content/papers/new-paper.md`, add its slug without `.md` to `content/papers/_meta.json`:
 
 ```json
 {
   "label": "Papers",
-  "pages": ["example-paper", "new-paper"]
+  "pages": ["vaswani2017attention", "devlin2019bert", "brown2020language", "new-paper"]
 }
 ```
 
-Folder index pages are implicit: keep `index.md` in the folder, but do not list `"index"` in `pages`. For nested folders, add the folder slug to the parent manifest and give the nested folder its own `_meta.json`.
+Folder listing pages follow the nearest `_meta.json` `pages` array when it exists. For example, `content/notes/_meta.json` controls the order shown on `/notes/`:
+
+```json
+{
+  "label": "Notes",
+  "pages": ["example-topic", "attention-patterns"]
+}
+```
+
+Entries should omit `.md`. Folder index pages are implicit: keep `index.md` in the folder, but do not list `"index"` in `pages`. For nested folders, add the folder slug to the parent manifest and give the nested folder its own `_meta.json`. Pages not listed in `_meta.json` fall back to the default folder-page sort.
+
+### Graph paper styling
+
+The graph keeps tag nodes hidden by default, but it uses lightweight type hints to style paper nodes differently from synthesis notes:
+
+- paper notes include `paper` and live under `content/papers/`
+- synthesis notes include `note` and live under `content/notes/`
+
+When a note cites or links to a paper page, the paper node appears as a same-size hollow circle with an accent outline. This keeps the graph focused on pages while still making cited papers visually distinct.
 
 ## Local development
 

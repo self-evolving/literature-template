@@ -1,6 +1,7 @@
 {
   "name": "literature-citations",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
   "exports": {
     ".": "./index.js"
@@ -18,10 +19,19 @@
     "dependencies": [
       "github:quartz-community/citations"
     ],
+    "defaultOrder": 86,
     "defaultEnabled": true,
     "defaultOptions": {
       "bibliographyFile": "./bibliography.bib",
       "papersRoot": "papers"
+    },
+    "optionSchema": {
+      "bibliographyFile": {
+        "type": "string"
+      },
+      "papersRoot": {
+        "type": "string"
+      }
     }
   }
 }

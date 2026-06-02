@@ -1,5 +1,10 @@
 import fs from "node:fs"
 import path from "node:path"
+import matter from "gray-matter"
+import remarkParse from "remark-parse"
+import remarkRehype from "remark-rehype"
+import { unified } from "unified"
+import { VFile } from "vfile"
 
 const defaultOptions = {
   bibliographyFile: "./bibliography.bib",
@@ -150,6 +155,11 @@ const citationCss = `
 .citation-bib-popup-entry {
   display: block;
 }
+
+.references .csl-entry a {
+  color: var(--secondary);
+  overflow-wrap: anywhere;
+}
 `
 
 function decodeCitekey(rawCitekey) {
@@ -277,13 +287,64 @@ function readBibliography(filePath) {
   }
 }
 
-function frontmatterCitekey(file) {
-  const citekey = file.data.frontmatter?.citekey
-  if (typeof citekey === "string" && citekey.trim().length > 0) {
-    return citekey.trim()
+function markdownPathForSlug(ctx, slug) {
+  return path.resolve(process.cwd(), ctx.argv?.directory ?? "content", `${slug}.md`)
+}
+
+function markdownToHast(markdown) {
+  const processor = unified().use(remarkParse).use(remarkRehype, { allowDangerousHtml: true })
+  const mdast = processor.parse(markdown)
+  return processor.runSync(mdast)
+}
+
+function contentForSlug(ctx, slug) {
+  const filePath = markdownPathForSlug(ctx, slug)
+  const markdown = fs.readFileSync(filePath, "utf-8")
+  const parsed = matter(markdown)
+  const file = new VFile({ path: filePath, value: markdown })
+  file.data = {
+    ...file.data,
+    slug,
+    filePath,
+    relativePath: `${slug}.md`,
+    frontmatter: parsed.data ?? {},
   }
 
-  return undefined
+  return [markdownToHast(parsed.content), file]
+}
+
+function shouldPublishByActiveFilters(ctx, content) {
+  const filters = ctx.cfg?.plugins?.filters ?? []
+
+  for (const filter of filters) {
+    try {
+      if (filter.shouldPublish(ctx, content) === false) {
+        return false
+      }
+    } catch {
+      return false
+    }
+  }
+
+  return true
+}
+
+function hasPublishablePaperNote(ctx, targetSlug, cache) {
+  if (!targetSlug || !ctx.allSlugs.includes(targetSlug)) return false
+
+  if (cache.has(targetSlug)) {
+    return cache.get(targetSlug)
+  }
+
+  let publishable = false
+  try {
+    publishable = shouldPublishByActiveFilters(ctx, contentForSlug(ctx, targetSlug))
+  } catch {
+    publishable = false
+  }
+
+  cache.set(targetSlug, publishable)
+  return publishable
 }
 
 function paperCitekey(file, papersRoot) {
@@ -297,12 +358,104 @@ function paperCitekey(file, papersRoot) {
     return undefined
   }
 
-  const slugCitekey = slug.split("/").filter(Boolean).at(-1)
-  if (slugCitekey && slugCitekey !== "index") {
-    return slugCitekey
+  const filenameCitekey = slug.split("/").at(-1)
+  if (filenameCitekey && filenameCitekey !== "index") {
+    return filenameCitekey
   }
 
-  return frontmatterCitekey(file)
+  const frontmatterCitekey = file.data.frontmatter?.citekey
+  if (typeof frontmatterCitekey === "string" && frontmatterCitekey.trim().length > 0) {
+    return frontmatterCitekey.trim()
+  }
+
+  return undefined
+}
+
+function externalReferenceLink(value, href) {
+  return {
+    type: "element",
+    tagName: "a",
+    properties: {
+      href,
+      target: "_blank",
+      rel: ["noopener", "noreferrer"],
+    },
+    children: [{ type: "text", value }],
+  }
+}
+
+function linkifyReferenceText(value) {
+  const children = []
+  const urlPattern = /https?:\/\/[^\s<>"']+/g
+  let cursor = 0
+
+  for (const match of value.matchAll(urlPattern)) {
+    const rawUrl = match[0]
+    const trailingPunctuation = rawUrl.match(/[.,;:!?)]*$/)?.[0] ?? ""
+    const url = trailingPunctuation ? rawUrl.slice(0, -trailingPunctuation.length) : rawUrl
+    const index = match.index ?? 0
+
+    if (!url) continue
+
+    if (index > cursor) {
+      children.push({ type: "text", value: value.slice(cursor, index) })
+    }
+
+    children.push(externalReferenceLink(url, url))
+    if (trailingPunctuation) {
+      children.push({ type: "text", value: trailingPunctuation })
+    }
+    cursor = index + rawUrl.length
+  }
+
+  if (cursor < value.length) {
+    children.push({ type: "text", value: value.slice(cursor) })
+  }
+
+  return children.length > 0 ? children : [{ type: "text", value }]
+}
+
+function isReferencesEntry(node) {
+  const className = node?.properties?.className
+  const classes = Array.isArray(className)
+    ? className
+    : typeof className === "string"
+      ? className.split(/\s+/)
+      : []
+  return classes.includes("csl-entry")
+}
+
+function linkifyReferenceEntry(node) {
+  if (!node || typeof node !== "object" || !Array.isArray(node.children)) return
+
+  node.children = node.children.flatMap((child) => {
+    if (child?.type === "text") {
+      return linkifyReferenceText(child.value ?? "")
+    }
+
+    if (child?.type === "element" && child.tagName !== "a" && child.tagName !== "code") {
+      linkifyReferenceEntry(child)
+    }
+
+    return [child]
+  })
+}
+
+function linkifyReferenceEntries(tree) {
+  const visit = (node) => {
+    if (!node || typeof node !== "object") return
+
+    if (node.type === "element" && isReferencesEntry(node)) {
+      linkifyReferenceEntry(node)
+      return
+    }
+
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) visit(child)
+    }
+  }
+
+  visit(tree)
 }
 
 function paperBibTexSection(_citekey, bibtex) {
@@ -333,9 +486,7 @@ function hasElementId(tree, id) {
   let found = false
 
   const visit = (node) => {
-    if (found || !node || typeof node !== "object") {
-      return
-    }
+    if (found || !node || typeof node !== "object") return
 
     if (node.type === "element" && node.properties?.id === id) {
       found = true
@@ -343,9 +494,7 @@ function hasElementId(tree, id) {
     }
 
     if (Array.isArray(node.children)) {
-      for (const child of node.children) {
-        visit(child)
-      }
+      for (const child of node.children) visit(child)
     }
   }
 
@@ -444,101 +593,6 @@ function collectBibliographyEntries(tree) {
   return entries
 }
 
-function parseScalar(value) {
-  const trimmed = value.trim()
-  const unquoted = trimmed.replace(/^['"](.+)['"]$/, "$1")
-  const normalized = unquoted.toLowerCase()
-
-  if (normalized === "true") {
-    return true
-  }
-
-  if (normalized === "false") {
-    return false
-  }
-
-  return unquoted
-}
-
-function readFrontmatter(markdown) {
-  const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)
-  if (!match) {
-    return {}
-  }
-
-  const frontmatter = {}
-  for (const line of match[1].split(/\r?\n/)) {
-    const keyValue = line.match(/^\s*([A-Za-z0-9_-]+)\s*:\s*(.*?)\s*$/)
-    if (!keyValue) {
-      continue
-    }
-
-    const [, key, rawValue] = keyValue
-    frontmatter[key] = parseScalar(rawValue.replace(/\s+#.*$/, ""))
-  }
-
-  return frontmatter
-}
-
-function isTruthyFlag(value) {
-  return value === true || (typeof value === "string" && value.toLowerCase() === "true")
-}
-
-function frontmatterMayPublish(frontmatter) {
-  return !isTruthyFlag(frontmatter.draft)
-}
-
-function contentPathForSlug(ctx, slug) {
-  return path.resolve(process.cwd(), ctx.argv.directory, `${slug}.md`)
-}
-
-function canPublishTarget(ctx, targetSlug) {
-  const filePath = contentPathForSlug(ctx, targetSlug)
-  let frontmatter = {}
-
-  try {
-    frontmatter = readFrontmatter(fs.readFileSync(filePath, "utf-8"))
-  } catch {
-    return false
-  }
-
-  const content = [
-    { type: "root", children: [] },
-    {
-      data: {
-        slug: targetSlug,
-        frontmatter,
-        filePath,
-        relativePath: `${targetSlug}.md`,
-      },
-    },
-  ]
-
-  for (const filter of ctx.cfg.plugins.filters ?? []) {
-    try {
-      if (typeof filter.shouldPublish === "function" && !filter.shouldPublish(ctx, content)) {
-        return false
-      }
-    } catch {
-      return frontmatterMayPublish(frontmatter)
-    }
-  }
-
-  return true
-}
-
-function hasPublishablePaperNote(ctx, targetSlug, cache) {
-  if (!targetSlug || !ctx.allSlugs.includes(targetSlug)) {
-    return false
-  }
-
-  if (!cache.has(targetSlug)) {
-    cache.set(targetSlug, canPublishTarget(ctx, targetSlug))
-  }
-
-  return cache.get(targetSlug)
-}
-
 export function LiteratureCitations(userOptions = {}) {
   const options = { ...defaultOptions, ...userOptions }
   const papersRoot = stripSlashes(options.papersRoot ?? defaultOptions.papersRoot)
@@ -547,10 +601,11 @@ export function LiteratureCitations(userOptions = {}) {
   return {
     name: "LiteratureCitations",
     htmlPlugins(ctx) {
-      const publishablePaperCache = new Map()
+      const publishablePaperSlugs = new Map()
 
       return [
         () => (tree, file) => {
+          linkifyReferenceEntries(tree)
           const bibliographyEntries = collectBibliographyEntries(tree)
 
           const transform = (node) => {
@@ -566,7 +621,7 @@ export function LiteratureCitations(userOptions = {}) {
               if (match) {
                 const citekey = decodeCitekey(match[1])
                 const targetSlug = citationTarget(citekey, papersRoot)
-                const hasPaperNote = hasPublishablePaperNote(ctx, targetSlug, publishablePaperCache)
+                const hasPaperNote = hasPublishablePaperNote(ctx, targetSlug, publishablePaperSlugs)
 
                 if (hasPaperNote) {
                   properties.href = joinSegments(pathToRoot(file.data.slug), targetSlug)

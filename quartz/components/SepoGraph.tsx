@@ -2,6 +2,9 @@ import { i18n } from "../i18n"
 import { classNames } from "../util/lang"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 
+// @ts-ignore
+import paperGraphScript from "./scripts/paperGraph.inline"
+
 export interface D3Config {
   drag: boolean
   zoom: boolean
@@ -102,6 +105,8 @@ export default ((opts?: Partial<GraphOptions>) => {
       </div>
     )
   }
+
+  Graph.afterDOMLoaded = paperGraphScript
 
   return Graph
 }) satisfies QuartzComponentConstructor<Partial<GraphOptions>>

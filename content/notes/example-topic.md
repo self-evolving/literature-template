@@ -2,6 +2,7 @@
 title: "Transformer-based literature workflows"
 type: note
 tags:
+  - note
   - synthesis
   - example
 ---
@@ -15,6 +16,14 @@ How can attention-based architectures and tooling patterns inform the way we org
 ## Linked papers
 
 - [Attention Is All You Need](../papers/vaswani2017attention.md) [@vaswani2017attention]
+- [BERT](../papers/devlin2019bert.md) [@devlin2019bert]
+- [Language Models are Few-Shot Learners](../papers/brown2020language.md) [@brown2020language]
+
+## Compare and contrast
+
+- **Architecture role:** Vaswani et al. introduce the Transformer as the base sequence architecture; BERT specializes the encoder for bidirectional representation learning; GPT-3 scales decoder-only language modeling for prompting.
+- **Adaptation style:** BERT centers task-specific fine-tuning, while GPT-3 foregrounds in-context examples and natural-language task descriptions.
+- **Literature note pattern:** Paper notes capture the durable claims for each paper; synthesis notes compare how those claims evolve across architectures, training objectives, and interaction patterns.
 
 ## Synthesis
 

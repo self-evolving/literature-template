@@ -57,28 +57,36 @@ function restoreDocsExplorerScroll() {
   })
 }
 
-function docsNavSectionKey(button: HTMLButtonElement) {
-  return button.getAttribute("aria-controls") ?? button.dataset.title ?? ""
+function docsNavSectionKey(control: HTMLElement) {
+  return (
+    control.getAttribute("aria-controls") ?? control.dataset.controls ?? control.dataset.title ?? ""
+  )
 }
 
-function setDocsNavSectionState(button: HTMLButtonElement, expanded: boolean) {
-  const controls = button.getAttribute("aria-controls")
-  const content = controls ? document.getElementById(controls) : undefined
-  const title = button.dataset.title ?? "section"
-  const section = button.closest(".docs-nav-section")
+function docsNavSectionToggle(control: HTMLElement) {
+  const section = control.closest(".docs-nav-section")
+  return section?.querySelector<HTMLButtonElement>(".docs-nav-section-toggle")
+}
 
-  button.setAttribute("aria-expanded", expanded ? "true" : "false")
-  button.setAttribute("aria-label", `${expanded ? "Collapse" : "Expand"} ${title}`)
+function setDocsNavSectionState(control: HTMLElement, expanded: boolean) {
+  const controls = control.getAttribute("aria-controls") ?? control.dataset.controls
+  const content = controls ? document.getElementById(controls) : undefined
+  const title = control.dataset.title ?? "section"
+  const section = control.closest(".docs-nav-section")
+  const toggle = docsNavSectionToggle(control)
+  const action = section?.querySelector<HTMLButtonElement>(".docs-nav-section-action")
+
+  toggle?.setAttribute("aria-expanded", expanded ? "true" : "false")
+  toggle?.setAttribute("aria-label", `${expanded ? "Collapse" : "Expand"} ${title}`)
+  action?.setAttribute("aria-expanded", expanded ? "true" : "false")
+  action?.setAttribute("aria-label", `${expanded ? "Collapse" : "Expand"} ${title}`)
   content?.toggleAttribute("hidden", !expanded)
   section?.classList.toggle("expanded", expanded)
   section?.classList.toggle("collapsed", !expanded)
 }
 
-function toggleDocsNavSection(this: HTMLButtonElement) {
-  const expanded = this.getAttribute("aria-expanded") !== "true"
-  setDocsNavSectionState(this, expanded)
-
-  const key = docsNavSectionKey(this)
+function persistDocsNavSectionState(control: HTMLElement, expanded: boolean) {
+  const key = docsNavSectionKey(control)
   if (!key) return
 
   const state = readDocsExplorerState()
@@ -86,17 +94,51 @@ function toggleDocsNavSection(this: HTMLButtonElement) {
   writeDocsExplorerState(state)
 }
 
+function expandDocsNavSection(this: HTMLElement, event: MouseEvent) {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  ) {
+    return
+  }
+
+  setDocsNavSectionState(this, true)
+  persistDocsNavSectionState(this, true)
+}
+
+function toggleDocsNavSection(this: HTMLButtonElement) {
+  const expanded = this.getAttribute("aria-expanded") !== "true"
+  setDocsNavSectionState(this, expanded)
+  persistDocsNavSectionState(this, expanded)
+}
+
 function setupDocsExplorer() {
   const state = readDocsExplorerState()
 
-  for (const button of document.querySelectorAll<HTMLButtonElement>(".docs-nav-section-button")) {
-    const key = docsNavSectionKey(button)
+  for (const toggle of document.querySelectorAll<HTMLButtonElement>(".docs-nav-section-toggle")) {
+    const key = docsNavSectionKey(toggle)
     if (key && state[key] !== undefined) {
-      setDocsNavSectionState(button, state[key])
+      setDocsNavSectionState(toggle, state[key])
     }
 
-    button.addEventListener("click", toggleDocsNavSection)
-    window.addCleanup(() => button.removeEventListener("click", toggleDocsNavSection))
+    toggle.addEventListener("click", toggleDocsNavSection)
+    window.addCleanup(() => toggle.removeEventListener("click", toggleDocsNavSection))
+  }
+
+  for (const anchor of document.querySelectorAll<HTMLElement>(
+    ".docs-nav-section-anchor[data-controls]",
+  )) {
+    anchor.addEventListener("click", expandDocsNavSection)
+    window.addCleanup(() => anchor.removeEventListener("click", expandDocsNavSection))
+  }
+
+  for (const action of document.querySelectorAll<HTMLButtonElement>(".docs-nav-section-action")) {
+    action.addEventListener("click", toggleDocsNavSection)
+    window.addCleanup(() => action.removeEventListener("click", toggleDocsNavSection))
   }
 
   const explorer = getDocsExplorer()

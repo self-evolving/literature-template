@@ -726,6 +726,80 @@ footer {
   }
 }
 
+// Folder pages: keep tags with the linked title instead of pushing them into a
+// separate right-hand column. The upstream folder-page plugin emits
+// `.meta`, `.desc`, then `.tags`; grid areas let us preserve that markup while
+// rendering the tags as a compact row below the title.
+.page-listing li.section-li > .section {
+  grid-template-areas:
+    "desc meta"
+    "tags meta";
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 1rem;
+  align-items: start;
+}
+
+.page-listing li.section-li > .section > .desc {
+  grid-area: desc;
+  min-width: 0;
+}
+
+.page-listing li.section-li > .section > .desc > h3 {
+  margin-bottom: 0;
+}
+
+.page-listing li.section-li > .section > .meta {
+  grid-area: meta;
+  justify-self: end;
+  margin: 0.15rem 0 0;
+  color: var(--gray);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.page-listing li.section-li > .section > ul.tags {
+  display: flex;
+  grid-area: tags;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.15rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page-listing li.section-li > .section > ul.tags > li {
+  margin: 0;
+}
+
+.popover li.section-li > .section {
+  grid-template-areas: "meta desc";
+  grid-template-columns: fit-content(8em) 1fr;
+}
+
+.popover li.section-li > .section > ul.tags {
+  display: none;
+}
+
+@media all and ($mobile) {
+  .page-listing li.section-li > .section {
+    grid-template-areas:
+      "desc"
+      "tags"
+      "meta";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .page-listing li.section-li > .section > .meta {
+    justify-self: start;
+    margin-top: 0.2rem;
+  }
+
+  .page-listing li.section-li > .section > ul.tags {
+    display: flex !important;
+  }
+}
+
 // Index page: use single-column layout on tablet/smaller screens
 body[data-slug="index"] {
   // Reduce title margin on index page
@@ -1142,7 +1216,8 @@ ul.toc-content.overflow {
 // Library pages use a card header: breadcrumb context + title in a full-width
 // strip with a bottom underline.
 body:not([data-slug="index"]) .page > #quartz-body .center {
-  overflow: hidden;
+  // Keep popovers/tooltips from being clipped by the rounded content card.
+  overflow: visible;
 
   .page-header {
     margin-top: 0;
