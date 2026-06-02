@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-import { execSync } from "child_process"
+import { execFileSync, execSync } from "child_process"
 import { styleText } from "util"
 import {
   readPluginsJson,
@@ -67,6 +67,44 @@ function removePluginDir(pluginDir) {
   } else {
     fs.rmSync(pluginDir, { recursive: true, force: true })
   }
+}
+
+function validateGitRef(ref, label = "git ref") {
+  if (
+    typeof ref !== "string" ||
+    ref.length === 0 ||
+    ref.startsWith("-") ||
+    ref.startsWith("/") ||
+    ref.endsWith("/") ||
+    ref.endsWith(".lock") ||
+    ref.includes("..") ||
+    ref.includes("//") ||
+    ref.includes("@{") ||
+    !/^[A-Za-z0-9._/-]+$/.test(ref)
+  ) {
+    throw new Error(`Invalid ${label}: ${ref}`)
+  }
+  return ref
+}
+
+function validateGitCommit(commit, label = "git commit") {
+  if (!/^[0-9a-f]{7,40}$/i.test(commit)) {
+    throw new Error(`Invalid ${label}: ${commit}`)
+  }
+  return commit
+}
+
+function git(args, options = {}) {
+  return execFileSync("git", args, options)
+}
+
+function clonePluginRepo(url, pluginDir, ref) {
+  const args = ["clone", "--depth", "1"]
+  if (ref) {
+    args.push("--branch", validateGitRef(ref, "plugin ref"))
+  }
+  args.push("--", url, pluginDir)
+  git(args, { stdio: "ignore" })
 }
 
 /**
@@ -260,9 +298,15 @@ export async function handlePluginInstall() {
         }
         if (currentCommit !== entry.commit) {
           console.log(styleText("cyan", `  → ${name}: updating to ${entry.commit.slice(0, 7)}...`))
-          const fetchRef = entry.ref ? ` ${entry.ref}` : ""
-          execSync(`git fetch --depth 1 origin${fetchRef}`, { cwd: pluginDir, stdio: "ignore" })
-          execSync(`git reset --hard ${entry.commit}`, { cwd: pluginDir, stdio: "ignore" })
+          const fetchArgs = ["fetch", "--depth", "1", "origin"]
+          if (entry.ref) {
+            fetchArgs.push(validateGitRef(entry.ref, "plugin ref"))
+          }
+          git(fetchArgs, { cwd: pluginDir, stdio: "ignore" })
+          git(["reset", "--hard", validateGitCommit(entry.commit, "locked commit")], {
+            cwd: pluginDir,
+            stdio: "ignore",
+          })
         }
         pluginsToBuild.push({ name, pluginDir })
         installed++
@@ -273,16 +317,14 @@ export async function handlePluginInstall() {
     } else {
       try {
         console.log(styleText("cyan", `  → ${name}: cloning...`))
-        const branchArg = entry.ref ? ` --branch ${entry.ref}` : ""
-        execSync(`git clone --depth 1${branchArg} ${entry.resolved} ${pluginDir}`, {
-          stdio: "ignore",
-        })
+        clonePluginRepo(entry.resolved, pluginDir, entry.ref)
         if (entry.commit !== "unknown") {
-          execSync(`git fetch --depth 1 origin ${entry.commit}`, {
+          const commit = validateGitCommit(entry.commit, "locked commit")
+          git(["fetch", "--depth", "1", "origin", commit], {
             cwd: pluginDir,
             stdio: "ignore",
           })
-          execSync(`git checkout ${entry.commit}`, { cwd: pluginDir, stdio: "ignore" })
+          git(["checkout", commit], { cwd: pluginDir, stdio: "ignore" })
         }
         console.log(styleText("green", `  ✓ ${name}@${entry.commit.slice(0, 7)}`))
         pluginsToBuild.push({ name, pluginDir })
@@ -364,11 +406,7 @@ export async function handlePluginAdd(sources) {
       } else {
         console.log(styleText("cyan", `→ Adding ${name} from ${url}...`))
 
-        if (ref) {
-          execSync(`git clone --depth 1 --branch ${ref} ${url} ${pluginDir}`, { stdio: "ignore" })
-        } else {
-          execSync(`git clone --depth 1 ${url} ${pluginDir}`, { stdio: "ignore" })
-        }
+        clonePluginRepo(url, pluginDir, ref)
 
         const commit = getGitCommit(pluginDir)
         lockfile.plugins[name] = {
@@ -615,8 +653,10 @@ export async function handlePluginCheck() {
     }
 
     try {
-      const lsRemoteRef = entry.ref ? `refs/heads/${entry.ref}` : "HEAD"
-      const latestCommit = execSync(`git ls-remote ${entry.resolved} ${lsRemoteRef}`, {
+      const lsRemoteRef = entry.ref
+        ? `refs/heads/${validateGitRef(entry.ref, "plugin ref")}`
+        : "HEAD"
+      const latestCommit = git(["ls-remote", "--", entry.resolved, lsRemoteRef], {
         encoding: "utf-8",
       })
         .split("\t")[0]
@@ -698,13 +738,18 @@ export async function handlePluginUpdate(names) {
     try {
       console.log(styleText("cyan", `→ Updating ${name}...`))
       const previousEntry = { ...entry }
-      const fetchRef = entry.ref || ""
-      const resetTarget = entry.ref ? `origin/${entry.ref}` : "origin/HEAD"
-      execSync(`git fetch --depth 1 origin${fetchRef ? " " + fetchRef : ""}`, {
+      const fetchArgs = ["fetch", "--depth", "1", "origin"]
+      const resetTarget = entry.ref
+        ? `origin/${validateGitRef(entry.ref, "plugin ref")}`
+        : "origin/HEAD"
+      if (entry.ref) {
+        fetchArgs.push(validateGitRef(entry.ref, "plugin ref"))
+      }
+      git(fetchArgs, {
         cwd: pluginDir,
         stdio: "ignore",
       })
-      execSync(`git reset --hard ${resetTarget}`, { cwd: pluginDir, stdio: "ignore" })
+      git(["reset", "--hard", resetTarget], { cwd: pluginDir, stdio: "ignore" })
 
       const newCommit = getGitCommit(pluginDir)
       if (newCommit !== entry.commit) {
@@ -902,10 +947,12 @@ export async function handlePluginRestore() {
       console.log(
         styleText("cyan", `→ ${name}: cloning ${entry.resolved}@${entry.commit.slice(0, 7)}...`),
       )
-      const branchArg = entry.ref ? ` --branch ${entry.ref}` : ""
-      execSync(`git clone${branchArg} ${entry.resolved} ${pluginDir}`, { stdio: "ignore" })
+      clonePluginRepo(entry.resolved, pluginDir, entry.ref)
       if (entry.commit !== "unknown") {
-        execSync(`git checkout ${entry.commit}`, { cwd: pluginDir, stdio: "ignore" })
+        git(["checkout", validateGitCommit(entry.commit, "locked commit")], {
+          cwd: pluginDir,
+          stdio: "ignore",
+        })
       }
       console.log(styleText("green", `✓ ${name} restored`))
       restoredPlugins.push({ name, pluginDir })
@@ -1100,11 +1147,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
       } else {
         console.log(styleText("cyan", `→ Cloning ${name} from ${url}...`))
 
-        if (ref) {
-          execSync(`git clone --depth 1 --branch ${ref} ${url} ${pluginDir}`, { stdio: "ignore" })
-        } else {
-          execSync(`git clone --depth 1 ${url} ${pluginDir}`, { stdio: "ignore" })
-        }
+        clonePluginRepo(url, pluginDir, ref)
 
         const commit = getGitCommit(pluginDir)
         lockfile.plugins[name] = {
