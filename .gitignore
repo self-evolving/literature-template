@@ -9,5 +9,7 @@ tsconfig.tsbuildinfo
 private/
 .replit
 replit.nix
+.quartz/
+quartz/cli/tui/dist/
 .agent/node_modules/
 .agent/dist/

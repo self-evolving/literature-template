@@ -61,6 +61,9 @@ jobs:
       - name: Sync source documentation
         run: npm run sync:source-docs -- source-repo
 
+      - name: Restore Quartz plugins
+        run: npx quartz plugin restore
+
       - name: Verify Quartz build
         run: npx quartz build
 

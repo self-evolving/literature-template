@@ -4,7 +4,9 @@ import { CSSResourceToStyleElement, JSResourceToScriptElement } from "../util/re
 import { googleFontHref, googleFontSubsetHref } from "../util/theme"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { unescapeHTML } from "../util/escape"
-import { CustomOgImagesEmitterName } from "../plugins/emitters/ogImage"
+
+const CustomOgImagesEmitterName = "CustomOgImages"
+
 export default (() => {
   const Head: QuartzComponent = ({
     cfg,
@@ -12,14 +14,16 @@ export default (() => {
     externalResources,
     ctx,
   }: QuartzComponentProps) => {
+    const frontmatter = fileData.frontmatter
     const isIndexPage = fileData.slug === "index" || fileData.slug === ""
     const titleSuffix = isIndexPage ? "" : (cfg.pageTitleSuffix ?? "")
-    const pageTitle = fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title
+    const pageTitle = frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title
     const title = pageTitle + titleSuffix
-    const socialTitle = fileData.frontmatter?.socialTitle ?? pageTitle
+    const socialTitle =
+      typeof frontmatter?.socialTitle === "string" ? frontmatter.socialTitle : pageTitle
     const description =
-      fileData.frontmatter?.socialDescription ??
-      fileData.frontmatter?.description ??
+      frontmatter?.socialDescription ??
+      frontmatter?.description ??
       unescapeHTML(fileData.description?.trim() ?? i18n(cfg.locale).propertyDefaults.description)
 
     const { css, js, additionalHead } = externalResources
@@ -39,7 +43,7 @@ export default (() => {
       (e) => e.name === CustomOgImagesEmitterName,
     )
     const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image.png`
-    const redirect = fileData.frontmatter?.redirect
+    const redirect = frontmatter?.redirect
     const redirectUrl = typeof redirect === "string" && redirect.length > 0 ? redirect : undefined
     const canonicalRedirectUrl = redirectUrl ? new URL(redirectUrl, url).toString() : undefined
 
