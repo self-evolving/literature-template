@@ -1,5 +1,8 @@
 FROM node:22-slim AS builder
 WORKDIR /usr/src/app
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends git ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 COPY package.json .
 COPY package-lock.json* .
 COPY quartz/ ./quartz/
