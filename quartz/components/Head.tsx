@@ -14,12 +14,16 @@ export default (() => {
     externalResources,
     ctx,
   }: QuartzComponentProps) => {
-    const titleSuffix = cfg.pageTitleSuffix ?? ""
-    const title =
-      (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title) + titleSuffix
+    const frontmatter = fileData.frontmatter
+    const isIndexPage = fileData.slug === "index" || fileData.slug === ""
+    const titleSuffix = isIndexPage ? "" : (cfg.pageTitleSuffix ?? "")
+    const pageTitle = frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title
+    const title = pageTitle + titleSuffix
+    const socialTitle =
+      typeof frontmatter?.socialTitle === "string" ? frontmatter.socialTitle : pageTitle
     const description =
-      fileData.frontmatter?.socialDescription ??
-      fileData.frontmatter?.description ??
+      frontmatter?.socialDescription ??
+      frontmatter?.description ??
       unescapeHTML(fileData.description?.trim() ?? i18n(cfg.locale).propertyDefaults.description)
 
     const { css, js, additionalHead } = externalResources
@@ -27,6 +31,8 @@ export default (() => {
     const url = new URL(`https://${cfg.baseUrl ?? "example.com"}`)
     const path = url.pathname as FullSlug
     const baseDir = fileData.slug === "404" ? path : pathToRoot(fileData.slug!)
+    const icon16Path = joinSegments(baseDir, "static/icon-16.png")
+    const icon128Path = joinSegments(baseDir, "static/icon-128.png")
     const iconPath = joinSegments(baseDir, "static/icon.png")
 
     // Url of current page
@@ -37,6 +43,9 @@ export default (() => {
       (e) => e.name === CustomOgImagesEmitterName,
     )
     const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image.png`
+    const redirect = frontmatter?.redirect
+    const redirectUrl = typeof redirect === "string" && redirect.length > 0 ? redirect : undefined
+    const canonicalRedirectUrl = redirectUrl ? new URL(redirectUrl, url).toString() : undefined
 
     return (
       <head>
@@ -60,10 +69,10 @@ export default (() => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <meta name="og:site_name" content={cfg.pageTitle}></meta>
-        <meta property="og:title" content={title} />
+        <meta property="og:title" content={socialTitle} />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
+        <meta name="twitter:title" content={socialTitle} />
         <meta name="twitter:description" content={description} />
         <meta property="og:description" content={description} />
         <meta property="og:image:alt" content={description} />
@@ -88,7 +97,22 @@ export default (() => {
           </>
         )}
 
-        <link rel="icon" href={iconPath} />
+        {redirectUrl && (
+          <>
+            <link rel="canonical" href={canonicalRedirectUrl} />
+            <meta name="robots" content="noindex" />
+            <meta httpEquiv="refresh" content={`0; url=${redirectUrl}`} />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.location.replace(${JSON.stringify(redirectUrl)})`,
+              }}
+            />
+          </>
+        )}
+
+        <link rel="icon" href={icon16Path} sizes="16x16" type="image/png" />
+        <link rel="icon" href={icon128Path} sizes="128x128" type="image/png" />
+        <link rel="icon" href={iconPath} type="image/png" />
         <meta name="description" content={description} />
         <meta name="generator" content="Quartz" />
 

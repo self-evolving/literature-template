@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-import { execSync } from "child_process"
+import { execFileSync, execSync } from "child_process"
 import { styleText } from "util"
 import {
   readPluginsJson,
@@ -41,6 +41,70 @@ function buildPlugin(pluginDir, name) {
 function needsBuild(pluginDir) {
   const distDir = path.join(pluginDir, "dist")
   return !fs.existsSync(distDir)
+}
+
+function throwIfPluginFailures(action, failed) {
+  if (failed > 0) {
+    throw new Error(`${failed} plugin(s) failed to ${action}`)
+  }
+}
+
+function pluginPathExists(pluginDir) {
+  try {
+    fs.lstatSync(pluginDir)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function removePluginDir(pluginDir) {
+  if (!pluginPathExists(pluginDir)) return
+
+  const stat = fs.lstatSync(pluginDir)
+  if (stat.isSymbolicLink() || stat.isFile()) {
+    fs.rmSync(pluginDir, { force: true })
+  } else {
+    fs.rmSync(pluginDir, { recursive: true, force: true })
+  }
+}
+
+function validateGitRef(ref, label = "git ref") {
+  if (
+    typeof ref !== "string" ||
+    ref.length === 0 ||
+    ref.startsWith("-") ||
+    ref.startsWith("/") ||
+    ref.endsWith("/") ||
+    ref.endsWith(".lock") ||
+    ref.includes("..") ||
+    ref.includes("//") ||
+    ref.includes("@{") ||
+    !/^[A-Za-z0-9._/-]+$/.test(ref)
+  ) {
+    throw new Error(`Invalid ${label}: ${ref}`)
+  }
+  return ref
+}
+
+function validateGitCommit(commit, label = "git commit") {
+  if (!/^[0-9a-f]{7,40}$/i.test(commit)) {
+    throw new Error(`Invalid ${label}: ${commit}`)
+  }
+  return commit
+}
+
+function git(args, options = {}) {
+  return execFileSync("git", args, options)
+}
+
+function clonePluginRepo(url, pluginDir, ref) {
+  const args = ["clone", "--depth", "1"]
+  if (ref) {
+    args.push("--branch", validateGitRef(ref, "plugin ref"))
+  }
+  args.push("--", url, pluginDir)
+  git(args, { stdio: "ignore" })
 }
 
 /**
@@ -170,10 +234,9 @@ export async function handlePluginInstall() {
   const lockfile = readLockfile()
 
   if (!lockfile) {
-    console.log(
-      styleText("yellow", "⚠ No quartz.lock.json found. Run 'npx quartz plugin add <repo>' first."),
-    )
-    return
+    const message = "No quartz.lock.json found. Run 'npx quartz plugin add <repo>' first."
+    console.log(styleText("red", `✗ ${message}`))
+    throw new Error(message)
   }
 
   if (!fs.existsSync(PLUGINS_DIR)) {
@@ -235,9 +298,15 @@ export async function handlePluginInstall() {
         }
         if (currentCommit !== entry.commit) {
           console.log(styleText("cyan", `  → ${name}: updating to ${entry.commit.slice(0, 7)}...`))
-          const fetchRef = entry.ref ? ` ${entry.ref}` : ""
-          execSync(`git fetch --depth 1 origin${fetchRef}`, { cwd: pluginDir, stdio: "ignore" })
-          execSync(`git reset --hard ${entry.commit}`, { cwd: pluginDir, stdio: "ignore" })
+          const fetchArgs = ["fetch", "--depth", "1", "origin"]
+          if (entry.ref) {
+            fetchArgs.push(validateGitRef(entry.ref, "plugin ref"))
+          }
+          git(fetchArgs, { cwd: pluginDir, stdio: "ignore" })
+          git(["reset", "--hard", validateGitCommit(entry.commit, "locked commit")], {
+            cwd: pluginDir,
+            stdio: "ignore",
+          })
         }
         pluginsToBuild.push({ name, pluginDir })
         installed++
@@ -248,16 +317,14 @@ export async function handlePluginInstall() {
     } else {
       try {
         console.log(styleText("cyan", `  → ${name}: cloning...`))
-        const branchArg = entry.ref ? ` --branch ${entry.ref}` : ""
-        execSync(`git clone --depth 1${branchArg} ${entry.resolved} ${pluginDir}`, {
-          stdio: "ignore",
-        })
+        clonePluginRepo(entry.resolved, pluginDir, entry.ref)
         if (entry.commit !== "unknown") {
-          execSync(`git fetch --depth 1 origin ${entry.commit}`, {
+          const commit = validateGitCommit(entry.commit, "locked commit")
+          git(["fetch", "--depth", "1", "origin", commit], {
             cwd: pluginDir,
             stdio: "ignore",
           })
-          execSync(`git checkout ${entry.commit}`, { cwd: pluginDir, stdio: "ignore" })
+          git(["checkout", commit], { cwd: pluginDir, stdio: "ignore" })
         }
         console.log(styleText("green", `  ✓ ${name}@${entry.commit.slice(0, 7)}`))
         pluginsToBuild.push({ name, pluginDir })
@@ -288,7 +355,8 @@ export async function handlePluginInstall() {
   if (failed === 0) {
     console.log(styleText("green", `✓ Installed ${installed} plugin(s)`))
   } else {
-    console.log(styleText("yellow", `⚠ Installed ${installed} plugin(s), ${failed} failed`))
+    console.log(styleText("red", `✗ Installed ${installed} plugin(s), ${failed} failed`))
+    throwIfPluginFailures("install", failed)
   }
 }
 
@@ -302,7 +370,9 @@ export async function handlePluginAdd(sources) {
     fs.mkdirSync(PLUGINS_DIR, { recursive: true })
   }
 
+  let failed = 0
   const addedPlugins = []
+  const builtPlugins = []
 
   for (const source of sources) {
     try {
@@ -319,6 +389,7 @@ export async function handlePluginAdd(sources) {
         const resolvedPath = path.resolve(url)
         if (!fs.existsSync(resolvedPath)) {
           console.log(styleText("red", `✗ Local path does not exist: ${resolvedPath}`))
+          failed++
           continue
         }
         console.log(styleText("cyan", `→ Adding ${name} from local path ${resolvedPath}...`))
@@ -335,11 +406,7 @@ export async function handlePluginAdd(sources) {
       } else {
         console.log(styleText("cyan", `→ Adding ${name} from ${url}...`))
 
-        if (ref) {
-          execSync(`git clone --depth 1 --branch ${ref} ${url} ${pluginDir}`, { stdio: "ignore" })
-        } else {
-          execSync(`git clone --depth 1 ${url} ${pluginDir}`, { stdio: "ignore" })
-        }
+        clonePluginRepo(url, pluginDir, ref)
 
         const commit = getGitCommit(pluginDir)
         lockfile.plugins[name] = {
@@ -355,50 +422,64 @@ export async function handlePluginAdd(sources) {
       }
     } catch (error) {
       console.log(styleText("red", `✗ Failed to add ${source}: ${error}`))
+      failed++
     }
   }
 
   if (addedPlugins.length > 0) {
     console.log()
     console.log(styleText("cyan", "→ Building plugins..."))
-    for (const { name, pluginDir } of addedPlugins) {
+    for (const plugin of addedPlugins) {
+      const { name, pluginDir } = plugin
       if (buildPlugin(pluginDir, name)) {
         console.log(styleText("green", `  ✓ ${name} built`))
+        builtPlugins.push(plugin)
+      } else {
+        failed++
+        delete lockfile.plugins[name]
+        removePluginDir(pluginDir)
       }
     }
-    await regeneratePluginIndex()
   }
 
-  writeLockfile(lockfile)
-  const pluginsJson = readPluginsJson()
-  if (pluginsJson?.plugins) {
-    for (const { pluginDir, source } of addedPlugins) {
-      const manifest = readManifestFromPackageJson(pluginDir)
-      const newEntry = {
-        source,
-        enabled: manifest?.defaultEnabled ?? true,
-        options: manifest?.defaultOptions ?? {},
-        order: manifest?.defaultOrder ?? 50,
-      }
+  if (builtPlugins.length > 0) {
+    await regeneratePluginIndex()
+    writeLockfile(lockfile)
+    const pluginsJson = readPluginsJson()
+    if (pluginsJson?.plugins) {
+      for (const { pluginDir, source } of builtPlugins) {
+        const manifest = readManifestFromPackageJson(pluginDir)
+        const newEntry = {
+          source,
+          enabled: manifest?.defaultEnabled ?? true,
+          options: manifest?.defaultOptions ?? {},
+          order: manifest?.defaultOrder ?? 50,
+        }
 
-      if (manifest?.components) {
-        const firstComponentKey = Object.keys(manifest.components)[0]
-        const comp = manifest.components[firstComponentKey]
-        if (comp?.defaultPosition) {
-          newEntry.layout = {
-            position: comp.defaultPosition,
-            priority: comp.defaultPriority ?? 50,
-            display: "all",
+        if (manifest?.components) {
+          const firstComponentKey = Object.keys(manifest.components)[0]
+          const comp = manifest.components[firstComponentKey]
+          if (comp?.defaultPosition) {
+            newEntry.layout = {
+              position: comp.defaultPosition,
+              priority: comp.defaultPriority ?? 50,
+              display: "all",
+            }
           }
         }
-      }
 
-      pluginsJson.plugins.push(newEntry)
+        pluginsJson.plugins.push(newEntry)
+      }
+      writePluginsJson(pluginsJson)
     }
-    writePluginsJson(pluginsJson)
+    console.log()
+    console.log(styleText("gray", "Updated quartz.lock.json"))
+  } else if (addedPlugins.length > 0 || failed > 0) {
+    console.log()
+    console.log(styleText("gray", "No plugin changes were written"))
   }
-  console.log()
-  console.log(styleText("gray", "Updated quartz.lock.json"))
+
+  throwIfPluginFailures("add", failed)
 }
 
 export async function handlePluginRemove(names) {
@@ -572,8 +653,10 @@ export async function handlePluginCheck() {
     }
 
     try {
-      const lsRemoteRef = entry.ref ? `refs/heads/${entry.ref}` : "HEAD"
-      const latestCommit = execSync(`git ls-remote ${entry.resolved} ${lsRemoteRef}`, {
+      const lsRemoteRef = entry.ref
+        ? `refs/heads/${validateGitRef(entry.ref, "plugin ref")}`
+        : "HEAD"
+      const latestCommit = git(["ls-remote", "--", entry.resolved, lsRemoteRef], {
         encoding: "utf-8",
       })
         .split("\t")[0]
@@ -624,69 +707,95 @@ export async function handlePluginUpdate(names) {
     return
   }
 
-  const pluginsToUpdate = names || Object.keys(lockfile.plugins)
+  const pluginsToUpdate = names?.length ? names : Object.keys(lockfile.plugins)
   const updatedPlugins = []
+  let failed = 0
 
   for (const name of pluginsToUpdate) {
     const entry = lockfile.plugins[name]
     if (!entry) {
-      console.log(styleText("yellow", `⚠ ${name} is not installed`))
+      console.log(styleText("red", `✗ ${name} is not installed`))
+      failed++
       continue
     }
 
     const pluginDir = path.join(PLUGINS_DIR, name)
     if (!fs.existsSync(pluginDir)) {
       console.log(
-        styleText("yellow", `⚠ ${name} directory missing. Run 'npx quartz plugin install'.`),
+        styleText("red", `✗ ${name} directory missing. Run 'npm run quartz -- plugin restore'.`),
       )
+      failed++
       continue
     }
 
     // Local plugins: just rebuild, no git operations
     if (entry.commit === "local") {
       console.log(styleText("cyan", `→ Rebuilding local plugin ${name}...`))
-      updatedPlugins.push({ name, pluginDir })
+      updatedPlugins.push({ name, pluginDir, lockfileChanged: false })
       continue
     }
 
     try {
       console.log(styleText("cyan", `→ Updating ${name}...`))
-      const fetchRef = entry.ref || ""
-      const resetTarget = entry.ref ? `origin/${entry.ref}` : "origin/HEAD"
-      execSync(`git fetch --depth 1 origin${fetchRef ? " " + fetchRef : ""}`, {
+      const previousEntry = { ...entry }
+      const fetchArgs = ["fetch", "--depth", "1", "origin"]
+      const resetTarget = entry.ref
+        ? `origin/${validateGitRef(entry.ref, "plugin ref")}`
+        : "origin/HEAD"
+      if (entry.ref) {
+        fetchArgs.push(validateGitRef(entry.ref, "plugin ref"))
+      }
+      git(fetchArgs, {
         cwd: pluginDir,
         stdio: "ignore",
       })
-      execSync(`git reset --hard ${resetTarget}`, { cwd: pluginDir, stdio: "ignore" })
+      git(["reset", "--hard", resetTarget], { cwd: pluginDir, stdio: "ignore" })
 
       const newCommit = getGitCommit(pluginDir)
       if (newCommit !== entry.commit) {
         entry.commit = newCommit
         entry.installedAt = new Date().toISOString()
-        updatedPlugins.push({ name, pluginDir })
+        updatedPlugins.push({ name, pluginDir, previousEntry, lockfileChanged: true })
         console.log(styleText("green", `✓ Updated ${name} to ${newCommit.slice(0, 7)}`))
       } else {
         console.log(styleText("gray", `✓ ${name} already up to date`))
       }
     } catch (error) {
       console.log(styleText("red", `✗ Failed to update ${name}: ${error}`))
+      failed++
     }
   }
 
+  let rebuilt = 0
+  let lockfileChanged = false
   if (updatedPlugins.length > 0) {
     console.log()
     console.log(styleText("cyan", "→ Rebuilding updated plugins..."))
-    for (const { name, pluginDir } of updatedPlugins) {
+    for (const plugin of updatedPlugins) {
+      const { name, pluginDir } = plugin
       if (buildPlugin(pluginDir, name)) {
         console.log(styleText("green", `  ✓ ${name} rebuilt`))
+        rebuilt++
+        lockfileChanged ||= plugin.lockfileChanged
+      } else {
+        failed++
+        if (plugin.previousEntry) {
+          lockfile.plugins[name] = plugin.previousEntry
+        }
       }
     }
-    await regeneratePluginIndex()
   }
 
-  writeLockfile(lockfile)
-  console.log()
-  console.log(styleText("gray", "Updated quartz.lock.json"))
+  if (rebuilt > 0) {
+    await regeneratePluginIndex()
+  }
+  if (lockfileChanged) {
+    writeLockfile(lockfile)
+    console.log()
+    console.log(styleText("gray", "Updated quartz.lock.json"))
+  }
+
+  throwIfPluginFailures("update", failed)
 }
 
 export async function handlePluginList() {
@@ -742,10 +851,11 @@ export async function handlePluginList() {
 export async function handlePluginRestore() {
   const lockfile = readLockfile()
   if (!lockfile) {
-    console.log(styleText("red", "✗ No quartz.lock.json found. Cannot restore."))
+    const message = "No quartz.lock.json found. Cannot restore."
+    console.log(styleText("red", `✗ ${message}`))
     console.log()
     console.log("Run 'npx quartz plugin add <repo>' to install plugins from scratch.")
-    return
+    throw new Error(message)
   }
 
   console.log(styleText("cyan", "→ Restoring plugins from lockfile..."))
@@ -763,12 +873,7 @@ export async function handlePluginRestore() {
   for (const [name, entry] of Object.entries(lockfile.plugins)) {
     const pluginDir = path.join(pluginsDir, name)
 
-    if (fs.existsSync(pluginDir)) {
-      console.log(styleText("yellow", `⚠ ${name}: directory exists, skipping`))
-      continue
-    }
-
-    // Local plugin: re-symlink
+    // Local plugin: re-symlink and rebuild if the existing link is incomplete.
     if (entry.commit === "local") {
       const localTarget = path.resolve(entry.resolved)
       try {
@@ -777,6 +882,31 @@ export async function handlePluginRestore() {
           failed++
           continue
         }
+
+        if (pluginPathExists(pluginDir)) {
+          const stat = fs.lstatSync(pluginDir)
+          let alreadyLinked = false
+          if (stat.isSymbolicLink()) {
+            try {
+              alreadyLinked = fs.realpathSync(pluginDir) === fs.realpathSync(localTarget)
+            } catch {}
+          }
+
+          if (alreadyLinked) {
+            if (needsBuild(pluginDir)) {
+              console.log(styleText("cyan", `→ ${name}: local symlink exists, rebuilding...`))
+              restoredPlugins.push({ name, pluginDir })
+            } else {
+              console.log(styleText("gray", `✓ ${name} already restored (local symlink)`))
+            }
+            installed++
+            continue
+          }
+
+          console.log(styleText("cyan", `→ ${name}: replacing existing local plugin...`))
+          removePluginDir(pluginDir)
+        }
+
         fs.mkdirSync(path.dirname(pluginDir), { recursive: true })
         fs.symlinkSync(localTarget, pluginDir, "dir")
         console.log(styleText("green", `✓ ${name} restored (local symlink)`))
@@ -790,12 +920,40 @@ export async function handlePluginRestore() {
     }
 
     try {
+      if (pluginPathExists(pluginDir)) {
+        const currentCommit = getGitCommit(pluginDir)
+        if (currentCommit === entry.commit) {
+          if (needsBuild(pluginDir)) {
+            console.log(
+              styleText("cyan", `→ ${name}: locked commit present, rebuilding missing dist...`),
+            )
+            restoredPlugins.push({ name, pluginDir })
+          } else {
+            console.log(styleText("gray", `✓ ${name}@${entry.commit.slice(0, 7)} already restored`))
+          }
+          installed++
+          continue
+        }
+
+        console.log(
+          styleText(
+            "yellow",
+            `⚠ ${name}: existing ${currentCommit.slice(0, 7)} does not match lockfile ${entry.commit.slice(0, 7)}, re-cloning`,
+          ),
+        )
+        removePluginDir(pluginDir)
+      }
+
       console.log(
         styleText("cyan", `→ ${name}: cloning ${entry.resolved}@${entry.commit.slice(0, 7)}...`),
       )
-      const branchArg = entry.ref ? ` --branch ${entry.ref}` : ""
-      execSync(`git clone${branchArg} ${entry.resolved} ${pluginDir}`, { stdio: "ignore" })
-      execSync(`git checkout ${entry.commit}`, { cwd: pluginDir, stdio: "ignore" })
+      clonePluginRepo(entry.resolved, pluginDir, entry.ref)
+      if (entry.commit !== "unknown") {
+        git(["checkout", validateGitCommit(entry.commit, "locked commit")], {
+          cwd: pluginDir,
+          stdio: "ignore",
+        })
+      }
       console.log(styleText("green", `✓ ${name} restored`))
       restoredPlugins.push({ name, pluginDir })
       installed++
@@ -816,14 +974,16 @@ export async function handlePluginRestore() {
         console.log(styleText("green", `  ✓ ${name} built`))
       }
     }
-    await regeneratePluginIndex()
   }
+
+  await regeneratePluginIndex()
 
   console.log()
   if (failed === 0) {
     console.log(styleText("green", `✓ Restored ${installed} plugin(s)`))
   } else {
-    console.log(styleText("yellow", `⚠ Restored ${installed} plugin(s), ${failed} failed`))
+    console.log(styleText("red", `✗ Restored ${installed} plugin(s), ${failed} failed`))
+    throwIfPluginFailures("restore", failed)
   }
 }
 
@@ -932,6 +1092,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
   }
 
   const installed = []
+  const builtPlugins = []
   let failed = 0
 
   for (const entry of missing) {
@@ -948,7 +1109,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
             commit: "local",
             installedAt: new Date().toISOString(),
           }
-          installed.push({ name, pluginDir })
+          installed.push({ name, pluginDir, created: false })
           continue
         }
         console.log(styleText("yellow", `⚠ ${name} directory already exists, updating lockfile`))
@@ -960,7 +1121,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
           ...(ref && { ref }),
           installedAt: new Date().toISOString(),
         }
-        installed.push({ name, pluginDir })
+        installed.push({ name, pluginDir, created: false })
         continue
       }
 
@@ -981,16 +1142,12 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
           commit: "local",
           installedAt: new Date().toISOString(),
         }
-        installed.push({ name, pluginDir })
+        installed.push({ name, pluginDir, created: true })
         console.log(styleText("green", `✓ Linked ${name} (local)`))
       } else {
         console.log(styleText("cyan", `→ Cloning ${name} from ${url}...`))
 
-        if (ref) {
-          execSync(`git clone --depth 1 --branch ${ref} ${url} ${pluginDir}`, { stdio: "ignore" })
-        } else {
-          execSync(`git clone --depth 1 ${url} ${pluginDir}`, { stdio: "ignore" })
-        }
+        clonePluginRepo(url, pluginDir, ref)
 
         const commit = getGitCommit(pluginDir)
         lockfile.plugins[name] = {
@@ -1001,7 +1158,7 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
           installedAt: new Date().toISOString(),
         }
 
-        installed.push({ name, pluginDir })
+        installed.push({ name, pluginDir, created: true })
         console.log(styleText("green", `✓ Cloned ${name}@${commit.slice(0, 7)}`))
       }
     } catch (error) {
@@ -1013,22 +1170,34 @@ export async function handlePluginResolve({ dryRun = false } = {}) {
   if (installed.length > 0) {
     console.log()
     console.log(styleText("cyan", "→ Building plugins..."))
-    for (const { name, pluginDir } of installed) {
+    for (const plugin of installed) {
+      const { name, pluginDir } = plugin
       if (!buildPlugin(pluginDir, name)) {
         failed++
+        delete lockfile.plugins[name]
+        if (plugin.created) {
+          removePluginDir(pluginDir)
+        }
       } else {
         console.log(styleText("green", `  ✓ ${name} built`))
+        builtPlugins.push(plugin)
       }
     }
-    await regeneratePluginIndex()
   }
 
-  writeLockfile(lockfile)
+  if (builtPlugins.length > 0) {
+    await regeneratePluginIndex()
+    writeLockfile(lockfile)
+  }
+
   console.log()
   if (failed === 0) {
-    console.log(styleText("green", `✓ Resolved ${installed.length} plugin(s)`))
+    console.log(styleText("green", `✓ Resolved ${builtPlugins.length} plugin(s)`))
   } else {
-    console.log(styleText("yellow", `⚠ Resolved ${installed.length} plugin(s), ${failed} failed`))
+    console.log(styleText("red", `✗ Resolved ${builtPlugins.length} plugin(s), ${failed} failed`))
+    throwIfPluginFailures("resolve", failed)
   }
-  console.log(styleText("gray", "Updated quartz.lock.json"))
+  if (builtPlugins.length > 0) {
+    console.log(styleText("gray", "Updated quartz.lock.json"))
+  }
 }

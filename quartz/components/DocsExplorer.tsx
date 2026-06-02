@@ -10,15 +10,15 @@ import script from "./scripts/docsExplorer.inline"
 
 let docsNavCache: { key: string; data: DocsNavData } | undefined
 
-function docsNavForContentRoot(contentRoot: string, buildId: string) {
+function docsNavForContentRoot(contentRoot: string, buildId: string, ignorePatterns: string[]) {
   const navRoot = path.resolve(contentRoot)
-  const key = `${buildId}:${navRoot}`
+  const key = `${buildId}:${navRoot}:${JSON.stringify(ignorePatterns)}`
 
   if (docsNavCache?.key === key) {
     return docsNavCache.data
   }
 
-  const data = buildDocsNav({ docsRoot: navRoot, slugPrefix: "" })
+  const data = buildDocsNav({ docsRoot: navRoot, slugPrefix: "", ignorePatterns })
   docsNavCache = { key, data }
   return data
 }
@@ -100,9 +100,18 @@ function renderNavItem(currentSlug: FullSlug, item: DocsNavItem) {
   )
 }
 
-const DocsExplorer: QuartzComponent = ({ ctx, fileData, displayClass }: QuartzComponentProps) => {
+const DocsExplorer: QuartzComponent = ({
+  ctx,
+  cfg,
+  fileData,
+  displayClass,
+}: QuartzComponentProps) => {
   const currentSlug = fileData.slug as FullSlug
-  const docsNavData = docsNavForContentRoot(ctx.argv.directory, ctx.buildId)
+  const docsNavData = docsNavForContentRoot(
+    ctx.argv.directory,
+    ctx.buildId,
+    cfg.ignorePatterns ?? [],
+  )
   const rootActive = currentSlug === docsNavData.root.slug
 
   return (

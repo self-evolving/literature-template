@@ -217,6 +217,10 @@ async function getManifest(source: string): Promise<PluginManifest | null> {
   return (await readManifestFromPackageJson(source)) ?? (await resolvePluginManifest(source))
 }
 
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err)
+}
+
 export async function loadQuartzConfig(
   configOverrides?: Partial<GlobalConfiguration>,
 ): Promise<QuartzConfig> {
@@ -247,11 +251,7 @@ export async function loadQuartzConfig(
         manifests.set(entry.source, manifest)
       }
     } catch (err) {
-      console.error(
-        styleText("red", `✗`) +
-          ` Failed to install plugin: ${styleText("yellow", entry.source)}\n` +
-          `  ${err instanceof Error ? err.message : String(err)}`,
-      )
+      throw new Error(`Failed to install enabled plugin "${entry.source}": ${errorMessage(err)}`)
     }
   }
 
@@ -309,8 +309,10 @@ export async function loadQuartzConfig(
         const entryPoint = getPluginEntryPoint(gitSpec.name, gitSpec.subdir)
         try {
           await import(toFileUrl(entryPoint))
-        } catch (e) {
-          // Side-effect import failed — continue with manifest-based loading
+        } catch (err) {
+          throw new Error(
+            `Failed to load component plugin "${extractPluginName(entry.source)}": ${errorMessage(err)}`,
+          )
         }
         if (manifest?.components && Object.keys(manifest.components).length > 0) {
           await loadComponentsFromPackage(gitSpec.name, manifest, gitSpec.subdir)
@@ -331,12 +333,11 @@ export async function loadQuartzConfig(
               await loadFramesFromPackage(gitSpec.name, manifest, gitSpec.subdir)
             }
           } else {
-            console.warn(
-              styleText("yellow", `⚠`) +
-                ` Could not determine category for plugin "${extractPluginName(entry.source)}". Skipping.`,
+            throw new Error(
+              `Could not determine category for enabled plugin "${extractPluginName(entry.source)}".`,
             )
           }
-        } catch {
+        } catch (err) {
           const hasComponents = manifest?.components && Object.keys(manifest.components).length > 0
           const hasFrames = manifest?.frames && Object.keys(manifest.frames).length > 0
           if (hasComponents) {
@@ -346,9 +347,8 @@ export async function loadQuartzConfig(
             await loadFramesFromPackage(gitSpec.name, manifest, gitSpec.subdir)
           }
           if (!hasComponents && !hasFrames) {
-            console.warn(
-              styleText("yellow", `⚠`) +
-                ` Could not load plugin "${extractPluginName(entry.source)}" to detect category. Skipping.`,
+            throw new Error(
+              `Could not load enabled plugin "${extractPluginName(entry.source)}" to detect category: ${errorMessage(err)}`,
             )
           }
         }
@@ -391,18 +391,15 @@ export async function loadQuartzConfig(
 
         const factory = findFactory(module, expectedCategory)
         if (!factory) {
-          console.warn(
-            styleText("yellow", `⚠`) +
-              ` Plugin "${extractPluginName(entry.source)}" has no factory function for category "${expectedCategory}". Skipping.`,
+          throw new Error(
+            `Enabled plugin "${extractPluginName(entry.source)}" has no factory function for category "${expectedCategory}".`,
           )
-          continue
         }
         const options = { ...manifest?.defaultOptions, ...entry.options }
         instances.push(factory(Object.keys(options).length > 0 ? options : undefined))
       } catch (err) {
-        console.error(
-          styleText("red", `✗`) +
-            ` Failed to instantiate plugin "${extractPluginName(entry.source)}": ${err instanceof Error ? err.message : String(err)}`,
+        throw new Error(
+          `Failed to instantiate enabled plugin "${extractPluginName(entry.source)}": ${errorMessage(err)}`,
         )
       }
     }
