@@ -14,4 +14,8 @@ export type DocsNavData = {
 export const defaultDocsRoot: string
 export const defaultDocsSlugPrefix: string
 
-export function buildDocsNav(options?: { docsRoot?: string; slugPrefix?: string }): DocsNavData
+export function buildDocsNav(options?: {
+  docsRoot?: string
+  slugPrefix?: string
+  ignorePatterns?: string[]
+}): DocsNavData

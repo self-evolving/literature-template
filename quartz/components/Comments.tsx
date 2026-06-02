@@ -39,10 +39,9 @@ export default ((opts: Options) => {
     return (
       <section class={classNames(displayClass, "comments")} aria-label="Page discussion">
         <div class="comments-header">
-          <h2>Questions or feedback?</h2>
+          <h2>Discuss this note</h2>
           <p>
-            Ask questions, share feedback, or suggest improvements in GitHub Discussions. Please
-            feel free to tag <code>@sepo-agent</code>.
+            Ask questions, share feedback, or suggest improvements in the linked GitHub Discussion.
           </p>
         </div>
         <div

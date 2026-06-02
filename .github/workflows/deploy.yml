@@ -1,55 +1,21 @@
-name: Sync source docs
+name: Validate literature site
 
 on:
   workflow_dispatch:
-    inputs:
-      source_ref:
-        description: Ref from self-evolving/repo to sync
-        required: false
-        default: main
-  repository_dispatch:
-    types:
-      - source-docs-updated
-  schedule:
-    # Poll because Vercel watches this repo, while docs are authored in self-evolving/repo.
-    - cron: "*/15 * * * *"
-
-env:
-  SOURCE_REPOSITORY: self-evolving/repo
-  SOURCE_REF: ${{ github.event.inputs.source_ref || github.event.client_payload.source_ref || 'main' }}
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: sync-source-docs
-  cancel-in-progress: false
+  group: validate-literature-site-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  sync:
+  validate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout docs site
+      - name: Checkout site
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Checkout source repository
-        env:
-          SOURCE_REPO_TOKEN: ${{ secrets.SOURCE_REPO_TOKEN }}
-        run: |
-          rm -rf source-repo
-
-          if [ -n "$SOURCE_REPO_TOKEN" ]; then
-            git -c http.https://github.com/.extraheader="AUTHORIZATION: bearer $SOURCE_REPO_TOKEN" \
-              clone --depth=1 --branch "$SOURCE_REF" \
-              "https://github.com/$SOURCE_REPOSITORY.git" source-repo
-          else
-            git clone --depth=1 --branch "$SOURCE_REF" \
-              "https://github.com/$SOURCE_REPOSITORY.git" source-repo
-          fi
-
-          echo "SOURCE_SHA=$(git -C source-repo rev-parse --short=12 HEAD)" >> "$GITHUB_ENV"
 
       - uses: actions/setup-node@v4
         with:
@@ -58,28 +24,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Sync source documentation
-        run: npm run sync:source-docs -- source-repo
+      - name: Check Quartz site
+        run: npm run check
 
-      - name: Restore Quartz plugins
-        run: npx quartz plugin restore
-
-      - name: Verify Quartz build
-        run: npx quartz build
-
-      - name: Commit synchronized docs
-        run: |
-          rm -rf source-repo public quartz/.quartz-cache tsconfig.tsbuildinfo
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add -A content
-
-          if git diff --cached --quiet; then
-            echo "Docs are already up to date."
-            exit 0
-          fi
-
-          git commit -m "Sync source docs from $SOURCE_REPOSITORY@$SOURCE_SHA"
-          git push
+      - name: Build Quartz site
+        run: npm run build

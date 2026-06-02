@@ -1,90 +1,127 @@
-# Sepo documentation site
+# Literature notes template
 
-This repository contains the Quartz shell and generated content for the Sepo documentation site on Vercel.
+This repository is a minimal Quartz + Sepo template for maintaining a literature site.
 
-The documentation source of truth stays in the product repository:
+The site keeps durable content directly in this repository:
 
-- `self-evolving/repo:README.md`
-- `self-evolving/repo:.agent/docs/**`
+- `content/papers/` — consolidated notes for individual papers.
+- `content/notes/` — synthesis notes that connect papers around topics, methods, or research questions.
+- `bibliography.bib` — BibTeX entries referenced by paper notes.
 
-Synchronization happens in GitHub Actions in this repository. The workflow checks out `self-evolving/repo`, runs `scripts/sync-source-docs.mjs`, commits the generated `content/**` files back to this repository, and then Vercel deploys the updated `repo-docs` commit.
+Transient review streams are intentionally not stored as Markdown. The intended direction is to render GitHub-hosted discussions, issues, or comments directly in the site in a future component, similar in spirit to how Giscus embeds GitHub Discussions.
 
-Vercel only builds this repository. It does not need access to `self-evolving/repo`.
+## Content model
+
+### Paper notes
+
+Paper notes live under `content/papers/` and should include citation-oriented frontmatter:
+
+```yaml
+---
+title: "Paper title"
+type: paper
+citekey: author2026paper
+authors:
+  - First Author
+year: 2026
+venue: Example Venue
+url:
+doi:
+status: unread
+tags:
+  - paper
+---
+```
+
+Quartz's citations plugin does **not** read `citekey` frontmatter directly. The `citekey` field is a template convention for humans, agents, and future tooling to match a paper note to an entry in `bibliography.bib`.
+
+Markdown citations such as `[@author2026paper]` render from the matching BibTeX entry. Links to paper-note pages should still use normal internal links. When you want both a paper-note link and an academic citation, write them together:
+
+```md
+[Paper title](../papers/paper-slug.md) [@author2026paper]
+```
+
+### Synthesis notes
+
+Synthesis notes live under `content/notes/` and capture topic-level understanding across papers:
+
+```yaml
+---
+title: "Topic or synthesis title"
+type: note
+tags:
+  - synthesis
+---
+```
+
+A synthesis note should link back to the relevant paper notes and make the relationship between papers explicit.
+
+### Navigation manifests
+
+The left navigation is driven by `_meta.json` files next to your notes. Every folder under `content/` that contains Markdown needs a `_meta.json` manifest with a human-readable `label` and a `pages` array of child slugs.
+
+For example, after adding `content/papers/new-paper.md`, add its slug without `.md` to `content/papers/_meta.json`:
+
+```json
+{
+  "label": "Papers",
+  "pages": ["example-paper", "new-paper"]
+}
+```
+
+Folder index pages are implicit: keep `index.md` in the folder, but do not list `"index"` in `pages`. For nested folders, add the folder slug to the parent manifest and give the nested folder its own `_meta.json`.
 
 ## Local development
 
-From this repository:
+Use Node `22.x`:
 
 ```bash
 npm ci
-npm run sync:source-docs -- ../sepo
 npm run install-plugins
-npm run quartz -- build --serve
+npm run dev
 ```
 
-Use a different source checkout by passing its path:
+Useful commands:
 
 ```bash
-npm run sync:source-docs -- /path/to/self-evolving/repo
+npm run check
+npm run build
 ```
+
+`npm run dev` serves the Quartz site locally. `npm run build` writes the static site to `public/`.
 
 ## Vercel configuration
 
-Import `self-evolving/repo-docs` into Vercel with:
+Import the repository into Vercel with:
 
 - Framework preset: **Other**
 - Install command: `npm ci`
 - Build command: `npm run build`
 - Output directory: `public`
 
-These are also captured in `vercel.json`.
+These settings are also captured in `vercel.json`.
 
 Recommended Vercel environment variable:
 
-| Name       | Value                                                                                 |
-| ---------- | ------------------------------------------------------------------------------------- |
-| `SITE_URL` | Production domain without protocol, e.g. `docs.example.com` or `repo-docs.vercel.app` |
+| Name       | Value                                                                               |
+| ---------- | ----------------------------------------------------------------------------------- |
+| `SITE_URL` | Production domain without protocol, e.g. `literature.example.com` or a Vercel host. |
 
-Giscus comments are enabled by default against [`self-evolving/repo-discussions`](https://github.com/self-evolving/repo-discussions), using the `General` Discussions category:
+## Comments and GitHub-backed surfaces
 
-| Name                 | Default                          |
-| -------------------- | -------------------------------- |
-| `GISCUS_REPO`        | `self-evolving/repo-discussions` |
-| `GISCUS_REPO_ID`     | `R_kgDOSjgnjQ`                   |
-| `GISCUS_CATEGORY`    | `General`                        |
-| `GISCUS_CATEGORY_ID` | `DIC_kwDOSjgnjc4C9gaF`           |
+Giscus comments are disabled by default. To enable them, set `GISCUS_ENABLED=true` and provide all required Giscus identifiers:
 
-Optional Giscus overrides:
+| Name                 | Description                                       |
+| -------------------- | ------------------------------------------------- |
+| `GISCUS_REPO`        | Repository that hosts GitHub Discussions.         |
+| `GISCUS_REPO_ID`     | Giscus repository ID.                             |
+| `GISCUS_CATEGORY`    | Discussion category name.                         |
+| `GISCUS_CATEGORY_ID` | Giscus category ID.                               |
+| `GISCUS_MAPPING`     | Optional mapping; defaults to `pathname`.         |
+| `GISCUS_THEME_URL`   | Optional theme base URL for custom Giscus themes. |
 
-| Name                       | Value                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------ |
-| `GISCUS_ENABLED`           | Set to `false` to disable comments                                                   |
-| `GISCUS_REPO`              | Override repository that hosts Discussions, in `owner/name` format                   |
-| `GISCUS_REPO_ID`           | Override Giscus repository ID                                                        |
-| `GISCUS_CATEGORY`          | Override Discussion category name                                                    |
-| `GISCUS_CATEGORY_ID`       | Override Giscus category ID                                                          |
-| `GISCUS_MAPPING`           | Optional mapping; defaults to `pathname` to avoid preview/production URL duplication |
-| `GISCUS_REACTIONS_ENABLED` | Optional boolean; defaults to `false` to keep the docs page footer quieter           |
-| `GISCUS_INPUT_POSITION`    | Optional `top` or `bottom`; defaults to `bottom`                                     |
-| `GISCUS_LIGHT_THEME`       | Optional theme file/name; defaults to `light`                                        |
-| `GISCUS_DARK_THEME`        | Optional theme file/name; defaults to `dark`                                         |
-| `GISCUS_THEME_URL`         | Optional theme base URL; defaults to this site's `/static/giscus` theme directory    |
-| `GISCUS_LANG`              | Optional language; defaults to `en`                                                  |
-
-If any of `GISCUS_REPO`, `GISCUS_REPO_ID`, `GISCUS_CATEGORY`, or `GISCUS_CATEGORY_ID` is overridden, all four must be provided together. Comments render on documentation content pages and can be disabled per page with frontmatter: `comments: false`.
+This is separate from the future transient-review surface described in issue #65, which should render GitHub content directly rather than committing transient Markdown files.
 
 ## Sepo controls
 
 Sepo workflows can be paused without disabling GitHub Actions globally by setting the repository variable `AGENT_ENABLED=false`. Remove the variable or set it to `true` to allow packaged `agent-*.yml` jobs to run again.
-
-## Source sync configuration
-
-The `Sync source docs` GitHub Actions workflow refreshes `content/**` on:
-
-- manual `workflow_dispatch`,
-- a 15-minute polling schedule,
-- optional `repository_dispatch` with type `source-docs-updated`.
-
-If `self-evolving/repo` is private, add a `SOURCE_REPO_TOKEN` secret to **this** repository (`self-evolving/repo-docs`). Use a fine-grained personal access token or GitHub App token with read-only Contents access to `self-evolving/repo`.
-
-The workflow needs `contents: write` so it can commit synchronized docs back to `repo-docs`. If commits fail, enable read/write workflow permissions in this repository's Actions settings.

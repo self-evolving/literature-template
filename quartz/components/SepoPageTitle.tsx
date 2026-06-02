@@ -2,38 +2,21 @@ import { FullSlug, resolveRelative } from "../util/path"
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
 import { classNames } from "../util/lang"
 
+const siteTitle = "Literature Notes"
+
 const PageTitle: QuartzComponent = ({ fileData, displayClass }: QuartzComponentProps) => {
-  const docsRoot = resolveRelative(fileData.slug!, "docs/index" as FullSlug)
+  const home = resolveRelative(fileData.slug!, "index" as FullSlug)
   return (
     <h2 class={classNames(displayClass, "page-title")}>
-      <a class="site-title-link" href={docsRoot} aria-label="Self-evolving docs">
+      <a class="site-title-link" href={home} aria-label="Literature notes home">
         <span class="site-title-main" aria-hidden="true">
-          <span class="site-title-variant site-title-variant-base">Self-evolving</span>
-          <span class="site-title-variant site-title-variant-hand">Self-evolving</span>
-          <span class="site-title-variant site-title-variant-bitcount">Self-evolving</span>
-          <span class="site-title-variant site-title-variant-dynapuff">Self-evolving</span>
-          <span class="site-title-variant site-title-variant-nabla">Self-evolving</span>
-          <span class="site-title-variant site-title-variant-code">Self-evolving</span>
+          <span class="site-title-variant site-title-variant-base">{siteTitle}</span>
+          <span class="site-title-variant site-title-variant-hand">{siteTitle}</span>
+          <span class="site-title-variant site-title-variant-bitcount">{siteTitle}</span>
+          <span class="site-title-variant site-title-variant-dynapuff">{siteTitle}</span>
+          <span class="site-title-variant site-title-variant-nabla">{siteTitle}</span>
+          <span class="site-title-variant site-title-variant-code">{siteTitle}</span>
         </span>
-      </a>
-      <a
-        class="page-title-github"
-        href="https://github.com/self-evolving/repo"
-        aria-label="View Sepo on GitHub"
-        title="View Sepo on GitHub"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 16 16"
-          width="16"
-          height="16"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.67 7.67 0 0 1 8 3.36c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
-        </svg>
       </a>
     </h2>
   )
@@ -66,41 +49,6 @@ PageTitle.css = `
   border-radius: 8px;
 }
 
-.page-title-github {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 1.65rem;
-  height: 1.65rem;
-  color: var(--darkgray);
-  background: transparent;
-  border-radius: 7px;
-  opacity: 0.68;
-  text-decoration: none;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    opacity 0.15s ease;
-}
-
-.page-title-github:hover,
-.page-title-github:focus-visible {
-  background: var(--lightgray);
-  color: var(--dark);
-  opacity: 1;
-}
-
-.page-title-github:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--secondary) 55%, transparent);
-  outline-offset: 2px;
-}
-
-.page-title-github > svg {
-  width: 17px;
-  height: 17px;
-}
-
 .site-title-main {
   display: inline-grid;
   align-items: center;
@@ -120,7 +68,7 @@ PageTitle.css = `
 
 .site-title-variant-base {
   font-family: var(--titleFont);
-  font-size: 1.24rem;
+  font-size: 1.08rem;
   font-weight: 700;
   letter-spacing: -0.055em;
   animation: site-title-evolve-base 24s ease-in-out infinite;
@@ -128,7 +76,7 @@ PageTitle.css = `
 
 .site-title-variant-hand {
   font-family: "Caveat", cursive;
-  font-size: 1.46rem;
+  font-size: 1.24rem;
   font-weight: 700;
   letter-spacing: -0.03em;
   opacity: 0;
@@ -137,7 +85,7 @@ PageTitle.css = `
 
 .site-title-variant-bitcount {
   font-family: "Bitcount Ink", var(--codeFont);
-  font-size: 1rem;
+  font-size: 0.82rem;
   font-weight: 400;
   letter-spacing: -0.01em;
   opacity: 0;
@@ -146,7 +94,7 @@ PageTitle.css = `
 
 .site-title-variant-dynapuff {
   font-family: "DynaPuff", var(--titleFont);
-  font-size: 1.05rem;
+  font-size: 0.92rem;
   font-weight: 600;
   letter-spacing: -0.045em;
   opacity: 0;
@@ -155,7 +103,7 @@ PageTitle.css = `
 
 .site-title-variant-nabla {
   font-family: "Nabla", var(--titleFont);
-  font-size: 1.03rem;
+  font-size: 0.9rem;
   font-weight: 400;
   letter-spacing: -0.055em;
   opacity: 0;
@@ -165,7 +113,7 @@ PageTitle.css = `
 
 .site-title-variant-code {
   font-family: var(--codeFont);
-  font-size: 0.92rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   opacity: 0;
