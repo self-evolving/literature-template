@@ -87,10 +87,11 @@ Useful commands:
 
 ```bash
 npm run check
+npm run check:site
 npm run build
 ```
 
-`npm run dev` serves the Quartz site locally. `npm run build` writes the static site to `public/`.
+`npm run check` runs the fast TypeScript and formatting checks. `npm run check:site` also restores Quartz plugins and builds the static site. `npm run dev` serves the Quartz site locally. `npm run build` restores Quartz plugins and writes the static site to `public/`.
 
 ## Vercel configuration
 

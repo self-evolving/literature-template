@@ -15,13 +15,13 @@
     "quartz": "./quartz/bootstrap-cli.mjs",
     "dev": "npm run quartz -- build --serve",
     "postinstall": "node scripts/link-local-quartz-bin.mjs",
-    "build": "npm run quartz -- build",
-    "check": "npm run install-plugins && tsc --noEmit && npx prettier . --check",
+    "build": "npm run install-plugins && npm run quartz -- build",
+    "check": "tsc --noEmit && npx prettier . --check",
+    "check:site": "npm run check && npm run build",
     "format": "npx prettier . --write",
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
-    "install-plugins": "npm run quartz -- plugin restore",
-    "prebuild": "npm run install-plugins"
+    "install-plugins": "npm run quartz -- plugin restore"
   },
   "engines": {
     "npm": ">=10.9.2",
