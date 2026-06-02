@@ -329,7 +329,35 @@ function paperBibTexSection(_citekey, bibtex) {
   ]
 }
 
+function hasElementId(tree, id) {
+  let found = false
+
+  const visit = (node) => {
+    if (found || !node || typeof node !== "object") {
+      return
+    }
+
+    if (node.type === "element" && node.properties?.id === id) {
+      found = true
+      return
+    }
+
+    if (Array.isArray(node.children)) {
+      for (const child of node.children) {
+        visit(child)
+      }
+    }
+  }
+
+  visit(tree)
+  return found
+}
+
 function appendPaperBibTex(tree, file, bibliography, papersRoot) {
+  if (hasElementId(tree, "bibtex")) {
+    return
+  }
+
   const citekey = paperCitekey(file, papersRoot)
   if (!citekey || !bibliography) {
     return
@@ -456,12 +484,8 @@ function isTruthyFlag(value) {
   return value === true || (typeof value === "string" && value.toLowerCase() === "true")
 }
 
-function isFalseFlag(value) {
-  return value === false || (typeof value === "string" && value.toLowerCase() === "false")
-}
-
 function frontmatterMayPublish(frontmatter) {
-  return !isTruthyFlag(frontmatter.draft) && !isFalseFlag(frontmatter.publish)
+  return !isTruthyFlag(frontmatter.draft)
 }
 
 function contentPathForSlug(ctx, slug) {
@@ -500,7 +524,7 @@ function canPublishTarget(ctx, targetSlug) {
     }
   }
 
-  return frontmatterMayPublish(frontmatter)
+  return true
 }
 
 function hasPublishablePaperNote(ctx, targetSlug, cache) {

@@ -15,7 +15,9 @@
     "category": "transformer",
     "version": "1.0.0",
     "quartzVersion": ">=5.0.0",
-    "dependencies": [],
+    "dependencies": [
+      "github:quartz-community/citations"
+    ],
     "defaultEnabled": true,
     "defaultOptions": {
       "bibliographyFile": "./bibliography.bib",
