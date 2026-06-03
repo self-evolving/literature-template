@@ -8,8 +8,9 @@ natural-language request. The request text may also include an additional
 natural-language request, just like an inline agent request, such as asking to
 update a specific synthesis note or add a particular connection.
 It may also include Hypothesis annotation context fetched from the target paper
-URL or the literature site; use those annotations as user notes about what to
-emphasize, but still resolve bibliographic facts from primary sources.
+URL or the literature site within a configured trusted annotation scope; use
+those annotations as user notes about what to emphasize, but still resolve
+bibliographic facts from primary sources.
 
 Repository conventions:
 

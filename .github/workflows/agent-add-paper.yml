@@ -120,12 +120,15 @@ jobs:
           trusted_ref: "true"
 
       - name: Fetch Hypothesis annotation context
+        continue-on-error: true
         id: hypothesis
         shell: bash
         env:
           HYPOTHESIS_API_KEY: ${{ secrets.HYPOTHESIS_API_KEY }}
           HYPOTHESIS_URI: ${{ env.PAPER_INPUT }}
-          HYPOTHESIS_ANY: ${{ env.ADDITIONAL_REQUEST_INPUT }}
+          HYPOTHESIS_GROUP: ${{ vars.HYPOTHESIS_GROUP || '' }}
+          HYPOTHESIS_USER: ${{ vars.HYPOTHESIS_USER || '' }}
+          HYPOTHESIS_TAGS: ${{ vars.HYPOTHESIS_TAGS || '' }}
           HYPOTHESIS_LIMIT: "12"
         run: |
           set -euo pipefail

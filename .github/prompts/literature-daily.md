@@ -6,10 +6,10 @@ The request text includes the update date, recency window, maximum item count,
 whether social signals are enabled, and an optional topic. If no topic is
 provided, infer the research focus from repository context and open
 `agent-goal` issues. The request text may also include Hypothesis annotation
-context fetched from the site; treat it as user annotation signal for focus and
-follow-ups, not as a primary source. Do not implement focused-topic issue
-automation: do not create or update labels, issue templates, issues, comments,
-or discussions.
+context fetched from the site within a configured trusted annotation scope;
+treat it as user annotation signal for focus and follow-ups, not as a primary
+source. Do not implement focused-topic issue automation: do not create or update
+labels, issue templates, issues, comments, or discussions.
 The workflow will publish your final markdown as a Discussion and will publish
 one top-level Discussion comment for each item block you mark.
 

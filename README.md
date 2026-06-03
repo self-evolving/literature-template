@@ -179,11 +179,15 @@ Optional annotation context for literature agents:
 
 ```bash
 gh secret set HYPOTHESIS_API_KEY --env agent-literature --repo OWNER/REPO
+gh variable set HYPOTHESIS_GROUP --env agent-literature --repo OWNER/REPO
 ```
 
-When configured, the daily and add-paper literature workflows fetch a compact Hypothesis annotation
-summary before invoking the agent. By default the fetcher searches the configured site URL; add-paper
-runs also search the supplied paper URL when the input is an HTTP(S) URL.
+The fetcher requires at least one trusted annotation scope before it calls the Hypothesis API:
+`HYPOTHESIS_GROUP`, `HYPOTHESIS_USER`, or `HYPOTHESIS_TAGS`. `HYPOTHESIS_GROUP` is the recommended
+default. When configured, the daily and add-paper literature workflows fetch a compact Hypothesis
+annotation summary before invoking the agent. Daily runs search the configured site URL; add-paper
+runs search the supplied paper URL when the input is an HTTP(S) URL. The fetch is best-effort, so
+Hypothesis API failures leave the annotation section empty instead of stopping the core workflow.
 
 Manual dispatch is available by default. Scheduled daily literature runs are disabled unless the repository variable `AGENT_LITERATURE_DAILY_ENABLED=true` is set.
 
