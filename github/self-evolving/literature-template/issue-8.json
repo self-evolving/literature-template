@@ -60,8 +60,8 @@
       "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #8 | 2 / 40 | Dispatched |\n\nReason: agent planner selected implement: Issue #8 is open, has no parent/tracking context, and the user requested /orchestrate after receiving a feasibility plan; a bounded implementation on the current issue is warranted.\n\n<!-- sepo-agent-handoff state:dispatched created:1780456891997 base64:aGFuZG9mZjpzZWxmLWV2b2x2aW5nL2xpdGVyYXR1cmUtdGVtcGxhdGU6MjY4NjE0NzAyOTA6b3JjaGVzdHJhdGU6ODppbXBsZW1lbnQ6ODoy -->",
       "createdAt": "2026-06-03T03:21:32Z",
       "includesCreatedEdit": true,
-      "isMinimized": false,
-      "minimizedReason": "",
+      "isMinimized": true,
+      "minimizedReason": "outdated",
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/issues/8#issuecomment-4608793896",
       "viewerDidAuthor": true
@@ -80,6 +80,64 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/issues/8#issuecomment-4608857321",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABEr9T9w",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate \n\nok we have a previous implementation in #9. I think there are some debates on how to add the hypothesis api for agent use. I guess the strategy for now is to create a new PR, such that in the new PR we only add the hypothesis api plugin (and we configure it with a repo variable such it can be enabled during build time? what do you think? ",
+      "createdAt": "2026-06-03T05:50:23Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/issues/8#issuecomment-4609496055",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABEr90eg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #8 | 2 / 40 | Dispatched |\n\nReason: agent planner selected implement: The user clarified that PR #9 is too broad and requested a new, independent PR limited to build-time-enabled Hypothesis site support; this is a small self-contained issue-level implementation and should not stack on draft PR #9.\n\n<!-- sepo-agent-handoff state:dispatched created:1780465936342 base64:aGFuZG9mZjpzZWxmLWV2b2x2aW5nL2xpdGVyYXR1cmUtdGVtcGxhdGU6MjY4NjYzNjQyNDg6b3JjaGVzdHJhdGU6ODppbXBsZW1lbnQ6ODoy -->",
+      "createdAt": "2026-06-03T05:52:16Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/8#issuecomment-4609504378",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABEsAkrw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-8/codex-26866427691`\n- Pull request: https://github.com/self-evolving/literature-template/pull/10\n\nAdded a local Quartz Hypothesis annotation plugin that is disabled by default and enabled at build time with `HYPOTHESIS_ENABLED`, plus optional repository/build variables for sidebar, highlights, comments mode, group allowlist, and theme. The validation workflow now passes those repo variables into the build, README documents the browser-only setup and token boundary, and verification passed with `npm run check`, `npm run build`, and an enabled Hypothesis build.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-03T06:01:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/8#issuecomment-4609549487",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-02T22:35:07Z",
@@ -94,6 +152,6 @@
   "number": 8,
   "state": "OPEN",
   "title": "Add hypothesis support?",
-  "updatedAt": "2026-06-03T03:37:57Z",
+  "updatedAt": "2026-06-03T06:01:47Z",
   "url": "https://github.com/self-evolving/literature-template/issues/8"
 }
