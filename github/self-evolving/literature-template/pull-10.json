@@ -34,6 +34,36 @@
       ],
       "url": "https://github.com/self-evolving/literature-template/pull/10#issuecomment-4609742720",
       "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABEwHv8A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: d5e5dc863f1779a4adc75f9bac6729af6fcd2f25 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #10 adds opt-in Hypothesis web annotations to the Quartz site, controlled by build-time repository or hosting variables.\n- The PR intentionally narrows issue #8 to browser-side site annotation support after discussion that agent-facing Hypothesis API access should be handled separately.\n- The implementation follows the existing local Quartz component/plugin pattern and keeps Hypothesis API tokens out of browser-side configuration.\n- The current PR state has no existing inline review comments or unresolved review threads.\n\n## Review\nThe current review artifacts do not support any unresolved required branch change. The main option-validity warning from one reviewer is not carried forward because the current official Hypothesis config docs document `commentsMode`, `groupsAllowlist`, and boolean `showHighlights`.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| No actionable issues found | INFO | Current review artifacts and PR state do not support a required branch change before merge. |\n\n## Progress\n- Confirmed issue #8 was narrowed to site-side Hypothesis embed support; agent API access remains intentionally out of scope.\n- Verified current Hypothesis docs list the PR’s documented options: https://h.readthedocs.io/projects/client/en/latest/publishers/config.html\n- Existing inline PR comments and review threads were empty; no inline comments were posted, replied to, minimized, or resolved.\n- The rubrics review noted `npm run check` passed and later saw third-party plugin restore/build failures, but did not provide evidence tying those failures to this Hypothesis change.\n\n## Recommended Next Step\nNO_AUTOMATED_ACTION: There is no unresolved actionable branch-change work supported by the current review artifacts or PR state.\n\n## Final Verdict\nSHIP\n\n## Action Items\n- [ ] No required branch changes.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-03T15:11:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/10#issuecomment-4613861360",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABEwL8-w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 10 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Read docs and linked context first | pass | 6/6 | Issue #8 was narrowed to site-side build-time Hypothesis support, and the PR uses the official Hypothesis embed/config contract: JSON config plus `https://hypothes.is/embed.js`. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Reuses existing Quartz component registry/env parsing patterns in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/d5e5dc863f1779a4adc75f9bac6729af6fcd2f25/quartz.ts#L119-L143) and the existing after-DOM-loaded script pattern. |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Diff is scoped to the Hypothesis component/plugin, build env passthrough, lock entry, and README setup docs; no broad refactor or unrelated behavior changes. |\n| coding_style / generic | Prefer simple implementations | pass | 7/7 | Implementation is a small local component plus one inline loader: [`Hypothesis.tsx`](https://github.com/self-evolving/literature-template/blob/d5e5dc863f1779a4adc75f9bac6729af6fcd2f25/quartz/components/Hypothesis.tsx#L14-L44) and [`hypothesis.inline.ts`](https://github.com/self-evolving/literature-template/blob/d5e5dc863f1779a4adc75f9bac6729af6fcd2f25/quartz/components/scripts/hypothesis.inline.ts#L1-L19). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README documents enablement, optional variables, and the no-browser-token boundary in [`README.md`](https://github.com/self-evolving/literature-template/blob/d5e5dc863f1779a4adc75f9bac6729af6fcd2f25/README.md#L149-L168). |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | Built-in support stays opt-in through `HYPOTHESIS_ENABLED`; advanced agent API access is explicitly left to a separate Sepo runtime capability. |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | Uses separate validated env fields for enablement, sidebar, highlights, comments mode, group allowlist, and theme in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/d5e5dc863f1779a4adc75f9bac6729af6fcd2f25/quartz.ts#L119-L131). |\n| coding_workflow / generic | Name config by capability | pass | 6/6 | Public variables are named for the general Hypothesis capability, e.g. `HYPOTHESIS_ENABLED`, `HYPOTHESIS_GROUPS_ALLOWLIST`, and `HYPOTHESIS_THEME`. |\n| communication / generic | Make setup guidance actionable | pass | 7/7 | README gives the required `gh variable set HYPOTHESIS_ENABLED --body true --repo OWNER/REPO` command and lists optional build variables. |\n| communication / generic | Write audience-first documentation | pass | 7/7 | Docs lead with the user task of enabling annotations, then list optional settings and the token boundary without front-loading implementation internals. |\n\n## Notes\n\n- The PR matches the clarified scope from issue #8: build-time-enabled browser annotation support only, with agent-facing API access kept out of this PR.\n- Independent verification passed with Node 22/npm 10: `npm ci`, `npm run check`, `npm run build`, and an enabled Hypothesis build. Disabled output had no Hypothesis markers; enabled output included the JSON config and embed loader.\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** No rubric-specific findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-03T15:18:07Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/10#issuecomment-4613930235",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-03T06:01:43Z",
@@ -126,6 +156,6 @@
   "reviews": [],
   "state": "OPEN",
   "title": "Add build-time Hypothesis site annotations",
-  "updatedAt": "2026-06-03T06:38:06Z",
+  "updatedAt": "2026-06-03T15:18:07Z",
   "url": "https://github.com/self-evolving/literature-template/pull/10"
 }
