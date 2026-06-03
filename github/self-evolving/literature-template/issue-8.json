@@ -1,0 +1,99 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "1. For example, the user can annotate the content on the website directly https://web.hypothes.is/\n2. And we can provide agent the api key to the agent such that they can know the annotations for the workflows? \n\n@sepo-agent /answer can you check the feasibility ? and what's the right way to make it happen? ",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABEqGhqQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Feasible. I’d split it into two parts:\n\n1. **Website annotation support**: add the Hypothesis client to rendered pages.\n2. **Agent workflow awareness**: let Sepo workflows fetch annotations server-side from the Hypothesis API.\n\nI checked the repo and issue #8 has no parent/tracking issue or comments. The current template is a Quartz + Sepo site with stable content in `content/papers/`, `content/notes/`, and `bibliography.bib` ([README](https://github.com/self-evolving/literature-template/blob/main/README.md#L3-L11)). It already has a plugin/component pattern in `quartz.config.yaml` ([plugin list](https://github.com/self-evolving/literature-template/blob/main/quartz.config.yaml#L45-L289)), page script/head injection via `Head.tsx` ([external resources](https://github.com/self-evolving/literature-template/blob/main/quartz/components/Head.tsx#L119-L129)), and a comments-style component pattern in `Comments.tsx` ([component + DOM script](https://github.com/self-evolving/literature-template/blob/main/quartz/components/Comments.tsx#L29-L68)).\n\nThe right approach:\n\n- Add a local `hypothesis` Quartz component/plugin, disabled by default.\n- Configure it in `quartz.config.yaml`, similar to the existing comments/Giscus area.\n- Inject Hypothesis with the official publisher embed script: `https://hypothes.is/embed.js` ([Hypothesis docs](https://h.readthedocs.io/projects/client/en/latest/publishers/embedding.html)).\n- Support options such as `openSidebar`, `showHighlights`, `commentsMode`, and maybe `groupsAllowlist` using Hypothesis’ documented config object ([config docs](https://h.readthedocs.io/projects/client/en/latest/publishers/config.html)).\n- Do **not** expose any Hypothesis API token in browser JavaScript. Users should log in through Hypothesis normally; the site embed should be public/client-only.\n\nFor agent access, use a GitHub Actions secret, probably in the existing `agent-literature` environment. The literature workflows already validate/pass research secrets there ([daily workflow](https://github.com/self-evolving/literature-template/blob/main/.github/workflows/agent-literature-daily.yml#L149-L213), [add-paper workflow](https://github.com/self-evolving/literature-template/blob/main/.github/workflows/agent-add-paper.yml#L57-L136)). Add `HYPOTHESIS_API_KEY` the same way. Hypothesis supports bearer-token API auth and `/api/search` for annotations ([API docs](https://memex.readthedocs.io/en/stable/api.html#authorization), [search docs](https://memex.readthedocs.io/en/stable/api.html#search)).\n\nFor workflows, I’d prefer a deterministic prefetch step over just handing the raw key to the agent:\n\n1. Add `scripts/fetch-hypothesis-annotations.mjs`.\n2. Query `https://hypothes.is/api/search` with `Authorization: Bearer $HYPOTHESIS_API_KEY`.\n3. Filter by site URL, page URI, tag, user, or group depending on the workflow.\n4. Write a compact JSON/Markdown summary to a temp file.\n5. Append that summary to the agent request text or expose it as an input file.\n\nThat keeps the agent prompt grounded and makes runs reproducible. For larger annotation sets, use `search_after` pagination instead of deep `offset` pagination, per Hypothesis guidance ([pagination note](https://web.hypothes.is/blog/new-search-api-parameter-search_after/)). Domain-level search is also supported for collecting annotations across the whole site ([domain search docs](https://web.hypothes.is/help/how-to-use-domain-level-search/)).\n\nTwo caveats:\n\n- The site currently has `enableSPA: true` ([config](https://github.com/self-evolving/literature-template/blob/main/quartz.config.yaml#L5)). Hypothesis may need testing across Quartz client-side navigation; the conservative MVP is to either load/reload it carefully on Quartz `nav` events or disable SPA if annotations bind to the wrong page after navigation.\n- Stable URLs matter. I would add canonical links for normal pages, not only redirects, because Hypothesis search can use URI/document equivalence and the repo currently emits `og:url` but not a regular canonical link for normal pages ([Head.tsx](https://github.com/self-evolving/literature-template/blob/main/quartz/components/Head.tsx#L92-L104)).\n\nProposed implementation plan after approval:\n\n1. Add a local Hypothesis component/plugin with opt-in YAML config.\n2. Add site options and README docs for enabling public annotation.\n3. Add canonical URL output for normal pages.\n4. Add `HYPOTHESIS_API_KEY` validation to relevant literature workflows.\n5. Add a small annotation-fetch script and feed its output into agent runs.\n6. Verify with `npm run check` and `npm run build`.\n\nI’d start with the website embed + canonical URL support first, then add the workflow annotation-fetcher as a second PR once the desired annotation scope is clear.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-02T22:38:32Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/8#issuecomment-4607549865",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErQtIQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate ",
+      "createdAt": "2026-06-03T03:14:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/issues/8#issuecomment-4608765217",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErSdKA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #8 | 2 / 40 | Dispatched |\n\nReason: agent planner selected implement: Issue #8 is open, has no parent/tracking context, and the user requested /orchestrate after receiving a feasibility plan; a bounded implementation on the current issue is warranted.\n\n<!-- sepo-agent-handoff state:dispatched created:1780456891997 base64:aGFuZG9mZjpzZWxmLWV2b2x2aW5nL2xpdGVyYXR1cmUtdGVtcGxhdGU6MjY4NjE0NzAyOTA6b3JjaGVzdHJhdGU6ODppbXBsZW1lbnQ6ODoy -->",
+      "createdAt": "2026-06-03T03:21:32Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/8#issuecomment-4608793896",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErWU6Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-8/codex-26861678525`\n- Pull request: https://github.com/self-evolving/literature-template/pull/9\n\nAdded opt-in Hypothesis support for the Quartz site, canonical page URLs, and a workflow-side Hypothesis annotation fetcher that feeds compact context into the daily literature and add-paper agents without exposing the API key in browser JavaScript. Verified with npm run check, npm run build, an HYPOTHESIS_ENABLED=true site build, and a no-key fetcher smoke test.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-03T03:37:57Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/8#issuecomment-4608857321",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-02T22:35:07Z",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 8,
+  "state": "OPEN",
+  "title": "Add hypothesis support?",
+  "updatedAt": "2026-06-03T03:37:57Z",
+  "url": "https://github.com/self-evolving/literature-template/issues/8"
+}

@@ -1,0 +1,88 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- adds a root `.skills/literature-paper-import` skill for converting arXiv/LaTeX/review-style papers into hosted literature-template sites\n- documents the target content shape used by the HCLLM paper example: `/` as the main paper note, `content/<paper-slug>/` as the section tree, and `content/papers/` as the reference-note area\n- captures cleanup rules for LaTeX-style refs, backlink hygiene, title/frontmatter policy, graph tags, root-page layout, standalone repo workflow, and validation checks\n- updates `.skills/README.md` to list the new documentation-only skill\n\nCloses #4.\n\n## Validation\n\n- `npm run check`\n- `npm run build`",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABEqTljA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review",
+      "createdAt": "2026-06-02T23:20:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/7#issuecomment-4607763852",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABEqUR9w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "The PR is documentation-only: it adds `.skills/literature-paper-import/SKILL.md` and adjusts `.skills/README.md`, closing issue #4. I’m reading that linked issue and the existing skill conventions before assigning scores.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-02T23:22:54Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/7#issuecomment-4607775223",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-02T22:18:19Z",
+  "files": [
+    {
+      "path": ".skills/README.md",
+      "additions": 5,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".skills/literature-paper-import/SKILL.md",
+      "additions": 210,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/literature-paper-import-skill",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 7,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "docs: add paper import skill",
+  "updatedAt": "2026-06-02T23:22:54Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/7"
+}

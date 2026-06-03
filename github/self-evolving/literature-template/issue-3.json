@@ -1,0 +1,41 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "1. we can build it based on https://github.com/collaborative-deep-research/agent-papers-cli/tree/main/.claude/skills/deep-research \n2. but, slightly differently, the goal is to bootstrap an initial search and populate an initial version of the documentation site? \n\nAlso feel free to look for other similar deep research skills and try to be a bit more comprehensive?\n\n@sepo-agent /answer ",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABEpaVeg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I’d do this as both a skill refinement and a dedicated bootstrap route.\n\nThe repo already has a [`deep-research` skill](https://github.com/self-evolving/literature-template/blob/main/.skills/deep-research/SKILL.md#L1-L77), and it is already a stronger adaptation of the referenced [`collaborative-deep-research/agent-papers-cli` skill](https://raw.githubusercontent.com/collaborative-deep-research/agent-papers-cli/main/.claude/skills/deep-research/SKILL.md): it keeps the broad → narrow → deep read → citation graph → synthesis flow, but adds GitHub repos, docs/releases, datasets, benchmarks, and social discovery signals.\n\nFor this issue, I’d avoid making `/deep-research` only an inline report skill. The repo’s content model is durable site content: [`content/papers/`, `content/notes/`, and `bibliography.bib`](https://github.com/self-evolving/literature-template/blob/main/README.md#L5-L11), with paper-note conventions in [`README.md`](https://github.com/self-evolving/literature-template/blob/main/README.md#L15-L46), synthesis-note conventions in [`README.md`](https://github.com/self-evolving/literature-template/blob/main/README.md#L48-L64), and navigation controlled by `_meta.json` manifests ([`README.md`](https://github.com/self-evolving/literature-template/blob/main/README.md#L66-L88)). So the better route is:\n\n- Keep `.skills/deep-research` as the reusable research procedure.\n- Add a workflow/prompt route like `Agent / Deep Research Bootstrap`.\n- Have that route run deep research, then open a PR that populates an initial documentation site.\n\nComparable patterns I found:\n\n- The referenced `agent-papers-cli` skill is compact and good for the core search/read/synthesize loop.\n- [`glebis/claude-skills` deep-research](https://raw.githubusercontent.com/glebis/claude-skills/main/deep-research/SKILL.md) adds useful prompt enhancement, saved research parameters, and timestamped reports. I would borrow the “clarify scope before running” and “record search parameters” ideas, not the OpenAI Deep Research API dependency.\n- [`academic-research-skills` deep-research](https://raw.githubusercontent.com/Imbad0202/academic-research-skills/main/deep-research/SKILL.md) is much heavier: modes, systematic review, Socratic scoping, bias checks, and review phases. I would borrow mode selection and quality gates, but not the full 13-agent structure for this template.\n\nConcrete implementation plan:\n\n1. Add `.github/prompts/literature-bootstrap.md`.\n   - Inputs: topic/question, optional year range, max paper notes, max synthesis notes, include social, and optional constraints.\n   - Instructions: use `.skills/deep-research/SKILL.md`, search broadly, deduplicate, select a small high-confidence seed set, then write durable site content only.\n\n2. Add `.github/workflows/agent-deep-research-bootstrap.yml`.\n   - Mirror the PR-producing shape of [`agent-add-paper.yml`](https://github.com/self-evolving/literature-template/blob/main/.github/workflows/agent-add-paper.yml#L1-L30).\n   - Use the `agent-literature` environment and validate `SERPER_API_KEY`, `S2_API_KEY`, and `JINA_API_KEY` like the existing literature workflows ([daily workflow](https://github.com/self-evolving/literature-template/blob/main/.github/workflows/agent-literature-daily.yml#L149-L169), [add-paper workflow](https://github.com/self-evolving/literature-template/blob/main/.github/workflows/agent-add-paper.yml#L57-L76)).\n   - Setup `deep-research` via [`run-skill-setup`](https://github.com/self-evolving/literature-template/blob/main/.github/actions/run-skill-setup/action.yml).\n   - Run validation with `npm run check` and `npm run build`, matching [`agent-add-paper.yml`](https://github.com/self-evolving/literature-template/blob/main/.github/workflows/agent-add-paper.yml#L175-L182).\n\n3. Define the bootstrap output contract.\n   - Create or update one topic synthesis page in `content/notes/<topic-slug>.md`.\n   - Add a concise search strategy / scope section, key themes, reading map, gaps, and next searches.\n   - Add only the top seed papers as `content/papers/<citekey>.md` with BibTeX entries.\n   - Update `content/notes/_meta.json`, `content/papers/_meta.json`, and `bibliography.bib`.\n   - Do not commit transient search logs or daily-review markdown, consistent with the README’s warning about transient review streams.\n\n4. Optionally wire mention routing later.\n   - The generic skill route already exists in [`agent-router.yml`](https://github.com/self-evolving/literature-template/blob/main/.github/workflows/agent-router.yml#L468-L620), but it produces inline responses.\n   - A bootstrap route should be PR-producing, so I’d keep it as a manual workflow first. After it works, add dispatch support so `@sepo-agent /deep-research-bootstrap <topic>` can request approval and launch it.\n\n5. Update `.skills/deep-research/SKILL.md` lightly.\n   - Add a “bootstrap site mode” subsection that says when the caller asks to populate docs, produce durable `content/notes`, `content/papers`, `_meta.json`, and `bibliography.bib` changes rather than a standalone report.\n   - Keep the core skill concise; put detailed output rules in the new prompt.\n\nI’d recommend starting with the manual `Agent / Deep Research Bootstrap` workflow. It fits the existing architecture cleanly and avoids overloading the current `/skill deep-research` route with repository writes. Approval to code this would mean adding the prompt, workflow, and a small README section documenting how to run it.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-02T20:39:18Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/3#issuecomment-4606825850",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-02T20:36:01Z",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 3,
+  "state": "OPEN",
+  "title": "Also we should consider a new skill (or route) called deep research",
+  "updatedAt": "2026-06-02T20:39:19Z",
+  "url": "https://github.com/self-evolving/literature-template/issues/3"
+}

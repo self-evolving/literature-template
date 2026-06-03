@@ -1,0 +1,327 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- Add an opt-in Hypothesis Quartz component controlled by `HYPOTHESIS_ENABLED`.\n- Emit canonical links for normal rendered pages.\n- Add a Hypothesis API fetcher and wire compact annotation context into the daily literature and add-paper workflows.\n- Document browser-side annotation settings and the optional `HYPOTHESIS_API_KEY` workflow secret.\n\n## Verification\n- `npm run check`\n- `npm run build`\n- `HYPOTHESIS_ENABLED=true npm run quartz -- build`\n- `node scripts/fetch-hypothesis-annotations.mjs --format markdown --output /tmp/hypothesis-test.md`\n\nRefs: https://h.readthedocs.io/projects/client/en/latest/publishers/embedding.html, https://h.readthedocs.io/projects/client/en/stable/publishers/config.html, https://memex.readthedocs.io/en/stable/api.html#search\n\nCloses #8\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErWiVQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| implement | review | PR #9 | 3 / 40 | Dispatched |\n\nReason: agent planner selected review: Implementation succeeded and produced open PR #9 for issue #8, so the next useful automated step is review.\n\n<!-- sepo-agent-handoff state:dispatched created:1780457925201 base64:aGFuZG9mZjpzZWxmLWV2b2x2aW5nL2xpdGVyYXR1cmUtdGVtcGxhdGU6MjY4NjE2Nzg1MjU6aW1wbGVtZW50Ojg6cmV2aWV3Ojk6Mw -->",
+      "createdAt": "2026-06-03T03:38:45Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/9#issuecomment-4608860757",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErXRlQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 93 | PASS | 11 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Read docs and linked context first | pass | 6/6 | PR body cites Hypothesis embed/config/API docs, and issue #8 contained the feasibility plan the PR implements. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Reuses the local Quartz component/plugin pattern and registry wiring in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/f4c3c14c3fa71605a54a117f08df36be45f76b03/quartz.ts#L109-L135), plus workflow prefetch-to-request-text patterns. |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Changes are scoped to Hypothesis embed, canonical URLs, literature workflow context, docs, and the needed local plugin lock entry. |\n| coding_style / generic | Prefer simple implementations | partial | 5/7 | The feature is straightforward, but the first-pass fetcher adds a broad 305-line custom CLI/parser surface in [`scripts/fetch-hypothesis-annotations.mjs`](https://github.com/self-evolving/literature-template/blob/f4c3c14c3fa71605a54a117f08df36be45f76b03/scripts/fetch-hypothesis-annotations.mjs#L1-L305). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README documents browser settings, the no-token-in-browser rule, and the optional workflow secret in [`README.md`](https://github.com/self-evolving/literature-template/blob/f4c3c14c3fa71605a54a117f08df36be45f76b03/README.md#L149-L186). |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | Browser support is opt-in via `HYPOTHESIS_ENABLED`; advanced workflow scope stays in environment/CLI knobs rather than a larger agent abstraction. |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | Fetcher exposes separate fields for URI, wildcard URI, group, user, tags, limit, format, and output rather than overloading one command string. |\n| coding_workflow / generic | Bound transient retries | pass | 7/7 | API fetch retries only bounded transient statuses/timeouts with three attempts and short backoff in [`fetchJsonWithRetry`](https://github.com/self-evolving/literature-template/blob/f4c3c14c3fa71605a54a117f08df36be45f76b03/scripts/fetch-hypothesis-annotations.mjs#L182-L223). |\n| coding_workflow / generic | Surface stateful failures | pass | 7/7 | Missing token yields explicit output, malformed client config warns, and API failures exit nonzero instead of silently producing misleading success. |\n| communication / generic | Make setup guidance actionable | pass | 7/7 | README includes direct `gh secret set HYPOTHESIS_API_KEY --env agent-literature --repo OWNER/REPO` setup guidance. |\n| communication / generic | Write audience-first documentation | pass | 7/7 | Docs lead with what users set to enable annotations and keep implementation details brief. |\n\n## Notes\n\n- The PR aligns well with the applicable rubrics: it implements the linked issue’s plan, keeps browser tokens out of client config, wires compact annotation context into the two literature workflows, and updates user-facing docs.\n- Smallest useful follow-up: consider trimming or testing the fetcher CLI surface if it grows further; no rubric-specific blocker.\n\n## Findings\n\n- **WARNING:** Under “Prefer simple implementations,” the new fetcher is relatively broad for an MVP. It supports many query modes and custom parsing without focused tests, so future changes could benefit from either regression coverage or narrowing the first-pass surface.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-03T03:41:19Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/9#issuecomment-4608872853",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErZKdw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: f4c3c14c3fa71605a54a117f08df36be45f76b03 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #9 implements issue #8 by adding opt-in Hypothesis support for rendered Quartz pages and server-side annotation context for literature workflows.\n- It adds canonical links, a local Hypothesis Quartz component, a Hypothesis API fetcher, workflow wiring for daily/add-paper agents, and README documentation for browser settings and the optional API secret.\n- The implementation follows the issue’s feasibility plan, including keeping browser-side API tokens out of client JavaScript.\n- The remaining concerns are concentrated in the workflow-side annotation fetch path, especially trust boundaries and optional-enrichment failure behavior.\n\n## Review\nThe browser embed direction is sound, but the workflow annotation path is not ready to ship. The current PR can promote broadly scoped annotation text into privileged agent prompts and can let an optional API enrichment failure stop the core literature workflows.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Untrusted annotation scope reaches agent prompts | BLOCKING | The fetcher falls back to a site-wide wildcard search without requiring a trusted `group`, `user`, or `tag`, then workflows inject the returned markdown into `approve-all` agent runs. |\n| Optional Hypothesis fetch can stop literature workflows | BLOCKING | Both new fetch steps run before the agents and lack `continue-on-error`, so a transient Hypothesis API failure can abort add-paper or daily literature work. |\n| Additional request text filters add-paper annotations | WARNING | `.github/workflows/agent-add-paper.yml` maps arbitrary natural-language request text into `HYPOTHESIS_ANY`, which can hide otherwise relevant annotations. |\n| Fetcher behavior lacks focused tests | WARNING | Reviewers disagreed on whether this blocks shipping, but the new query/scoping/failure behavior is broad enough to warrant focused coverage once fixed. |\n| Browser embed limitations need explicit follow-up | INFO | The SPA navigation caveat and `quartz.config.yaml` `enabled: true` signal were flagged as non-blocking clarity issues. |\n\n## Progress\n- Rubrics review passed and found the PR generally aligned with the linked issue and repo conventions.\n- PR verification reports `npm run check`, `npm run build`, `HYPOTHESIS_ENABLED=true npm run quartz -- build`, and a no-key fetcher smoke test.\n- No prior inline review comments or review threads existed before synthesis.\n- Posted 3 inline comments: trust scope, optional fetch failure, and `HYPOTHESIS_ANY` misuse. No comments were minimized and no threads were resolved.\n\n## Issue Details\n\n<details>\n<summary>Untrusted annotation scope reaches agent prompts</summary>\n\n**Cause:** [`scripts/fetch-hypothesis-annotations.mjs`](https://github.com/self-evolving/literature-template/blob/f4c3c14c3fa71605a54a117f08df36be45f76b03/scripts/fetch-hypothesis-annotations.mjs#L258) uses an exact URI only when provided; otherwise it falls back to a wildcard site URI, while `group`, `user`, and `tag` remain optional. The daily and add-paper workflows inject that output into agent prompts running with `permission_mode: approve-all`.\n\n**Candidate solutions:** Require a trusted scope before fetching site-wide annotations, such as configured group/user/tag filters, or isolate the annotation block explicitly as untrusted external content in prompts/docs. Prefer a minimal common-case policy over adding a large authorization surface.\n\n**Comments:** This was the strongest Codex reviewer blocker and is supported by the current diff.\n\n</details>\n\n<details>\n<summary>Optional Hypothesis fetch can stop literature workflows</summary>\n\n**Cause:** The fetch steps in [add-paper](https://github.com/self-evolving/literature-template/blob/f4c3c14c3fa71605a54a117f08df36be45f76b03/.github/workflows/agent-add-paper.yml#L122) and [daily literature](https://github.com/self-evolving/literature-template/blob/f4c3c14c3fa71605a54a117f08df36be45f76b03/.github/workflows/agent-literature-daily.yml#L171) run with `set -euo pipefail` and no best-effort guard. The script exits successfully when no token is configured, but exits nonzero after retry exhaustion or non-transient API failure.\n\n**Candidate solutions:** Add `continue-on-error: true` to both fetch steps and make the prompt tolerate an empty annotation section. Optionally emit a short fallback message when the step fails.\n\n**Comments:** This was the Claude reviewer blocker and is line-supported in both workflow files.\n\n</details>\n\n<details>\n<summary>Additional request text filters add-paper annotations</summary>\n\n**Cause:** [The add-paper workflow](https://github.com/self-evolving/literature-template/blob/f4c3c14c3fa71605a54a117f08df36be45f76b03/.github/workflows/agent-add-paper.yml#L128) passes `ADDITIONAL_REQUEST_INPUT` into `HYPOTHESIS_ANY`, and the fetcher forwards it as the API `any` filter.\n\n**Candidate solutions:** Leave `HYPOTHESIS_ANY` unset by default, or expose a separate explicit Hypothesis search input/variable for maintainers who want full-text filtering.\n\n</details>\n\n<details>\n<summary>Fetcher behavior lacks focused tests</summary>\n\n**Cause:** The new 305-line fetcher covers argument parsing, site URL inference, query construction, markdown formatting, retries, and failure handling, but the PR verification only lists a no-token smoke run.\n\n**Candidate solutions:** Add focused `tsx --test` coverage for URL inference, exact-vs-wildcard query construction, required trusted scope behavior, `HYPOTHESIS_ANY` handling, no-token output, and API failure paths.\n\n**Comments:** One reviewer considered the existing smoke/build checks acceptable for repo norms; Codex and rubrics review still flagged the script surface as worth testing.\n\n</details>\n\n<details>\n<summary>Browser embed limitations need explicit follow-up</summary>\n\n**Cause:** The inline script injects Hypothesis once and then returns on later Quartz `nav` events when the script tag already exists. `quartz.config.yaml` also marks the local Hypothesis plugin `enabled: true` even though actual rendering is gated by `HYPOTHESIS_ENABLED`.\n\n**Candidate solutions:** Document the SPA navigation caveat, verify Hypothesis behavior across Quartz client navigation, and consider making the YAML signal match the opt-in mental model.\n\n**Comments:** Non-blocking; no automation action item unless maintainers want this polished in the same PR.\n\n</details>\n\n## Recommended Next Step\nFIX_PR\n\nUnresolved BLOCKING findings require concrete branch changes and are safe for an automated fix-pr pass.\n\n## Final Verdict\nNEEDS_REWORK\n\n## Action Items\n- [ ] Require a trusted Hypothesis annotation scope or isolate fetched annotations as untrusted prompt context before passing them to agent workflows.\n- [ ] Make the Hypothesis fetch step best-effort in both add-paper and daily literature workflows.\n- [ ] Stop deriving `HYPOTHESIS_ANY` from `ADDITIONAL_REQUEST_INPUT`; use an explicit search input only if needed.\n- [ ] Add focused coverage for the required fetcher scope/query/failure behavior changes.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-03T03:49:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/9#issuecomment-4608903799",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErZXzQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| review | fix-pr | PR #9 | 4 / 40 | Dispatched |\n\nReason: agent planner selected fix-pr: Latest review synthesis for open PR #9 returned NEEDS_REWORK with Recommended Next Step FIX_PR; unresolved blocking workflow/fetcher findings require concrete branch changes and are within the round budget.\n\nTask for fix-pr:\nAddress only the latest review synthesis action items:\n- Require a trusted Hypothesis annotation scope or isolate fetched annotations as untrusted prompt context before passing them to agent workflows.\n- Make the Hypothesis fetch step best-effort in both add-paper and daily literature workflows.\n- Stop deriving `HYPOTHESIS_ANY` from `ADDITIONAL_REQUEST_INPUT`; use an explicit search input only if needed.\n- Add focused coverage for the required fetcher scope/query/failure behavior changes.\n\nConstraints: Ignore optional INFO notes, metadata-only polish, already-fixed findings, and human-judgment nits unless required by those action items.\n\n<!-- sepo-agent-handoff state:dispatched created:1780458626367 base64:aGFuZG9mZjpzZWxmLWV2b2x2aW5nL2xpdGVyYXR1cmUtdGVtcGxhdGU6MjY4NjIyMDIyMzE6cmV2aWV3Ojk6Zml4X3ByOjk6NA -->",
+      "createdAt": "2026-06-03T03:50:26Z",
+      "includesCreatedEdit": true,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/9#issuecomment-4608907213",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErbmTw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-8/codex-26861678525`. Requested by @sepo-agent.\n\n<!-- sepo-agent-fix-pr-status -->\n\n- Required Hypothesis API fetches to use maintainer-configured trusted scope (`HYPOTHESIS_GROUP`, `HYPOTHESIS_USER`, or `HYPOTHESIS_TAGS`); token runs without scope now skip before API calls.\n- Made Hypothesis fetches best-effort in both literature workflows and removed the `ADDITIONAL_REQUEST_INPUT` -> `HYPOTHESIS_ANY` mapping.\n- Updated prompts/README and added focused fetcher tests for scope, query construction, and retry behavior.\n\n<details><summary>Verification</summary>\n\n- PASS `npm test -- scripts/fetch-hypothesis-annotations.test.mjs`\n- PASS `node scripts/fetch-hypothesis-annotations.mjs --format json`\n- PASS `HYPOTHESIS_API_KEY=test HYPOTHESIS_URI=https://papers.example/a node scripts/fetch-hypothesis-annotations.mjs --format json`\n- PASS `npx --yes --package prettier@3.8.1 prettier README.md scripts/fetch-hypothesis-annotations.mjs scripts/fetch-hypothesis-annotations.test.mjs --check`\n- PASS `git diff --check`\n- BLOCKED `npm run check`: local runner has Node v20.3.1/npm 9.6.7 while the repo requires Node >=22/npm >=10.9.2, and `npm ci` is blocked by that engine mismatch.\n</details>\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-03T03:58:54Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/9#issuecomment-4608943695",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErb2eg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| fix-pr | review | PR #9 | 5 / 40 | Dispatched |\n\nReason: agent planner selected review: fix-pr succeeded on open PR #9 and pushed commit c70114b8bd46e1256db9d5b1496bb7b069a559a1 addressing the prior NEEDS_REWORK findings; one automated review pass is warranted within the round budget.\n\n<!-- sepo-agent-handoff state:dispatched created:1780459198111 base64:aGFuZG9mZjpzZWxmLWV2b2x2aW5nL2xpdGVyYXR1cmUtdGVtcGxhdGU6MjY4NjI1NjU0MjI6Zml4X3ByOjk6cmV2aWV3Ojk6NQ -->",
+      "createdAt": "2026-06-03T03:59:58Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/9#issuecomment-4608947834",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErchLw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 98 | PASS | 13 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Read docs and linked context first | pass | 6/6 | PR body cites Hypothesis embed/config/API docs, and issue #8 contains the feasibility plan this implements. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Reuses the existing Quartz component/registry/env pattern in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/c70114b8bd46e1256db9d5b1496bb7b069a559a1/quartz.ts#L109-L131). |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Diff is scoped to Hypothesis embed, canonical URLs, literature workflow context, docs, and focused tests. |\n| coding_style / generic | Prefer simple implementations | partial | 5/7 | Implementation is direct, but the new fetcher is still a broad 356-line CLI surface in [`scripts/fetch-hypothesis-annotations.mjs`](https://github.com/self-evolving/literature-template/blob/c70114b8bd46e1256db9d5b1496bb7b069a559a1/scripts/fetch-hypothesis-annotations.mjs#L1-L356). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README documents browser enablement, no browser token use, API secret setup, trusted scope, and best-effort behavior. |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | Browser annotations stay opt-in via `HYPOTHESIS_ENABLED`; workflow annotation context is configured through minimal env/variable knobs. |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | Fetcher uses separate URI, wildcard URI, group, user, tags, limit, format, and output fields instead of one overloaded request string. |\n| coding_workflow / generic | Bound transient retries | pass | 7/7 | Retries are bounded to three attempts and transient statuses/timeouts; deterministic API failures are terminal. |\n| coding_workflow / generic | Surface stateful failures | pass | 7/7 | Missing token/scope produce explicit output, API failures exit nonzero, and workflow fetch steps are visibly best-effort. |\n| coding_workflow / generic | Separate context from execution dependencies | pass | 7/7 | Current diff requires trusted annotation scope before API calls and no longer maps add-paper natural-language request text into `HYPOTHESIS_ANY`. |\n| communication / generic | Make setup guidance actionable | pass | 7/7 | README gives direct `gh secret set` / `gh variable set` commands for the `agent-literature` environment. |\n| communication / generic | Write audience-first documentation | pass | 7/7 | Docs lead with what users configure and keep implementation caveats short. |\n| coding_workflow / generic | Name config by capability | pass | 6/6 | Public settings are capability-scoped names such as `HYPOTHESIS_API_KEY`, `HYPOTHESIS_GROUP`, `HYPOTHESIS_USER`, and `HYPOTHESIS_TAGS`. |\n\n## Notes\n\n- The current head `c70114b8bd46e1256db9d5b1496bb7b069a559a1` addresses the prior rubric-relevant blockers: trusted annotation scope is required, fetch steps are best-effort, and focused tests cover scope/query/retry behavior.\n- Route/delegation, preview, lifecycle, merge, and status-comment rubrics were not scored because they do not map to the PR’s implementation diff.\n\n## Findings\n\n- **WARNING:** Under “Prefer simple implementations,” the fetcher’s CLI/query/format/retry surface is fairly large for a first pass. The added tests make this acceptable, but future growth should stay narrow.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-03T04:02:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/9#issuecomment-4608958767",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErexSw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: c70114b8bd46e1256db9d5b1496bb7b069a559a1 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #9 implements issue #8 by adding opt-in Hypothesis annotation support for rendered Quartz pages.\n- It also adds canonical links, a Hypothesis API fetcher, workflow wiring for add-paper and daily literature agents, and README setup guidance.\n- The current head `c70114b8bd46e1256db9d5b1496bb7b069a559a1` is a follow-up fix commit after the prior synthesis found trust-boundary, best-effort fetch, `HYPOTHESIS_ANY`, and test-coverage issues.\n- The current review artifacts agree those prior required fixes are addressed.\n\n## Review\nThe current review set supports shipping. Claude and Codex both found the earlier blockers resolved; the rubrics review passed, with only non-blocking simplicity/polish notes. The only meaningful disagreement is labeling: Claude/rubrics call some optional follow-up items `WARNING`, while Codex reports no `WARNING`; none require branch changes.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| No actionable issues remain | INFO | Current reviewer outputs and PR state do not identify unresolved required branch-change work. Remaining notes are optional polish or future hardening. |\n\n## Progress\n- Prior trusted-scope blocker is addressed by requiring `group`, `user`, or `tag` before Hypothesis API calls.\n- Prior best-effort blocker is addressed with `continue-on-error: true` in both literature workflows.\n- Prior `HYPOTHESIS_ANY` issue is addressed; add-paper no longer derives it from arbitrary request text.\n- Focused fetcher tests now cover scope enforcement, query construction, and retry behavior.\n- Resolved 3 same-agent inline review threads for the addressed prior findings. Posted no new inline comments, added no replies, and minimized no comments.\n- Codex could not reproduce full `npm run check` locally because of runner Node/npm constraints, but focused verification passed in the review artifact.\n\n## Recommended Next Step\nNO_AUTOMATED_ACTION\n\nNo unresolved required branch-change work remains; remaining concerns are optional maintainer follow-up.\n\n## Final Verdict\nSHIP\n\n## Action Items\n- [ ] No required branch-change action items remain.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-03T04:11:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/9#issuecomment-4608995659",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABErtVpA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer \r\n\r\nOK I think there is a conceptual difference: `scripts/fetch-hypothesis-annotations.mjs` -> what i meant originally is that the hypothesis function should be done jointly with .agent (the sepo infra) such that when agents interpreting functions it has the option to download hypothesis annotation for the specific pages. In that case, does the implementation here make sense? ",
+      "createdAt": "2026-06-03T05:02:20Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/9#issuecomment-4609234340",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-03T03:37:54Z",
+  "files": [
+    {
+      "path": ".github/prompts/literature-add-paper.md",
+      "additions": 4,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/prompts/literature-daily.md",
+      "additions": 5,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-add-paper.yml",
+      "additions": 27,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-literature-daily.yml",
+      "additions": 28,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "README.md",
+      "additions": 26,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.config.yaml",
+      "additions": 5,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.lock.json",
+      "additions": 6,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 25,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/Head.tsx",
+      "additions": 4,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/Hypothesis.tsx",
+      "additions": 40,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/components/scripts/hypothesis.inline.ts",
+      "additions": 41,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/plugins/local/hypothesis/dist/index.d.ts",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/plugins/local/hypothesis/dist/index.js",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/plugins/local/hypothesis/index.js",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/plugins/local/hypothesis/package-lock.json",
+      "additions": 12,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/plugins/local/hypothesis/package.json",
+      "additions": 21,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "scripts/fetch-hypothesis-annotations.mjs",
+      "additions": 356,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "scripts/fetch-hypothesis-annotations.test.mjs",
+      "additions": 175,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-8/codex-26861678525",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 9,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABByu09w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-03T03:48:12Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "f4c3c14c3fa71605a54a117f08df36be45f76b03"
+      }
+    },
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABByu18g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-03T03:48:18Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "f4c3c14c3fa71605a54a117f08df36be45f76b03"
+      }
+    },
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABByu20w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-03T03:48:24Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "f4c3c14c3fa71605a54a117f08df36be45f76b03"
+      }
+    }
+  ],
+  "state": "OPEN",
+  "title": "Add Hypothesis annotation support",
+  "updatedAt": "2026-06-03T05:02:35Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/9"
+}

@@ -1,0 +1,18 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "1. it will call the add-paper route in the workflow \n2. and then it will create the pr (with the designated goal, etc)  ",
+  "closedAt": null,
+  "comments": [],
+  "createdAt": "2026-06-02T20:42:57Z",
+  "labels": [],
+  "number": 5,
+  "state": "OPEN",
+  "title": "Add an `add paper` button for the citation popover ->",
+  "updatedAt": "2026-06-02T20:42:57Z",
+  "url": "https://github.com/self-evolving/literature-template/issues/5"
+}
