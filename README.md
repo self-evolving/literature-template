@@ -146,6 +146,18 @@ Giscus comments are disabled by default. To enable them, set `GISCUS_ENABLED=tru
 | `GISCUS_MAPPING`     | Optional mapping; defaults to `pathname`.         |
 | `GISCUS_THEME_URL`   | Optional theme base URL for custom Giscus themes. |
 
+Hypothesis web annotations are also disabled by default. To let readers annotate rendered pages, set
+`HYPOTHESIS_ENABLED=true` at build time. Optional build-time settings:
+
+| Name                         | Description                                                |
+| ---------------------------- | ---------------------------------------------------------- |
+| `HYPOTHESIS_OPEN_SIDEBAR`    | Open the Hypothesis sidebar by default; defaults to false. |
+| `HYPOTHESIS_SHOW_HIGHLIGHTS` | Show public highlights by default; defaults to true.       |
+| `HYPOTHESIS_THEME`           | Optional Hypothesis theme, `classic` or `clean`.           |
+
+Do not put a Hypothesis API token in browser-side configuration. Site visitors should use Hypothesis'
+normal login flow.
+
 This is separate from the future transient-review surface described in issue #65, which should render GitHub content directly rather than committing transient Markdown files.
 
 ## Literature workflows
@@ -162,6 +174,16 @@ gh secret set SERPER_API_KEY --env agent-literature --repo OWNER/REPO
 gh secret set S2_API_KEY --env agent-literature --repo OWNER/REPO
 gh secret set JINA_API_KEY --env agent-literature --repo OWNER/REPO
 ```
+
+Optional annotation context for literature agents:
+
+```bash
+gh secret set HYPOTHESIS_API_KEY --env agent-literature --repo OWNER/REPO
+```
+
+When configured, the daily and add-paper literature workflows fetch a compact Hypothesis annotation
+summary before invoking the agent. By default the fetcher searches the configured site URL; add-paper
+runs also search the supplied paper URL when the input is an HTTP(S) URL.
 
 Manual dispatch is available by default. Scheduled daily literature runs are disabled unless the repository variable `AGENT_LITERATURE_DAILY_ENABLED=true` is set.
 

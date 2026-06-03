@@ -168,6 +168,26 @@ jobs:
             exit 1
           fi
 
+      - name: Fetch Hypothesis annotation context
+        if: steps.discussion_gate.outputs.skip != 'true'
+        id: hypothesis
+        shell: bash
+        env:
+          HYPOTHESIS_API_KEY: ${{ secrets.HYPOTHESIS_API_KEY }}
+          HYPOTHESIS_LIMIT: "12"
+        run: |
+          set -euo pipefail
+
+          output="${RUNNER_TEMP}/hypothesis-annotations.md"
+          node scripts/fetch-hypothesis-annotations.mjs --format markdown --output "$output"
+
+          delim="HYPOTHESIS_${RANDOM}_${RANDOM}_$$"
+          {
+            printf 'markdown<<%s\n' "$delim"
+            cat "$output"
+            printf '\n%s\n' "$delim"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Resolve daily literature provider
         if: steps.discussion_gate.outputs.skip != 'true'
         id: provider
@@ -227,13 +247,16 @@ jobs:
           memory_ref: ${{ vars.AGENT_MEMORY_REF || 'agent/memory' }}
           memory_policy: ${{ vars.AGENT_MEMORY_POLICY || '' }}
           session_policy: none
-          request_text: >-
+          request_text: |-
             Generate the daily literature research update for ${{ steps.context.outputs.summary_date }}.
             Prioritize items from the last ${{ steps.context.outputs.recency_days }} days.
             Include at most ${{ steps.context.outputs.max_items }} research items.
             Social discovery signals enabled: ${{ steps.context.outputs.include_social }}.
             Optional topic: ${{ steps.context.outputs.topic || 'infer from repository context and open agent-goal issues' }}.
             Discussion category: ${{ env.DISCUSSION_CATEGORY }}.
+
+            Hypothesis annotation context:
+            ${{ steps.hypothesis.outputs.markdown }}
           requested_by: ${{ github.actor }}
           source_kind: workflow_dispatch
           target_kind: repository

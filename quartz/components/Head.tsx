@@ -36,8 +36,10 @@ export default (() => {
     const iconPath = joinSegments(baseDir, "static/icon.png")
 
     // Url of current page
+    const pageSlug = fileData.slug === "index" || fileData.slug === "" ? undefined : fileData.slug!
     const socialUrl =
-      fileData.slug === "404" ? url.toString() : joinSegments(url.toString(), fileData.slug!)
+      fileData.slug === "404" || !pageSlug ? url.toString() : joinSegments(url.toString(), pageSlug)
+    const canonicalUrl = cfg.baseUrl && fileData.slug !== "404" ? socialUrl : undefined
 
     const usesCustomOgImage = ctx.cfg.plugins.emitters.some(
       (e) => e.name === CustomOgImagesEmitterName,
@@ -109,6 +111,7 @@ export default (() => {
             />
           </>
         )}
+        {!redirectUrl && canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
         <link rel="icon" href={icon16Path} sizes="16x16" type="image/png" />
         <link rel="icon" href={icon128Path} sizes="128x128" type="image/png" />

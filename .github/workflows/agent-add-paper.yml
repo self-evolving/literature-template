@@ -119,6 +119,27 @@ jobs:
           skill: literature-review
           trusted_ref: "true"
 
+      - name: Fetch Hypothesis annotation context
+        id: hypothesis
+        shell: bash
+        env:
+          HYPOTHESIS_API_KEY: ${{ secrets.HYPOTHESIS_API_KEY }}
+          HYPOTHESIS_URI: ${{ env.PAPER_INPUT }}
+          HYPOTHESIS_ANY: ${{ env.ADDITIONAL_REQUEST_INPUT }}
+          HYPOTHESIS_LIMIT: "12"
+        run: |
+          set -euo pipefail
+
+          output="${RUNNER_TEMP}/hypothesis-annotations.md"
+          node scripts/fetch-hypothesis-annotations.mjs --format markdown --output "$output"
+
+          delim="HYPOTHESIS_${RANDOM}_${RANDOM}_$$"
+          {
+            printf 'markdown<<%s\n' "$delim"
+            cat "$output"
+            printf '\n%s\n' "$delim"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Resolve task timeout
         id: task_timeout
         env:
@@ -159,6 +180,9 @@ jobs:
 
             Additional natural-language request:
             ${{ env.ADDITIONAL_REQUEST_INPUT }}
+
+            Hypothesis annotation context:
+            ${{ steps.hypothesis.outputs.markdown }}
           requested_by: ${{ github.actor }}
           source_kind: workflow_dispatch
           target_kind: repository
