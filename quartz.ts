@@ -8,6 +8,7 @@ import SepoGraph from "./quartz/components/SepoGraph"
 import SepoPageTitle from "./quartz/components/SepoPageTitle"
 import SepoSearch from "./quartz/components/SepoSearch"
 import Comments from "./quartz/components/Comments"
+import Hypothesis, { type Options as HypothesisOptions } from "./quartz/components/Hypothesis"
 
 const normalizeBaseUrl = (url?: string) => url?.replace(/^https?:\/\//, "").replace(/\/$/, "")
 const siteBaseUrl =
@@ -22,6 +23,7 @@ registerCondition("library-page", (page) => isLibraryPage(page.fileData.slug))
 
 type GiscusMapping = "url" | "title" | "og:title" | "specific" | "number" | "pathname"
 type GiscusInputPosition = "top" | "bottom"
+type HypothesisTheme = NonNullable<HypothesisOptions["theme"]>
 
 const giscusRequiredEnv = [
   "GISCUS_REPO",
@@ -48,6 +50,23 @@ function enumEnv<T extends string>(name: string, allowed: readonly T[], defaultV
   if (value === undefined) return defaultValue
   if ((allowed as readonly string[]).includes(value)) return value as T
   throw new Error(`${name} must be one of: ${allowed.join(", ")}`)
+}
+
+function optionalEnumEnv<T extends string>(name: string, allowed: readonly T[]) {
+  const value = envValue(name)
+  if (value === undefined) return undefined
+  if ((allowed as readonly string[]).includes(value)) return value as T
+  throw new Error(`${name} must be one of: ${allowed.join(", ")}`)
+}
+
+function listEnv(name: string) {
+  const value = envValue(name)
+  if (value === undefined) return undefined
+  const items = value
+    .split(/[\n,]/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+  return items.length > 0 ? items : undefined
 }
 
 function giscusComments() {
@@ -97,13 +116,31 @@ function giscusComments() {
   })
 }
 
+function hypothesisAnnotations() {
+  if (!booleanEnv("HYPOTHESIS_ENABLED", false)) {
+    return undefined
+  }
+
+  return Hypothesis({
+    enabled: true,
+    openSidebar: booleanEnv("HYPOTHESIS_OPEN_SIDEBAR", false),
+    showHighlights: booleanEnv("HYPOTHESIS_SHOW_HIGHLIGHTS", true),
+    commentsMode: booleanEnv("HYPOTHESIS_COMMENTS_MODE", false),
+    groupsAllowlist: listEnv("HYPOTHESIS_GROUPS_ALLOWLIST"),
+    theme: optionalEnumEnv<HypothesisTheme>("HYPOTHESIS_THEME", ["classic", "clean"]),
+  })
+}
+
 const EmptyComponent: QuartzComponent = () => null
 const commentsComponent = giscusComments() ?? EmptyComponent
+const hypothesisComponent = hypothesisAnnotations() ?? EmptyComponent
 const LiteratureComments = (() => commentsComponent) satisfies QuartzComponentConstructor
+const LiteratureAnnotations = (() => hypothesisComponent) satisfies QuartzComponentConstructor
 
 componentRegistry.register("doc-page-header", DocPageHeader, "local")
 componentRegistry.register("docs-explorer", DocsExplorer, "local")
 componentRegistry.register("graph", SepoGraph, "local")
+componentRegistry.register("hypothesis", LiteratureAnnotations, "local")
 componentRegistry.register("page-title", SepoPageTitle, "local")
 componentRegistry.register("PageTitle", SepoPageTitle, "local")
 componentRegistry.register("search", SepoSearch, "local")

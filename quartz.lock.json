@@ -163,6 +163,12 @@
       "commit": "0d448f38a24c568c5539ff2cd57d813293430ccd",
       "installedAt": "2026-05-31T23:14:25.400Z"
     },
+    "hypothesis": {
+      "source": "./quartz/plugins/local/hypothesis",
+      "resolved": "./quartz/plugins/local/hypothesis",
+      "commit": "local",
+      "installedAt": "2026-06-03T06:10:00.000Z"
+    },
     "latex": {
       "source": "github:quartz-community/latex",
       "resolved": "https://github.com/quartz-community/latex.git",
