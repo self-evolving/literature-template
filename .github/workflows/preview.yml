@@ -5,11 +5,13 @@ on:
 # No workflow-level permissions. The build job runs PR-controlled code but holds no
 # token; the deploy job holds id-token/PR-write but runs no PR-controlled code.
 permissions: {}
-concurrency:
-  group: sepo-preview-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
 jobs:
   build:
+    # Concurrency is job-level (not workflow-level) so an ignored label event whose jobs
+    # all skip can't acquire the group and cancel an in-flight preview (see #67).
+    concurrency:
+      group: sepo-preview-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     # AGENT_PREVIEW_POLICY: unset/auto = public repos only, `all` = include private, `off` = off.
     # Within that, auto-preview every agent PR (agent/ branch prefix). Label overrides:
     # `sepo-preview` opts any same-repo PR in, `no-preview` opts an agent PR out. Fork PRs are
@@ -44,6 +46,9 @@ jobs:
           retention-days: 1
           if-no-files-found: error
   deploy:
+    concurrency:
+      group: sepo-preview-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     # Trusted path: holds id-token + PR-write but runs NO PR-controlled code (no checkout/build).
     needs: build
     runs-on: ubuntu-latest
@@ -89,6 +94,9 @@ jobs:
             gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -f body="$BODY" >/dev/null
           fi
   teardown:
+    concurrency:
+      group: sepo-preview-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     if: >-
       github.event.action == 'closed' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
