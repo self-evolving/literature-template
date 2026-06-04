@@ -5,6 +5,7 @@ import type { QuartzComponent, QuartzComponentConstructor } from "./quartz/compo
 import DocPageHeader from "./quartz/components/DocPageHeader"
 import DocsExplorer from "./quartz/components/DocsExplorer"
 import SepoGraph from "./quartz/components/SepoGraph"
+import SepoFooter from "./quartz/components/SepoFooter"
 import SepoPageTitle from "./quartz/components/SepoPageTitle"
 import SepoSearch from "./quartz/components/SepoSearch"
 import Comments from "./quartz/components/Comments"
@@ -103,6 +104,8 @@ const LiteratureComments = (() => commentsComponent) satisfies QuartzComponentCo
 
 componentRegistry.register("doc-page-header", DocPageHeader, "local")
 componentRegistry.register("docs-explorer", DocsExplorer, "local")
+componentRegistry.register("footer", SepoFooter, "local")
+componentRegistry.register("Footer", SepoFooter, "local")
 componentRegistry.register("graph", SepoGraph, "local")
 componentRegistry.register("page-title", SepoPageTitle, "local")
 componentRegistry.register("PageTitle", SepoPageTitle, "local")
