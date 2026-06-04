@@ -1,4 +1,4 @@
-name: Preview (sepo)
+name: Agent / Site Preview
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, closed]
