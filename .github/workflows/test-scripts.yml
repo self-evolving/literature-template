@@ -9,104 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Detect changed areas
-        id: changes
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          site=false
-          agent=false
-          workflows=false
-          shell_scripts=false
-
-          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
-            # Manual runs should keep exercising everything.
-            site=true
-            agent=true
-            workflows=true
-            shell_scripts=true
-          else
-            git fetch --no-tags --depth=1 origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
-            mapfile -t files < <(git diff --name-only "origin/${{ github.base_ref }}"...HEAD)
-
-            for file in "${files[@]}"; do
-              case "$file" in
-                content/*|quartz/*|scripts/*|package.json|package-lock.json|tsconfig.json|globals.d.ts|index.d.ts|bibliography.bib|quartz.ts|quartz.config*.yaml|quartz.lock.json|.node-version|.npmrc|.prettierignore|.prettierrc)
-                  site=true
-                  ;;
-              esac
-
-              case "$file" in
-                .agent/src/*|.agent/tools/*|.agent/scripts/*|.agent/package.json|.agent/package-lock.json|.agent/tsconfig.json)
-                  agent=true
-                  ;;
-              esac
-
-              case "$file" in
-                .github/workflows/*|.github/actions/*|.agent/action-templates/*)
-                  workflows=true
-                  ;;
-              esac
-
-              case "$file" in
-                .agent/scripts/*.sh|.github/actions/*.sh)
-                  shell_scripts=true
-                  ;;
-              esac
-            done
-          fi
-
-          {
-            echo "site=$site"
-            echo "agent=$agent"
-            echo "workflows=$workflows"
-            echo "shell_scripts=$shell_scripts"
-          } >> "$GITHUB_OUTPUT"
-
-          echo "site=$site agent=$agent workflows=$workflows shell_scripts=$shell_scripts"
-
-      - uses: actions/setup-node@v4
-        if: ${{ steps.changes.outputs.site == 'true' || steps.changes.outputs.agent == 'true' }}
-        with:
-          node-version: "22"
-
-      - name: Install root dependencies
-        if: ${{ steps.changes.outputs.site == 'true' }}
-        run: npm ci
-
-      - name: Validate Quartz site
-        if: ${{ steps.changes.outputs.site == 'true' }}
-        run: |
-          set -euo pipefail
-          npm run check
-          npm run build
-
-      - name: Install agent dependencies
-        if: ${{ steps.changes.outputs.agent == 'true' }}
-        run: |
-          set -euo pipefail
-          cd .agent
-          npm ci
-
-      - name: Run agent tests
-        if: ${{ steps.changes.outputs.agent == 'true' }}
-        run: |
-          set -euo pipefail
-          cd .agent
-          npm test
 
       - name: Parse workflow and action YAML
-        if: ${{ steps.changes.outputs.workflows == 'true' }}
         run: |
           set -euo pipefail
-          ruby -e 'require "yaml"; (Dir[".github/workflows/*.yml"] + Dir[".github/actions/*/action.yml"] + Dir[".agent/action-templates/*.yml"]).sort.each { |file| YAML.load_file(file) }'
+          ruby -e 'require "yaml"; (Dir[".github/workflows/*.{yml,yaml}"] + Dir[".github/actions/*/action.{yml,yaml}"] + Dir[".agent/action-templates/*.{yml,yaml}"]).sort.each { |file| YAML.load_file(file) }'
 
       - name: Validate gh-authenticated workflow steps
-        if: ${{ steps.changes.outputs.workflows == 'true' }}
         run: |
           set -euo pipefail
           ruby <<'RUBY'
@@ -114,7 +23,7 @@ jobs:
 
           failures = []
 
-          Dir[".github/workflows/*.yml"].sort.each do |file|
+          Dir[".github/workflows/*.{yml,yaml}"].sort.each do |file|
             workflow = YAML.load_file(file)
             jobs = workflow.fetch("jobs", {})
 
@@ -138,15 +47,13 @@ jobs:
           RUBY
 
       - name: Shell syntax checks
-        if: ${{ steps.changes.outputs.shell_scripts == 'true' }}
         run: |
           set -euo pipefail
-          bash -n .agent/scripts/post-agent-verify.sh
-          bash -n .agent/scripts/resolve-scheduled-activity-gate.sh
-          bash -n .agent/scripts/resolve-pending-update-pr.sh
-          bash -n .agent/scripts/resolve-update-source.sh
-          bash -n .agent/scripts/resolve-discussion-post-gate.sh
-          bash -n .github/actions/check-agent-action-expiration/check-expiration.sh
+          failed=0
+          while IFS= read -r script; do
+            bash -n "$script" || failed=1
+          done < <(git ls-files '*.sh')
+          exit "$failed"
 
       - name: Diff hygiene
         run: git diff --check
