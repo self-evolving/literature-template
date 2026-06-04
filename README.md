@@ -165,6 +165,32 @@ gh secret set JINA_API_KEY --env agent-literature --repo OWNER/REPO
 
 Manual dispatch is available by default. Scheduled daily literature runs are disabled unless the repository variable `AGENT_LITERATURE_DAILY_ENABLED=true` is set.
 
+## Preview deployments
+
+Pull requests can deploy a per-branch preview of the built site through the Sepo preview server, via `.github/workflows/preview.yml`. The workflow builds the site, uploads it as an artifact, and asks the server (`preview-api.sepo.sh`) to publish it, authenticating with GitHub Actions **OIDC** so no deploy secrets live in the repository. The preview URL is posted as a single, updated pull-request comment, and the preview is torn down when the pull request closes.
+
+Which pull requests preview is controlled by the `AGENT_PREVIEW_POLICY` repository variable, whose default is keyed to repository visibility:
+
+| `AGENT_PREVIEW_POLICY`   | Public repo | Private repo |
+| ------------------------ | ----------- | ------------ |
+| unset / `auto` (default) | preview     | **off**      |
+| `all`                    | preview     | preview      |
+| `off`                    | off         | off          |
+
+Preview URLs are **public** (served by Surge with no authentication), so a private repository does not publish its built site unless you opt in explicitly. **This template is private, so previews stay off until you set `AGENT_PREVIEW_POLICY=all`:**
+
+```bash
+gh variable set AGENT_PREVIEW_POLICY --body all --repo OWNER/REPO
+```
+
+Within an enabled repository:
+
+- Every **agent** pull request (head branch under `agent/`) previews automatically — no label needed.
+- Add the `sepo-preview` label to preview any other pull request.
+- Add the `no-preview` label to skip a pull request that would otherwise preview.
+
+This requires the Sepo GitHub App on the repository (it mints a short-lived read-only token to fetch the build artifact). Setting the policy to `off` stops new deploys but does not retract previews already live; close the pull request to tear one down.
+
 ## Sepo controls
 
 Sepo workflows can be paused without disabling GitHub Actions globally by setting the repository variable `AGENT_ENABLED=false`. Remove the variable or set it to `true` to allow packaged `agent-*.yml` jobs to run again.
