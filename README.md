@@ -114,7 +114,11 @@ npm run check:site
 npm run build
 ```
 
-`npm run check` runs the fast TypeScript and formatting checks. `npm run check:site` also restores Quartz plugins and builds the static site. `npm run dev` serves the Quartz site locally. `npm run build` restores Quartz plugins and writes the static site to `public/`.
+`npm run check` runs the fast TypeScript and formatting checks. `npm run check:site` also
+restores enabled Quartz plugins and builds the static site. `npm run dev` serves the Quartz site
+locally. `npm run build` restores enabled Quartz plugins and writes the static site to `public/`.
+Disabled plugins remain in the config/lockfile for easy opt-in, but they are not restored during
+normal builds.
 
 ## Vercel configuration
 

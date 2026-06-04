@@ -119,9 +119,21 @@ yargs(hideBin(process.argv))
     "Manage Quartz plugins",
     (yargs) => {
       return yargs
-        .command("install", "Install plugins from quartz.lock.json", CommonArgv, async () => {
-          await handleGitPluginInstall()
-        })
+        .command(
+          "install",
+          "Install plugins from quartz.lock.json",
+          {
+            ...CommonArgv,
+            "enabled-only": {
+              boolean: true,
+              default: false,
+              describe: "only install plugins enabled in quartz.config.yaml",
+            },
+          },
+          async (argv) => {
+            await handleGitPluginInstall({ enabledOnly: argv.enabledOnly })
+          },
+        )
         .command("add <repos..>", "Add plugins from Git repositories", CommonArgv, async (argv) => {
           await handlePluginAdd(argv.repos)
         })
@@ -142,9 +154,16 @@ yargs(hideBin(process.argv))
         .command(
           "restore",
           "Restore plugins from lockfile (exact versions)",
-          CommonArgv,
-          async () => {
-            await handlePluginRestore()
+          {
+            ...CommonArgv,
+            "enabled-only": {
+              boolean: true,
+              default: false,
+              describe: "only restore plugins enabled in quartz.config.yaml",
+            },
+          },
+          async (argv) => {
+            await handlePluginRestore({ enabledOnly: argv.enabledOnly })
           },
         )
         .command(

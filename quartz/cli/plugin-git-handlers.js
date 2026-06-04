@@ -19,6 +19,12 @@ import {
 const INTERNAL_EXPORTS = new Set(["manifest", "default"])
 
 function buildPlugin(pluginDir, name) {
+  if (!needsBuild(pluginDir)) {
+    console.log(styleText("gray", `  ✓ ${name}: pre-built dist present`))
+    linkPeerPlugins(pluginDir)
+    return true
+  }
+
   try {
     console.log(styleText("cyan", `  → ${name}: installing dependencies...`))
     execSync("npm install", { cwd: pluginDir, stdio: "ignore" })
@@ -41,6 +47,30 @@ function buildPlugin(pluginDir, name) {
 function needsBuild(pluginDir) {
   const distDir = path.join(pluginDir, "dist")
   return !fs.existsSync(distDir)
+}
+
+function getEnabledPluginNames() {
+  const pluginsJson = readPluginsJson()
+  if (!pluginsJson?.plugins) return null
+
+  return new Set(
+    pluginsJson.plugins
+      .filter((entry) => entry.enabled !== false)
+      .map((entry) => extractPluginName(entry.source)),
+  )
+}
+
+function getLockfilePluginEntries(lockfile, { enabledOnly = false } = {}) {
+  const entries = Object.entries(lockfile.plugins)
+  if (!enabledOnly) return entries
+
+  const enabledNames = getEnabledPluginNames()
+  if (!enabledNames) return entries
+
+  return entries.filter(
+    ([name, entry]) =>
+      enabledNames.has(name) || enabledNames.has(extractPluginName(entry.source ?? name)),
+  )
 }
 
 function throwIfPluginFailures(action, failed) {
@@ -230,7 +260,7 @@ async function regeneratePluginIndex() {
   fs.writeFileSync(indexPath, indexContent)
 }
 
-export async function handlePluginInstall() {
+export async function handlePluginInstall({ enabledOnly = false } = {}) {
   const lockfile = readLockfile()
 
   if (!lockfile) {
@@ -243,12 +273,19 @@ export async function handlePluginInstall() {
     fs.mkdirSync(PLUGINS_DIR, { recursive: true })
   }
 
-  console.log(styleText("cyan", "→ Installing plugins from lockfile..."))
+  console.log(
+    styleText(
+      "cyan",
+      enabledOnly
+        ? "→ Installing enabled plugins from lockfile..."
+        : "→ Installing plugins from lockfile...",
+    ),
+  )
   let installed = 0
   let failed = 0
   const pluginsToBuild = []
 
-  for (const [name, entry] of Object.entries(lockfile.plugins)) {
+  for (const [name, entry] of getLockfilePluginEntries(lockfile, { enabledOnly })) {
     const pluginDir = path.join(PLUGINS_DIR, name)
 
     // Local plugin: ensure symlink exists
@@ -848,7 +885,7 @@ export async function handlePluginList() {
   }
 }
 
-export async function handlePluginRestore() {
+export async function handlePluginRestore({ enabledOnly = false } = {}) {
   const lockfile = readLockfile()
   if (!lockfile) {
     const message = "No quartz.lock.json found. Cannot restore."
@@ -858,7 +895,14 @@ export async function handlePluginRestore() {
     throw new Error(message)
   }
 
-  console.log(styleText("cyan", "→ Restoring plugins from lockfile..."))
+  console.log(
+    styleText(
+      "cyan",
+      enabledOnly
+        ? "→ Restoring enabled plugins from lockfile..."
+        : "→ Restoring plugins from lockfile...",
+    ),
+  )
   console.log()
 
   const pluginsDir = path.join(process.cwd(), ".quartz", "plugins")
@@ -870,7 +914,7 @@ export async function handlePluginRestore() {
   let failed = 0
   const restoredPlugins = []
 
-  for (const [name, entry] of Object.entries(lockfile.plugins)) {
+  for (const [name, entry] of getLockfilePluginEntries(lockfile, { enabledOnly })) {
     const pluginDir = path.join(pluginsDir, name)
 
     // Local plugin: re-symlink and rebuild if the existing link is incomplete.

@@ -21,7 +21,7 @@
     "format": "npx prettier . --write",
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
-    "install-plugins": "npm run quartz -- plugin restore"
+    "install-plugins": "npm run quartz -- plugin restore --enabled-only"
   },
   "engines": {
     "npm": ">=10.9.2",
