@@ -146,6 +146,27 @@ Giscus comments are disabled by default. To enable them, set `GISCUS_ENABLED=tru
 | `GISCUS_MAPPING`     | Optional mapping; defaults to `pathname`.         |
 | `GISCUS_THEME_URL`   | Optional theme base URL for custom Giscus themes. |
 
+Hypothesis web annotations are also disabled by default. To let readers annotate rendered pages,
+set the repository or hosting build variable `HYPOTHESIS_ENABLED=true`.
+
+```bash
+gh variable set HYPOTHESIS_ENABLED --body true --repo OWNER/REPO
+```
+
+Optional build-time variables:
+
+| Name                          | Description                                                    |
+| ----------------------------- | -------------------------------------------------------------- |
+| `HYPOTHESIS_OPEN_SIDEBAR`     | Open the Hypothesis sidebar by default; defaults to `false`.   |
+| `HYPOTHESIS_SHOW_HIGHLIGHTS`  | Show public highlights by default; defaults to `true`.         |
+| `HYPOTHESIS_COMMENTS_MODE`    | Use Hypothesis page-note comments mode; defaults to `false`.   |
+| `HYPOTHESIS_GROUPS_ALLOWLIST` | Optional comma-separated list of allowed Hypothesis group IDs. |
+| `HYPOTHESIS_THEME`            | Optional Hypothesis sidebar theme, `classic` or `clean`.       |
+
+Do not put a Hypothesis API token in browser-side configuration. Site visitors should use
+Hypothesis' normal login flow. Agent-facing Hypothesis API access should be added separately as a
+Sepo runtime capability rather than as a site build setting.
+
 This is separate from the future transient-review surface described in issue #65, which should render GitHub content directly rather than committing transient Markdown files.
 
 ## Literature workflows

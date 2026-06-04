@@ -28,4 +28,11 @@ jobs:
         run: npm run check
 
       - name: Build Quartz site
+        env:
+          HYPOTHESIS_ENABLED: ${{ vars.HYPOTHESIS_ENABLED || 'false' }}
+          HYPOTHESIS_OPEN_SIDEBAR: ${{ vars.HYPOTHESIS_OPEN_SIDEBAR || '' }}
+          HYPOTHESIS_SHOW_HIGHLIGHTS: ${{ vars.HYPOTHESIS_SHOW_HIGHLIGHTS || '' }}
+          HYPOTHESIS_COMMENTS_MODE: ${{ vars.HYPOTHESIS_COMMENTS_MODE || '' }}
+          HYPOTHESIS_GROUPS_ALLOWLIST: ${{ vars.HYPOTHESIS_GROUPS_ALLOWLIST || '' }}
+          HYPOTHESIS_THEME: ${{ vars.HYPOTHESIS_THEME || '' }}
         run: npm run build
