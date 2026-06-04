@@ -7,3 +7,4 @@
 - Hypothesis agent fetching belongs in .agent callable tooling; literature skills only teach when/how to use it. [[github/self-evolving/literature-template/issue-8.json]]
 - Footer attribution should jointly credit Quartz and Sepo; Sepo links to https://self-evolving.app. [[github/self-evolving/literature-template/pull-6.json]]
 - Preview workflow_run teardown must pass PR/head/artifact identity or document the service-side identity contract. [[github/self-evolving/literature-template/pull-14.json]]
+- Quartz plugin restores: normal builds use enabled-only; disabled plugins stay in config/lockfile for opt-in. [[github/self-evolving/literature-template/pull-16.json]]
