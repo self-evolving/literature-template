@@ -1,0 +1,214 @@
+name: Preview Deploy (sepo)
+
+on:
+  workflow_run:
+    workflows: ["Preview Build (sepo)"]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: sepo-preview-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  resolve:
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      issues: read
+      pull-requests: read
+    outputs:
+      action: ${{ steps.target.outputs.action }}
+      artifact_id: ${{ steps.target.outputs.artifact_id }}
+      pr: ${{ steps.target.outputs.pr }}
+    steps:
+      - name: Resolve preview target
+        id: target
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AGENT_PREVIEW_POLICY: ${{ vars.AGENT_PREVIEW_POLICY }}
+          RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          RUN_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          RUN_HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+          RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+
+          emit() {
+            {
+              echo "action=$1"
+              echo "reason=$2"
+            } >> "$GITHUB_OUTPUT"
+            echo "$2" >> "$GITHUB_STEP_SUMMARY"
+          }
+
+          if [[ "$RUN_HEAD_REPO" != "$GITHUB_REPOSITORY" ]]; then
+            emit skip "Fork pull requests are not previewed."
+            exit 0
+          fi
+
+          PR=$(jq -r '.workflow_run.pull_requests[0].number // empty' "$GITHUB_EVENT_PATH")
+          if [[ -z "$PR" ]]; then
+            PR=$(gh pr list --repo "$GITHUB_REPOSITORY" --state all --head "$RUN_HEAD_BRANCH" --json number --jq '.[0].number // empty')
+          fi
+          if [[ -z "$PR" ]]; then
+            emit skip "No pull request metadata was present on the build run."
+            exit 0
+          fi
+          echo "pr=$PR" >> "$GITHUB_OUTPUT"
+
+          PR_JSON=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR")
+          STATE=$(jq -r '.state' <<<"$PR_JSON")
+          HEAD_REPO=$(jq -r '.head.repo.full_name // empty' <<<"$PR_JSON")
+          HEAD_REF=$(jq -r '.head.ref' <<<"$PR_JSON")
+          HEAD_SHA=$(jq -r '.head.sha' <<<"$PR_JSON")
+
+          if [[ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ]]; then
+            emit skip "Fork pull requests are not previewed."
+            exit 0
+          fi
+
+          if [[ "$STATE" == "closed" ]]; then
+            emit teardown "Pull request #$PR is closed; tearing down any live preview."
+            exit 0
+          fi
+
+          if [[ "$STATE" != "open" ]]; then
+            emit skip "Pull request #$PR is not open."
+            exit 0
+          fi
+
+          if [[ "$RUN_CONCLUSION" != "success" ]]; then
+            emit skip "Build run did not complete successfully."
+            exit 0
+          fi
+
+          if [[ "$HEAD_SHA" != "$RUN_HEAD_SHA" ]]; then
+            emit skip "Build run is stale for pull request #$PR."
+            exit 0
+          fi
+
+          POLICY="${AGENT_PREVIEW_POLICY:-auto}"
+          case "$POLICY" in
+            "" | auto)
+              POLICY=auto
+              ;;
+            all | off)
+              ;;
+            *)
+              echo "::warning::Unsupported AGENT_PREVIEW_POLICY '$POLICY'; treating it as auto."
+              POLICY=auto
+              ;;
+          esac
+
+          PRIVATE=$(jq -r '.repository.private' "$GITHUB_EVENT_PATH")
+          if [[ "$POLICY" == "off" ]]; then
+            emit skip "Preview policy is off."
+            exit 0
+          fi
+          if [[ "$POLICY" != "all" && "$PRIVATE" == "true" ]]; then
+            emit skip "Private repository previews require AGENT_PREVIEW_POLICY=all."
+            exit 0
+          fi
+
+          ISSUE_JSON=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR")
+          LABELS=$(jq -r '[.labels[].name] | @tsv' <<<"$ISSUE_JSON")
+          has_label() {
+            tr '\t' '\n' <<<"$LABELS" | grep -Fxq "$1"
+          }
+
+          if has_label no-preview; then
+            emit skip "The no-preview label is present."
+            exit 0
+          fi
+          if [[ "$HEAD_REF" != agent/* ]] && ! has_label sepo-preview; then
+            emit skip "Pull request #$PR is not an agent branch and lacks sepo-preview."
+            exit 0
+          fi
+
+          ARTIFACT_ID=$(gh api -X GET "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/artifacts?per_page=100" \
+            --jq '.artifacts | map(select(.name == "sepo-preview-site" and (.expired | not))) | .[0].id // empty')
+          if [[ -z "$ARTIFACT_ID" ]]; then
+            emit skip "No preview artifact was uploaded by the build run."
+            exit 0
+          fi
+
+          echo "artifact_id=$ARTIFACT_ID" >> "$GITHUB_OUTPUT"
+          emit deploy "Preview artifact found for pull request #$PR."
+
+  deploy:
+    needs: resolve
+    if: needs.resolve.outputs.action == 'deploy'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pull-requests: write
+    steps:
+      - name: Deploy preview
+        id: deploy
+        env:
+          SERVER_URL: https://preview-api.sepo.sh
+          ARTIFACT_ID: ${{ needs.resolve.outputs.artifact_id }}
+        run: |
+          set -euo pipefail
+          TOK=$(curl -sS --retry 3 --retry-connrefused --retry-delay 2 --retry-max-time 30 --connect-timeout 10 --max-time 30 \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
+          [[ "$TOK" != "null" && -n "$TOK" ]] || { echo "::error::OIDC token fetch failed"; exit 1; }
+          RESP=$(curl -sS --retry 3 --retry-connrefused --retry-delay 2 --retry-max-time 60 --connect-timeout 10 --max-time 120 \
+            -X POST "$SERVER_URL/api/deploy/preview" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -nc --arg t "$TOK" --argjson a "$ARTIFACT_ID" '{oidc_token:$t,artifact_id:$a}')" \
+            -w '\n%{http_code}')
+          CODE=$(tail -n1 <<<"$RESP")
+          BODY=$(sed '$d' <<<"$RESP")
+          echo "$BODY"
+          [[ "$CODE" == 200 ]] || { echo "::error::deploy failed ($CODE)"; exit 1; }
+          URL=$(jq -r .url <<<"$BODY")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "### Preview: $URL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Comment preview URL
+        if: steps.deploy.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ steps.deploy.outputs.url }}
+          PR: ${{ needs.resolve.outputs.pr }}
+        run: |
+          set -euo pipefail
+          MARKER='<!-- sepo-preview-comment -->'
+          BODY="$MARKER"$'\n'"Sepo preview: $URL"
+          ID=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+            --jq "[.[] | select(.body | contains(\"$MARKER\"))][-1].id // empty")
+          if [ -n "$ID" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$ID" -f body="$BODY" >/dev/null
+          else
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -f body="$BODY" >/dev/null
+          fi
+
+  teardown:
+    needs: resolve
+    if: needs.resolve.outputs.action == 'teardown'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Teardown preview
+        env:
+          SERVER_URL: https://preview-api.sepo.sh
+        run: |
+          set -euo pipefail
+          TOK=$(curl -sS --retry 3 --retry-connrefused --retry-delay 2 --retry-max-time 30 --connect-timeout 10 --max-time 30 \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
+          [[ "$TOK" != "null" && -n "$TOK" ]] || { echo "::error::OIDC token fetch failed"; exit 1; }
+          RESP=$(curl -sS --retry 3 --retry-connrefused --retry-delay 2 --retry-max-time 60 --connect-timeout 10 --max-time 60 \
+            -X POST "$SERVER_URL/api/deploy/teardown" \
+            -H 'Content-Type: application/json' \
+            --data "$(jq -nc --arg t "$TOK" '{oidc_token:$t}')" \
+            -w '\n%{http_code}')
+          CODE=$(tail -n1 <<<"$RESP")
+          echo "$RESP"
+          [[ "$CODE" == 200 || "$CODE" == 404 ]] || { echo "::error::teardown failed ($CODE)"; exit 1; }

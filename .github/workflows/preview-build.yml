@@ -1,0 +1,54 @@
+name: Preview Build (sepo)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, closed]
+
+permissions: {}
+
+concurrency:
+  group: sepo-preview-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  event:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Record preview event
+        run: echo "Preview event recorded."
+
+  build:
+    # AGENT_PREVIEW_POLICY: unset/auto = public repos only, `all` = include private, `off` = off.
+    # Within that, auto-preview every agent PR (agent/ branch prefix). Label overrides:
+    # `sepo-preview` opts any same-repo PR in, `no-preview` opts an agent PR out. Fork PRs are
+    # excluded (the head.repo guard) because the trusted deploy path only serves same-repo artifacts.
+    if: >-
+      github.event.action != 'closed' &&
+      vars.AGENT_PREVIEW_POLICY != 'off' &&
+      (vars.AGENT_PREVIEW_POLICY == 'all' || github.event.repository.private == false) &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event.action != 'labeled' || github.event.label.name == 'sepo-preview') &&
+      !contains(github.event.pull_request.labels.*.name, 'no-preview') &&
+      (startsWith(github.event.pull_request.head.ref, 'agent/') || contains(github.event.pull_request.labels.*.name, 'sepo-preview'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      AGENT_PREVIEW_BUILD_COMMAND: ${{ vars.AGENT_PREVIEW_BUILD_COMMAND || 'npm ci && npm run build' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build site
+        run: eval "$AGENT_PREVIEW_BUILD_COMMAND"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sepo-preview-site
+          path: ./public
+          retention-days: 1
+          if-no-files-found: error

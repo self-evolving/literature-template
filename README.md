@@ -167,7 +167,7 @@ Manual dispatch is available by default. Scheduled daily literature runs are dis
 
 ## Preview deployments
 
-Pull requests can deploy a per-branch preview of the built site through the Sepo preview server, via `.github/workflows/preview.yml`. The workflow builds the site, uploads it as an artifact, and asks the server (`preview-api.sepo.sh`) to publish it, authenticating with GitHub Actions **OIDC** so no deploy secrets live in the repository. The preview URL is posted as a single, updated pull-request comment, and the preview is torn down when the pull request closes.
+Pull requests can deploy a per-branch preview of the built site through the Sepo preview server, via `.github/workflows/preview-build.yml` and `.github/workflows/preview-deploy.yml`. The pull-request workflow builds the site and uploads it as an artifact. A trusted `workflow_run` workflow from the default branch then asks the server (`preview-api.sepo.sh`) to publish it, authenticating with GitHub Actions **OIDC** so no deploy secrets live in the repository. The privileged deploy workflow does not check out or build pull-request code. The preview URL is posted as a single, updated pull-request comment, and the preview is torn down when the pull request closes.
 
 Which pull requests preview is controlled by the `AGENT_PREVIEW_POLICY` repository variable, whose default is keyed to repository visibility:
 
@@ -186,8 +186,10 @@ gh variable set AGENT_PREVIEW_POLICY --body all --repo OWNER/REPO
 Within an enabled repository:
 
 - Every **agent** pull request (head branch under `agent/`) previews automatically — no label needed.
-- Add the `sepo-preview` label to preview any other **same-repo** pull request. Fork pull requests are never previewed (they cannot mint OIDC tokens).
+- Add the `sepo-preview` label to preview any other **same-repo** pull request. Fork pull requests are never previewed by this template's workflow.
 - Add the `no-preview` label to skip a pull request that would otherwise preview.
+
+The default build command is `npm ci && npm run build`. Set `AGENT_PREVIEW_BUILD_COMMAND` to a different shell command if a generated repository needs to build its site another way; the command must still write the static site to `public/`.
 
 Label and policy changes affect **future** deploys only — they do not retract a preview that is already live. To take a live preview down, **close the pull request** (teardown runs on close). This requires the Sepo GitHub App on the repository (it mints a short-lived, read-only token to fetch the build artifact).
 
