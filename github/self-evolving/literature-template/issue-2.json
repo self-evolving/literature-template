@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "@sepo-agent /answer what do you think?  ",
-  "closedAt": null,
+  "closedAt": "2026-06-04T06:42:22Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABEpZA7Q",
@@ -92,8 +92,8 @@
     }
   ],
   "number": 2,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Let's modify the footer such that it should say powered by quartz and sepo jointly?",
-  "updatedAt": "2026-06-02T20:56:29Z",
+  "updatedAt": "2026-06-04T06:42:22Z",
   "url": "https://github.com/self-evolving/literature-template/issues/2"
 }

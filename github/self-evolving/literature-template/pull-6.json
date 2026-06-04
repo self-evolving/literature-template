@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n- Add a local `SepoFooter` component with linked Quartz and Sepo attribution.\n- Register it as the `footer`/`Footer` component so existing footer layout wiring uses it.\n\n## Verification\n- `npx -y -p node@22 node ./node_modules/prettier/bin/prettier.cjs quartz.ts quartz/components/SepoFooter.tsx --check`\n- `npx -y -p node@22 node ./node_modules/typescript/bin/tsc --noEmit`\n- `npx -y -p node@22 -p npm@10 npm run build`\n\nCloses #2\n",
-  "closedAt": null,
+  "closedAt": "2026-06-04T06:42:21Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABEqToKQ",
@@ -64,6 +64,21 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/6#issuecomment-4607808796",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE1rSEA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #6.\n\nno rubric changes\n\nPR #6 and linked issue #2 contained only a one-off product clarification for the footer text/URL plus bot-authored review synthesis. I found no trusted maintainer instruction or reusable team preference that warranted adding or updating a rubric, and the rubrics checkout remains clean.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-04T06:43:48Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/6#issuecomment-4619686416",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-02T20:56:25Z",
@@ -90,12 +105,12 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-04T06:42:21Z",
   "number": 6,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Add Sepo footer attribution link",
-  "updatedAt": "2026-06-02T23:30:28Z",
+  "updatedAt": "2026-06-04T06:43:48Z",
   "url": "https://github.com/self-evolving/literature-template/pull/6"
 }
