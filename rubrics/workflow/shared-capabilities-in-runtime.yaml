@@ -1,0 +1,30 @@
+schema_version: 1
+id: shared-capabilities-in-runtime
+title: Put shared capabilities in runtime
+description: >-
+  When adding an agent-facing capability that should be callable across routes
+  or while the agent is working, place the reusable implementation in the shared
+  agent runtime surface. Keep domain skills focused on when and how to use that
+  capability, and treat workflow prefetch as an optional convenience rather than
+  the core abstraction.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+  - skill
+severity: should
+weight: 7
+status: active
+examples:
+  - source: https://github.com/self-evolving/literature-template/pull/9#issuecomment-4609234340
+    note: >-
+      The requester clarified that Hypothesis annotation fetching was intended
+      as a Sepo capability agents could use for specific pages, not only as a
+      repository-local pre-agent workflow script.
+  - source: https://github.com/self-evolving/literature-template/pull/9#issuecomment-4609487254
+    note: >-
+      In follow-up discussion, the requester framed the decision as moving the
+      fetcher into an agent-facing tool versus putting it only in a literature
+      skill, prompting the runtime-plus-skill-guidance split.
