@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "1. For example, the user can annotate the content on the website directly https://web.hypothes.is/\n2. And we can provide agent the api key to the agent such that they can know the annotations for the workflows? \n\n@sepo-agent /answer can you check the feasibility ? and what's the right way to make it happen? ",
-  "closedAt": null,
+  "closedAt": "2026-06-04T16:28:28Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABEqGhqQ",
@@ -150,8 +150,8 @@
     }
   ],
   "number": 8,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Add hypothesis support?",
-  "updatedAt": "2026-06-03T06:01:47Z",
+  "updatedAt": "2026-06-04T16:28:28Z",
   "url": "https://github.com/self-evolving/literature-template/issues/8"
 }

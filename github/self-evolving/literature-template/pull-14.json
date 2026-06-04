@@ -1,0 +1,131 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "feat/sepo-preview",
+  "body": "## Summary\n- Replace the single preview workflow with `preview-build.yml` and `preview-deploy.yml`.\n- Keep PR-controlled code in the unprivileged build workflow and move OIDC deploy/comment/teardown to default-branch `workflow_run` code.\n- Revalidate PR state, head SHA, labels, policy, and artifact metadata before deploy; update README docs.\n\n## Tests\n- `npx --yes --package prettier@3.8.1 prettier --check .github/workflows/preview-build.yml .github/workflows/preview-deploy.yml README.md`\n- Ruby YAML parse for both preview workflows\n\nCloses #12\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE6m5rw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| implement | review | PR #14 | 3 / 40 | Dispatched |\n\nReason: agent planner selected review: Implementation succeeded and produced open PR #14 for issue #12, so the next useful automatic step is a PR review.\n\n<!-- sepo-agent-handoff state:dispatched created:1780596335863 base64:aGFuZG9mZjpzZWxmLWV2b2x2aW5nL2xpdGVyYXR1cmUtdGVtcGxhdGU6MjY5Njk2ODg4Mjk6aW1wbGVtZW50OjEyOnJldmlldzoxNDoz -->",
+      "createdAt": "2026-06-04T18:05:36Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/14#issuecomment-4624857519",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE6oZfQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 98 | PARTIAL | 14 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Keep privileged workflows on trusted runtime | pass | 8/8 | PR build code runs in `preview-build.yml`; privileged OIDC/comment work moved to `workflow_run` `preview-deploy.yml` with no checkout/build step: [preview-build.yml#L21-L54](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-build.yml#L21-L54), [preview-deploy.yml#L142-L189](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L142-L189). |\n| coding_workflow / generic | Validate preview contracts | partial | 5/7 | The workflow validates PR state, labels, SHA, policy, and artifact presence, but accepts any HTTP 200 deploy body and can comment `Sepo preview: null` if `.url` is missing or malformed: [preview-deploy.yml#L132-L140](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L132-L140), [preview-deploy.yml#L169-L182](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L169-L182). |\n| coding_workflow / generic | Separate context from execution dependencies | pass | 7/7 | `workflow_run` metadata is treated as context, then the current PR is re-fetched and checked for same repo, open/closed state, current head SHA, labels, and policy before deploy: [preview-deploy.yml#L48-L140](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L48-L140). |\n| coding_workflow / generic | Make user-facing automation idempotent | pass | 7/7 | Preview comments use a stable marker and update the existing matching comment before creating one: [preview-deploy.yml#L181-L189](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L181-L189). |\n| coding_workflow / generic | Bound transient retries | pass | 7/7 | OIDC, deploy, and teardown calls use bounded curl retry and timeout flags: [preview-deploy.yml#L157-L169](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L157-L169), [preview-deploy.yml#L203-L214](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L203-L214). |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | Policy values are normalized through an explicit `case`, with unsupported values surfaced as warnings and treated as `auto`: [preview-deploy.yml#L94-L105](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L94-L105). |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | Defaults remain small: public auto, private opt-in, labels for opt-in/opt-out, plus a single documented build-command variable: [preview-build.yml#L22-L38](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-build.yml#L22-L38), [README#L172-L192](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/README.md#L172-L192). |\n| coding_workflow / generic | Name config by capability | pass | 6/6 | `AGENT_PREVIEW_POLICY` and `AGENT_PREVIEW_BUILD_COMMAND` are named for the preview capability they control: [README#L172-L192](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/README.md#L172-L192). |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | The PR keeps the existing Actions-based preview implementation shape and splits trust boundaries rather than adding a new subsystem. |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README now documents the two-workflow `workflow_run` split, trusted deploy behavior, fork exclusion, labels, policy, and build command: [README#L168-L196](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/README.md#L168-L196). |\n| communication / generic | Make setup guidance actionable | pass | 7/7 | Setup docs keep the concrete `gh variable set AGENT_PREVIEW_POLICY` command and add the build-command customization guidance: [README#L180-L192](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/README.md#L180-L192). |\n| communication / generic | Audience-first documentation | pass | 7/7 | The README section starts with what preview deployments do, then moves into policy, labels, teardown, and hosting interaction details: [README#L168-L196](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/README.md#L168-L196). |\n| communication / generic | Keep status comments compact | pass | 6/6 | The user-facing preview comment remains a compact marker plus `Sepo preview: $URL`: [preview-deploy.yml#L181-L182](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L181-L182). |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Scope is limited to replacing the preview workflow with two preview workflows and updating the matching README section. |\n\n## Notes\n\n- The main trust-boundary rubric is satisfied: privileged deploy/comment/teardown code now runs from a trusted `workflow_run` workflow rather than PR-authored `pull_request` workflow code.\n- I verified the PR workflow files parse as YAML locally; the PR also reports Prettier and YAML parsing checks.\n- Smallest useful follow-up: validate the deploy API response schema before writing the preview URL output/comment.\n\n## Findings\n\n- **WARNING:** The deploy step treats HTTP 200 as sufficient and does not validate that the response contains a non-empty string `.url`. A malformed successful response can produce a misleading `Sepo preview: null` comment, which partially misses the preview-contract validation rubric.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-04T18:09:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/14#issuecomment-4624882045",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE6sGBQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 85208b830eef950bf7d6f366f442b6fb40bf5dbd -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #14 stacks on `feat/sepo-preview` and replaces the single PR preview workflow with `.github/workflows/preview-build.yml` and `.github/workflows/preview-deploy.yml`. The goal is to keep PR-controlled build code in an unprivileged `pull_request` workflow while moving OIDC deploy/comment/teardown work into trusted `workflow_run` code. The new deploy workflow revalidates same-repo status, PR state, head SHA, labels, policy, and artifact presence before deploying. This directly addresses the trust-boundary issue from #12, but reviewers still found unresolved lifecycle and preview-contract risks.\n\n## Review\nThe architectural split is the right direction and fixes the prior PR-authored privileged deploy path. The remaining blocker is teardown identity: the current branch does not show how a `workflow_run` OIDC token alone identifies the per-PR preview to remove.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Teardown request has no explicit preview identity | BLOCKING | [`preview-deploy.yml#L210`](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L210) sends only `{ oidc_token }` to teardown. Under `workflow_run`, that token attests the trusted default-branch workflow, not the PR preview target. |\n| Close signal still depends on a PR-authored build workflow | WARNING | [`preview-build.yml#L5`](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-build.yml#L5) relies on a `pull_request` close event in the PR workflow to trigger trusted teardown. A PR that alters/removes that workflow can weaken the close-time teardown guarantee. |\n| Preview comment lookup is not paginated | WARNING | [`preview-deploy.yml#L183`](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L183) scans only the default first page of issue comments. If the sticky marker is on a later page, reruns can create duplicate preview comments. |\n| Deploy response URL is not validated | WARNING | [`preview-deploy.yml#L170`](https://github.com/self-evolving/literature-template/blob/85208b830eef950bf7d6f366f442b6fb40bf5dbd/.github/workflows/preview-deploy.yml#L170) accepts any HTTP 200 body and writes `.url` without checking that it is a non-empty string. A malformed success can lead to a `null` or invalid preview comment. |\n\n## Progress\n- Fixed from PR #11: privileged deploy/comment/teardown now runs from `workflow_run` code with no PR checkout or build step.\n- The resolve job revalidates PR state, same-repo status, current head SHA, labels, policy, and artifact presence before deploy.\n- YAML parsing succeeded for both new workflow files.\n- Existing PR discussion already covers the deploy-response `.url` validation gap, so I did not duplicate it inline.\n- Posted inline comments for teardown identity and comment pagination: https://github.com/self-evolving/literature-template/pull/14#discussion_r3358045467 and https://github.com/self-evolving/literature-template/pull/14#discussion_r3358046071\n- No existing inline comments or threads were present before posting; no replies, minimizations, or thread resolutions were performed.\n\n## Issue Details\n<details>\n<summary>Teardown request has no explicit preview identity</summary>\n\n**Cause:** Deploy passes `artifact_id`, which can anchor the preview to build provenance. Teardown sends only the `workflow_run` OIDC token, whose identity is the trusted deploy workflow/default branch rather than the PR branch or preview artifact.\n\n**Candidate solutions:** Pass explicit target metadata such as PR number, head SHA, or artifact-derived identity that the service validates, or document and verify a service-side teardown contract that derives the same preview identity as deploy.\n\n**Comments:** Reviewers disagreed on severity: one treated this as a service-verification dependency, while another marked it blocking. This synthesis treats it as blocking because #12 requires teardown on PR close and the current diff does not prove the teardown target can be identified.\n\n</details>\n\n<details>\n<summary>Close signal still depends on a PR-authored build workflow</summary>\n\n**Cause:** The trusted deploy workflow only runs after the PR-triggered build workflow completes. The always-running `event` job helps, but the close trigger is still part of a PR-authored workflow.\n\n**Candidate solutions:** Add a trusted close-only path, such as a constrained `pull_request_target` workflow that does no checkout, or explicitly accept and document this lifecycle limitation.\n\n**Comments:** This is weaker than the privileged-runtime blocker because it does not expose OIDC to PR code, but it affects the README promise that closing the PR tears down a live preview.\n\n</details>\n\n<details>\n<summary>Preview comment lookup is not paginated</summary>\n\n**Cause:** `gh api \"repos/$GITHUB_REPOSITORY/issues/$PR/comments\"` returns the default first page only.\n\n**Candidate solutions:** Use `gh api --paginate` and scan all pages, or request and handle pagination deterministically with `per_page=100` plus page traversal.\n\n</details>\n\n<details>\n<summary>Deploy response URL is not validated</summary>\n\n**Cause:** The deploy step checks only for HTTP 200, then reads `.url` with `jq -r` and posts it if the output is non-empty.\n\n**Candidate solutions:** Validate that `.url` is a non-empty string, preferably an expected URL shape, before writing `GITHUB_OUTPUT` or posting the comment.\n\n**Comments:** This was already clearly covered by the current rubrics review comment on the PR.\n\n</details>\n\n## Recommended Next Step\n`HUMAN_DECISION`: the blocking teardown concern depends on the external preview API identity contract, so a maintainer or service owner should confirm the intended contract before another automated fix-pr pass.\n\n## Final Verdict\nNEEDS_REWORK\n\n## Action Items\n- [ ] Establish the `workflow_run` teardown identity contract in the branch/API integration so close-time teardown can target the correct PR preview.\n- [ ] Paginate the sticky preview comment lookup.\n- [ ] Validate the deploy response `.url` before setting outputs or posting the preview comment.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-04T18:18:33Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/14#issuecomment-4624942597",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-04T18:04:24Z",
+  "files": [
+    {
+      "path": ".github/workflows/preview-build.yml",
+      "additions": 54,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/preview-deploy.yml",
+      "additions": 214,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/preview.yml",
+      "additions": 0,
+      "deletions": 113,
+      "changeType": "DELETED"
+    },
+    {
+      "path": "README.md",
+      "additions": 4,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-12/codex-26969688829",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 14,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCBJUjw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-04T18:16:17Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "85208b830eef950bf7d6f366f442b6fb40bf5dbd"
+      }
+    },
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCBJXxQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-04T18:16:27Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "85208b830eef950bf7d6f366f442b6fb40bf5dbd"
+      }
+    }
+  ],
+  "state": "OPEN",
+  "title": "Run preview deploy from trusted workflow_run",
+  "updatedAt": "2026-06-04T18:18:34Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/14"
+}

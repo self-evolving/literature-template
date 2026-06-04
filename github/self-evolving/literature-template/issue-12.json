@@ -1,0 +1,84 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "## Context\n\n`.github/workflows/preview.yml` runs as a single `pull_request` workflow with three jobs — `build` (builds the site, no token), `deploy` (holds `id-token`, calls the preview API at `preview-api.sepo.sh`), and `teardown`. Because `pull_request` runs the workflow **from the PR's own head branch**, the privileged `deploy` job is defined by the pull request itself, so a PR could modify the job that holds the OIDC token.\n\n## Goal\n\nMove the privileged deploy to **trusted default-branch code** via the standard `workflow_run` pattern, so a PR cannot alter what runs with the token. Split the single workflow into two:\n\n- **`preview-build.yml`** — `on: pull_request`. Builds the site (`eval \"$AGENT_PREVIEW_BUILD_COMMAND\"`) and uploads it as an artifact. No privileged permissions (it holds no token, so running the PR's version is fine).\n- **`preview-deploy.yml`** — `on: workflow_run` (fires when the build workflow completes). Runs the **default branch's** version. Holds `id-token: write` (+ `pull-requests: write` for the comment). Mints the OIDC token, calls the preview API with the build artifact, posts the sticky preview comment, and handles teardown on PR close. Runs **no PR-controlled code** (no checkout, no build).\n\nThe deploy workflow identifies the PR from the triggering build run's metadata (head branch / PR number) and passes the build artifact to the preview API.\n\n## Acceptance\n\n- Agent PRs (and `sepo-preview`-labeled PRs) still auto-preview; `no-preview` still opts out; `AGENT_PREVIEW_POLICY` behavior unchanged.\n- The privileged deploy job runs only trusted default-branch code — no PR build or checkout.\n- Teardown on PR close still removes the preview.\n- No secrets are added to the repo (deploy authenticates via GitHub Actions OIDC).\n\n## Dependency\n\nThis relies on the preview service deriving the preview identity from the build artifact's provenance (rather than from the PR's OIDC token), because a `workflow_run` deploy's token attests the default branch, not the PR. That service-side change is coordinated separately — land and verify it before testing this end to end.\n\nThis supersedes the current single-workflow `preview.yml` (its three jobs move into the two split workflows).\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE6hLuw",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /orchestrate",
+      "createdAt": "2026-06-04T17:52:04Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/issues/12#issuecomment-4624763835",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE6iVOw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo is dispatching follow-up automation.\n\n| Source | Next | Target | Round | Status |\n| --- | --- | --- | --- | --- |\n| orchestrate | implement | Issue #12 | 2 / 40 | Dispatched |\n\nReason: agent planner selected implement: Issue #12 is a bounded workflow hardening task, but it depends on the unmerged preview workflow in PR #11, so implementation should stack on that PR rather than start from main.\n\n<!-- sepo-agent-handoff state:dispatched created:1780595681514 base64:aGFuZG9mZjpzZWxmLWV2b2x2aW5nL2xpdGVyYXR1cmUtdGVtcGxhdGU6MjY5Njk1NTQxNDI6b3JjaGVzdHJhdGU6MTI6aW1wbGVtZW50OjEyOjI -->",
+      "createdAt": "2026-06-04T17:54:41Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/12#issuecomment-4624782651",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE6mcWA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-12/codex-26969688829`\n- Pull request: https://github.com/self-evolving/literature-template/pull/14\n\nReplaced the single PR-authored preview workflow with an unprivileged pull_request build workflow and a trusted default-branch workflow_run deploy workflow, including PR/artifact revalidation, OIDC deploy/comment/teardown, and matching README docs. Verified with Prettier and YAML parsing checks.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-04T18:04:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/12#issuecomment-4624850008",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-04T17:52:01Z",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 12,
+  "state": "OPEN",
+  "title": "Harden preview deploys: run the privileged step from the default branch (workflow_run)",
+  "updatedAt": "2026-06-04T18:04:29Z",
+  "url": "https://github.com/self-evolving/literature-template/issues/12"
+}

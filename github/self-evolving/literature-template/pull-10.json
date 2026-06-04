@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n- Add a local Quartz Hypothesis component/plugin that injects the official browser embed only when `HYPOTHESIS_ENABLED=true`.\n- Support build-time options for sidebar state, highlights, comments mode, group allowlist, and theme.\n- Pass Hypothesis repository variables into the site validation build and document setup in the README.\n- Keep agent-facing Hypothesis API access out of this PR; that should be handled separately as a Sepo runtime capability.\n\n## Verification\n- `npm run check`\n- `npm run build`\n- `HYPOTHESIS_ENABLED=true HYPOTHESIS_OPEN_SIDEBAR=true HYPOTHESIS_COMMENTS_MODE=true HYPOTHESIS_GROUPS_ALLOWLIST=abc123,def456 HYPOTHESIS_THEME=clean npm run quartz -- build`\n- Confirmed disabled output has no Hypothesis embed/config and enabled output includes the embed loader/config.\n\nRefs: https://h.readthedocs.io/projects/client/en/latest/publishers/embedding.html, https://h.readthedocs.io/projects/client/en/latest/publishers/config.html\n\nCloses #8\n",
-  "closedAt": null,
+  "closedAt": "2026-06-04T16:28:27Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABEsMXgA",
@@ -63,6 +63,21 @@
       "minimizedReason": "",
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/10#issuecomment-4613930235",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE58C3A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nUpdated [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #10.\n\nAdded one new active rubric:\n\n`rubrics/workflow/shared-capabilities-in-runtime.yaml`\n\nIt captures the durable preference from the PR #9/#10 context: shared callable agent capabilities belong in the agent runtime, while domain skills should carry usage guidance and workflow prefetch should stay optional.\n\nValidation/checks:\n- `git diff --check` passed\n- Required schema keys present\n- File is ASCII\n- No commit made, as requested.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-04T16:31:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/10#issuecomment-4624155356",
       "viewerDidAuthor": true
     }
   ],
@@ -150,12 +165,12 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-04T16:28:27Z",
   "number": 10,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Add build-time Hypothesis site annotations",
-  "updatedAt": "2026-06-03T15:18:07Z",
+  "updatedAt": "2026-06-04T16:31:01Z",
   "url": "https://github.com/self-evolving/literature-template/pull/10"
 }
