@@ -11,6 +11,9 @@ jobs:
     # AGENT_PREVIEW_POLICY: unset/auto = public repos only, `all` = include private, `off` = disabled.
     # Within that, auto-preview every agent PR (agent/ branch prefix). Label overrides:
     # `sepo-preview` opts any PR in, `no-preview` opts an agent PR out.
+    # Build/deploy is also gated by site-affecting changed files below. Keep that
+    # as a step gate (not an `on.pull_request.paths` filter) so close events can
+    # still tear down previews that were deployed by earlier PR revisions.
     if: >-
       vars.AGENT_ENABLED != 'false' &&
       vars.AGENT_PREVIEW_POLICY != 'off' &&
@@ -22,20 +25,55 @@ jobs:
       (startsWith(github.event.pull_request.head.ref, 'agent/') || contains(github.event.pull_request.labels.*.name, 'sepo-preview'))
     runs-on: ubuntu-latest
     steps:
+      - name: Check site target changes
+        id: target-files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          files="$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" \
+            --jq '.[] | .filename, (.previous_filename // empty)')"
+
+          echo "Changed pull request files:"
+          printf '%s\n' "$files"
+
+          site_changed=false
+          while IFS= read -r file; do
+            [[ -n "$file" ]] || continue
+            case "$file" in
+              content/*|quartz/*|static/*|scripts/*|bibliography.bib|package.json|package-lock.json|quartz.*|tsconfig.json|globals.d.ts|index.d.ts|.npmrc)
+                site_changed=true
+                break
+                ;;
+            esac
+          done <<< "$files"
+
+          echo "site_changed=$site_changed" >> "$GITHUB_OUTPUT"
+          if [[ "$site_changed" == "true" ]]; then
+            echo "Site-affecting file changes detected; building preview." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No site-affecting file changes detected; skipping preview build/deploy." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - uses: actions/checkout@v4
+        if: steps.target-files.outputs.site_changed == 'true'
       - uses: actions/setup-node@v4
+        if: steps.target-files.outputs.site_changed == 'true'
         with: { node-version: 22 }
       - name: Build site
+        if: steps.target-files.outputs.site_changed == 'true'
         run: |
           npm ci
           npm run build
       - name: Upload artifact
         id: upload
+        if: steps.target-files.outputs.site_changed == 'true'
         uses: actions/upload-artifact@v4
         with:
           { name: sepo-preview-site, path: ./public, retention-days: 1, if-no-files-found: error }
       - name: Deploy preview
         id: deploy
+        if: steps.target-files.outputs.site_changed == 'true'
         env:
           SERVER_URL: https://preview-api.sepo.sh
           ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
