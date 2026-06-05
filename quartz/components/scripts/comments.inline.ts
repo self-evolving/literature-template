@@ -1,4 +1,11 @@
+const defaultGiscusHost = "https://giscus.app"
+
 const getGiscusContainer = () => document.querySelector(".comments .giscus") as GiscusElement | null
+
+const getGiscusHost = (giscusContainer?: GiscusElement | null) => {
+  const host = giscusContainer?.dataset.appHost ?? defaultGiscusHost
+  return new URL(host, window.location.origin).origin
+}
 
 const changeTheme = (e: CustomEventMap["themechange"]) => {
   const theme = e.detail.theme
@@ -21,7 +28,7 @@ const changeTheme = (e: CustomEventMap["themechange"]) => {
         },
       },
     },
-    "https://giscus.app",
+    getGiscusHost(getGiscusContainer()),
   )
 }
 
@@ -58,7 +65,7 @@ const getThemeRootUrl = (themeRoot: string) => {
 const getThemeUrl = (theme: string) => {
   const giscusContainer = getGiscusContainer()
   if (!giscusContainer) {
-    return `https://giscus.app/themes/${theme}.css`
+    return `${defaultGiscusHost}/themes/${theme}.css`
   }
 
   const themeRoot = giscusContainer.dataset.themeUrl ?? "https://giscus.app/themes"
@@ -79,6 +86,7 @@ type GiscusElement = Omit<HTMLElement, "dataset"> & {
     reactionsEnabled: string
     inputPosition: "top" | "bottom"
     lang: string
+    appHost?: string
     loaded?: string
   }
 }
@@ -97,7 +105,7 @@ const mountGiscus = (giscusContainer: GiscusElement) => {
 
   giscusContainer.dataset.loaded = "true"
   const giscusScript = document.createElement("script")
-  giscusScript.src = "https://giscus.app/client.js"
+  giscusScript.src = `${getGiscusHost(giscusContainer)}/client.js`
   giscusScript.async = true
   giscusScript.crossOrigin = "anonymous"
   giscusScript.setAttribute("data-loading", "lazy")

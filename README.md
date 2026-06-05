@@ -147,6 +147,7 @@ Giscus comments are disabled by default. To enable them, set `GISCUS_ENABLED=tru
 | `GISCUS_REPO_ID`      | Giscus repository ID.                                    |
 | `GISCUS_CATEGORY`     | Discussion category name.                                |
 | `GISCUS_CATEGORY_ID`  | Giscus category ID.                                      |
+| `GISCUS_APP_HOST`     | Optional Giscus service host; defaults to Sepo comments. |
 | `GISCUS_MAPPING`      | Optional mapping; defaults to `pathname`.                |
 | `GISCUS_THEME_URL`    | Optional theme base URL for custom Giscus themes.        |
 | `GISCUS_TRIGGER_MODE` | Optional trigger style, `pill` or `bot`; default `pill`. |

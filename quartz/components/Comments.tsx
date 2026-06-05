@@ -11,6 +11,7 @@ type Options = {
     repoId: string
     category: string
     categoryId: string
+    appHost?: string
     themeUrl?: string
     lightTheme?: string
     darkTheme?: string
@@ -133,6 +134,7 @@ export default ((opts: Options) => {
               data-repo-id={opts.options.repoId}
               data-category={opts.options.category}
               data-category-id={opts.options.categoryId}
+              data-app-host={opts.options.appHost ?? "https://giscus.app"}
               data-mapping={opts.options.mapping ?? "url"}
               data-strict={boolToStringBool(opts.options.strict ?? true)}
               data-reactions-enabled={boolToStringBool(opts.options.reactionsEnabled ?? true)}

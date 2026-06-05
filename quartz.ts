@@ -98,6 +98,7 @@ function giscusComments() {
       repoId,
       category,
       categoryId,
+      appHost: envValue("GISCUS_APP_HOST") ?? "https://comment-api.sepo.sh",
       mapping: enumEnv<GiscusMapping>(
         "GISCUS_MAPPING",
         ["url", "title", "og:title", "specific", "number", "pathname"],
