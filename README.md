@@ -150,6 +150,19 @@ Giscus comments are disabled by default. To enable them, set `GISCUS_ENABLED=tru
 | `GISCUS_MAPPING`     | Optional mapping; defaults to `pathname`.         |
 | `GISCUS_THEME_URL`   | Optional theme base URL for custom Giscus themes. |
 
+When enabled, Giscus renders as a fixed **Discuss** control that opens a right-side page discussion drawer instead of taking space at the bottom of the note. The GitHub Discussion still maps to the page according to `GISCUS_MAPPING`.
+
+For local testing, the public `self-evolving/repo-discussions` repository can host the Discussions. These identifiers are public Giscus configuration, not secrets:
+
+```bash
+GISCUS_ENABLED=true \
+GISCUS_REPO=self-evolving/repo-discussions \
+GISCUS_REPO_ID=R_kgDOSjgnjQ \
+GISCUS_CATEGORY=General \
+GISCUS_CATEGORY_ID=DIC_kwDOSjgnjc4C9gaF \
+npm run dev
+```
+
 Hypothesis web annotations are also disabled by default. To let readers annotate rendered pages,
 set the repository or hosting build variable `HYPOTHESIS_ENABLED=true`.
 
