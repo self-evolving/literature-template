@@ -206,7 +206,7 @@ Manual dispatch is available by default. Scheduled daily literature runs are dis
 
 ## Preview deployments
 
-Pull requests can deploy a per-branch preview of the built site through the Sepo preview server, via `.github/workflows/preview.yml`. The workflow builds the site, uploads it as an artifact, and asks the server (`preview-api.sepo.sh`) to publish it, authenticating with GitHub Actions **OIDC** so no deploy secrets live in the repository. The preview URL is posted as a single, updated pull-request comment, and the preview is torn down when the pull request closes.
+Pull requests can deploy a per-branch preview of the built site through the Sepo preview server, via `.github/workflows/agent-site-preview.yml`. The workflow builds the site, uploads it as an artifact, and asks the server (`preview-api.sepo.sh`) to publish it, authenticating with GitHub Actions **OIDC** so no deploy secrets live in the repository. The preview URL is posted as a single, updated pull-request comment, and the preview is torn down when the pull request closes.
 
 Which pull requests preview is controlled by the `AGENT_PREVIEW_POLICY` repository variable, whose default is keyed to repository visibility:
 
@@ -216,7 +216,7 @@ Which pull requests preview is controlled by the `AGENT_PREVIEW_POLICY` reposito
 | `all`                    | preview     | preview      |
 | `off`                    | off         | off          |
 
-Preview URLs are **public** (served by Surge with no authentication), so a private repository does not publish its built site unless you opt in explicitly. **This template is private, so previews stay off until you set `AGENT_PREVIEW_POLICY=all`:**
+Preview URLs are **public** (served by Surge with no authentication), so a private repository does not publish its built site unless you opt in explicitly:
 
 ```bash
 gh variable set AGENT_PREVIEW_POLICY --body all --repo OWNER/REPO
@@ -227,6 +227,8 @@ Within an enabled repository:
 - Every **agent** pull request (head branch under `agent/`) previews automatically — no label needed.
 - Add the `sepo-preview` label to preview any other **same-repo** pull request. Fork pull requests are never previewed (they cannot mint OIDC tokens).
 - Add the `no-preview` label to skip a pull request that would otherwise preview.
+
+Preview deploys are additionally gated by changed files. The deploy job only builds when the PR touches a site-affecting target path: `content/**`, `quartz/**`, `static/**`, `scripts/**`, `bibliography.bib`, `package.json`, `package-lock.json`, `quartz.*`, `tsconfig.json`, `globals.d.ts`, `index.d.ts`, or `.npmrc`. Agent-only/config-only changes such as `.agent/**`, `.skills/**`, or README updates skip the preview even if the PR is otherwise eligible.
 
 Label and policy changes affect **future** deploys only — they do not retract a preview that is already live. To take a live preview down, **close the pull request** (teardown runs on close). This requires the Sepo GitHub App on the repository (it mints a short-lived, read-only token to fetch the build artifact).
 
