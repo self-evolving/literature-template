@@ -206,7 +206,7 @@ Manual dispatch is available by default. Scheduled daily literature runs are dis
 
 ## Preview deployments
 
-Pull requests can deploy a per-branch preview of the built site through the Sepo preview server, via `.github/workflows/preview.yml`. The workflow builds the site, uploads it as an artifact, and asks the server (`preview-api.sepo.sh`) to publish it, authenticating with GitHub Actions **OIDC** so no deploy secrets live in the repository. The preview URL is posted as a single, updated pull-request comment, and the preview is torn down when the pull request closes.
+Pull requests can deploy a per-branch preview of the built site through the Sepo preview server, via `.github/workflows/agent-site-preview.yml`. The workflow builds the site, uploads it as an artifact, and asks the server (`preview-api.sepo.sh`) to publish it, authenticating with GitHub Actions **OIDC** so no deploy secrets live in the repository. The preview URL is published as a GitHub Deployment status, so the pull request timeline shows a bot-authored `deployed to Preview` event with a `View deployment` button instead of a generated preview comment. The workflow uses the resolved Sepo auth token for that event when it can create deployments, then falls back to `GITHUB_TOKEN`; the preview is torn down, and matching preview deployments are marked inactive, when the pull request closes.
 
 Which pull requests preview is controlled by the `AGENT_PREVIEW_POLICY` repository variable, whose default is keyed to repository visibility:
 

@@ -2,7 +2,7 @@ name: Agent / Site Preview
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, closed]
-permissions: { id-token: write, contents: read, pull-requests: write }
+permissions: { id-token: write, contents: read, deployments: write }
 jobs:
   deploy:
     concurrency:
@@ -61,15 +61,97 @@ jobs:
           app_private_key: ${{ secrets.AGENT_APP_PRIVATE_KEY }}
           pat: ${{ secrets.AGENT_PAT }}
           fallback_token: ${{ github.token }}
-      - name: Comment URL
+      - name: Publish deployment status
         if: steps.deploy.outputs.url != ''
         env:
-          GH_TOKEN: ${{ steps.auth.outputs.token }}
+          SEPO_TOKEN: ${{ steps.auth.outputs.token }}
+          FALLBACK_TOKEN: ${{ github.token }}
           URL: ${{ steps.deploy.outputs.url }}
           PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ENVIRONMENT: Preview
         run: |
-          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Sepo preview: $URL" --edit-last \
-            || gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "Sepo preview: $URL"
+          set -euo pipefail
+
+          create_payload() {
+            jq -nc \
+              --arg ref "$SHA" \
+              --arg environment "$ENVIRONMENT" \
+              --arg description "Sepo site preview for PR #$PR" \
+              --arg pr "$PR" \
+              --arg head_ref "$HEAD_REF" \
+              --arg head_sha "$SHA" \
+              '{
+                ref: $ref,
+                environment: $environment,
+                description: $description,
+                auto_merge: false,
+                required_contexts: [],
+                transient_environment: true,
+                production_environment: false,
+                payload: {
+                  source: "sepo-preview",
+                  pull_request: ($pr | tonumber),
+                  head_ref: $head_ref,
+                  head_sha: $head_sha
+                }
+              }'
+          }
+
+          status_payload() {
+            jq -nc \
+              --arg environment "$ENVIRONMENT" \
+              --arg url "$URL" \
+              --arg log_url "$RUN_URL" \
+              '{
+                state: "success",
+                environment: $environment,
+                target_url: $url,
+                environment_url: $url,
+                log_url: $log_url,
+                description: "Sepo preview is ready",
+                auto_inactive: false
+              }'
+          }
+
+          publish_with_token() {
+            local token="$1"
+            local mode="$2"
+            local err
+            err="$(mktemp)"
+
+            local deployment_id
+            if ! deployment_id="$(GH_TOKEN="$token" gh api --method POST "repos/$GITHUB_REPOSITORY/deployments" \
+              --input - --jq '.id' 2>"$err" <<<"$(create_payload)")"; then
+              echo "::warning::Failed to create GitHub deployment with $mode token: $(tr '\n' ' ' < "$err")"
+              rm -f "$err"
+              return 1
+            fi
+
+            if ! GH_TOKEN="$token" gh api --method POST "repos/$GITHUB_REPOSITORY/deployments/$deployment_id/statuses" \
+              --input - >/dev/null 2>"$err" <<<"$(status_payload)"; then
+              echo "::warning::Failed to create GitHub deployment status with $mode token: $(tr '\n' ' ' < "$err")"
+              rm -f "$err"
+              return 1
+            fi
+
+            rm -f "$err"
+            echo "Published GitHub deployment $deployment_id for $URL using $mode token."
+            return 0
+          }
+
+          if [[ -n "$SEPO_TOKEN" ]] && publish_with_token "$SEPO_TOKEN" "Sepo auth"; then
+            exit 0
+          fi
+
+          if [[ -n "$FALLBACK_TOKEN" && "$FALLBACK_TOKEN" != "$SEPO_TOKEN" ]] && publish_with_token "$FALLBACK_TOKEN" "GITHUB_TOKEN"; then
+            exit 0
+          fi
+
+          echo "::error::Unable to publish GitHub deployment status for $URL"
+          exit 1
   teardown:
     concurrency:
       group: sepo-preview-${{ github.event.pull_request.number }}
@@ -80,7 +162,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       (startsWith(github.event.pull_request.head.ref, 'agent/') || contains(github.event.pull_request.labels.*.name, 'sepo-preview'))
     runs-on: ubuntu-latest
-    permissions: { id-token: write }
+    permissions: { id-token: write, deployments: write }
     steps:
       - name: Teardown preview
         env:
@@ -94,3 +176,38 @@ jobs:
                  --data "$(jq -nc --arg t "$TOK" '{oidc_token:$t}')" -w '\n%{http_code}')
           CODE=$(tail -n1 <<<"$RESP"); echo "$RESP"
           [[ "$CODE" == 200 || "$CODE" == 404 ]] || { echo "::error::teardown failed ($CODE)"; exit 1; }
+      - name: Mark preview deployments inactive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ENVIRONMENT: Preview
+        run: |
+          set -euo pipefail
+          deployment_ids="$(
+            gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/deployments" \
+              -f environment="$ENVIRONMENT" -f per_page=100 |
+              jq -r --arg pr "$PR" --arg sha "$SHA" '
+                map(.[])[] |
+                select(
+                  ((((.payload | objects | .source) // "") == "sepo-preview") and ((((.payload | objects | .pull_request) // "") | tostring) == $pr))
+                  or ((.sha // "") == $sha)
+                ) |
+                .id
+              '
+          )"
+
+          if [[ -z "$deployment_ids" ]]; then
+            echo "No matching preview deployments to mark inactive."
+            exit 0
+          fi
+
+          while IFS= read -r deployment_id; do
+            [[ -n "$deployment_id" ]] || continue
+            gh api --method POST "repos/$GITHUB_REPOSITORY/deployments/$deployment_id/statuses" \
+              --input - >/dev/null <<EOF
+          $(jq -nc --arg environment "$ENVIRONMENT" --arg log_url "$RUN_URL" '{state:"inactive", environment:$environment, log_url:$log_url, description:"Sepo preview was torn down"}')
+          EOF
+            echo "Marked GitHub deployment $deployment_id inactive."
+          done <<< "$deployment_ids"
