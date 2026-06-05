@@ -1,0 +1,161 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- add `--enabled-only` to `quartz plugin install` / `quartz plugin restore`\n- make `npm run build` restore only plugins enabled in `quartz.config.yaml`\n- skip `npm install && npm run build` for plugins that already ship pre-built `dist/`\n- document that disabled plugins stay in config/lockfile but are not restored during normal builds\n\nThis keeps disabled/template opt-in plugins available without making every build clone/build them. It also matches the Quartz v5 plugin guidance that community plugins should ship committed `dist/` so installs can skip the build cycle.\n\n## Validation\n\n- `npm run install-plugins` on clean `.quartz`: restored 32 enabled plugins, skipped disabled plugins, completed in ~17s\n- full cold `npm run build`: completed in ~22s\n- `npm run check`\n",
+  "closedAt": "2026-06-04T22:21:42Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE8Llbg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-04T22:15:51Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/16#issuecomment-4626507118",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE8M-sA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 5 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow/generic | Make surgical changes | pass | 8/8 | Diff is limited to `README.md`, `package.json`, `quartz/bootstrap-cli.mjs`, and `quartz/cli/plugin-git-handlers.js`; no unrelated refactor or formatting churn. |\n| coding_workflow/generic | Reuse existing code | pass | 8/8 | The filter reuses existing plugin data helpers like `readPluginsJson()` and `extractPluginName()` instead of adding a parallel config parser: https://github.com/self-evolving/literature-template/blob/b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec/quartz/cli/plugin-git-handlers.js#L52-L72 |\n| coding_workflow/generic | Prefer explicit structured inputs | pass | 7/7 | Adds a typed boolean `--enabled-only` option for both `plugin install` and `plugin restore`, passed as `{ enabledOnly }`: https://github.com/self-evolving/literature-template/blob/b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec/quartz/bootstrap-cli.mjs#L127-L134 |\n| coding_workflow/generic | Minimal defaults, native escape hatches | pass | 8/8 | Default CLI behavior remains all plugins; only `npm run install-plugins` opts normal builds into `--enabled-only`, preserving the manual full restore/install escape hatch: https://github.com/self-evolving/literature-template/blob/b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec/package.json#L18-L24 |\n| coding_workflow/generic | Keep docs in sync | pass | 7/7 | README now states that build/check-site restore enabled plugins and disabled plugins remain in config/lockfile but are not restored during normal builds: https://github.com/self-evolving/literature-template/blob/b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec/README.md#L117-L121 |\n\n## Notes\n\n- Verification passed after installing dependencies: `npm run check`, CLI help for both new flags, and `npm run install-plugins`.\n- Functional restore restored 32 enabled plugins and skipped disabled lockfile entries such as `article-title`, `bases-page`, `canvas-page`, `explorer`, `hard-line-breaks`, and `tag-list`.\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** No rubric-specific blocking findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-04T22:19:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/16#issuecomment-4626529968",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE8OCDg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #16.\n\nNo rubric changes.\n\nI found no trusted PR conversation content that warranted learning a new durable rubric. PR #16 had one human comment from `lolipopshock` requesting `/review`, no review comments, no reviews, and one agent-authored rubric review. The agent review is advisory only and was not endorsed by a trusted contributor in the conversation. Existing rubrics already cover the implementation qualities noted there, such as surgical changes, docs sync, structured inputs, and simple reuse.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-04T22:23:09Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/16#issuecomment-4626547214",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE8PFQg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #16 speeds up Quartz plugin restore by adding `--enabled-only` to plugin install/restore and wiring normal builds to restore only plugins enabled in `quartz.config.yaml`.\n- It also skips `npm install && npm run build` for plugins that already ship a prebuilt `dist/`, matching the intended Quartz v5 community plugin flow.\n- Documentation was updated to explain that disabled plugins can remain in config/lockfile without being restored during normal builds.\n- The PR is currently merged at `b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec`.\n\n## Review\nThe reviews agree there are no blocking defects and that the PR is narrow, aligned with existing helpers, and validated through build/check flows. One reviewer raised two non-blocking warnings that are still supported by the current PR diff.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Fast path can bypass plugin failure isolation | WARNING | The prebuilt-`dist` path calls `linkPeerPlugins()` outside the `try` used by the slow build path, so a peer-linking error can abort the caller loop instead of counting one plugin failure. |\n| `--enabled-only` fallback is silent | WARNING | If plugin config cannot be read, `--enabled-only` silently restores the full lockfile, making the optimization appear to work when it was ignored. |\n| Enabled flag semantics differ from loader | INFO | The restore filter treats missing `enabled` as enabled, while `loadQuartzConfig` filters on truthiness; current config entries are explicit, so this is not observable today. |\n| Dedicated unit coverage is absent | INFO | No targeted unit test covers enabled-only filtering or prebuilt-`dist` skipping, but reviewers noted broad manual/integration validation and low residual risk. |\n\n## Progress\n- Existing PR discussion had no inline review comments or review threads before synthesis.\n- Posted two new inline comments: [`linkPeerPlugins` fast path](https://github.com/self-evolving/literature-template/pull/16#discussion_r3359238244) and [`--enabled-only` silent fallback](https://github.com/self-evolving/literature-template/pull/16#discussion_r3359238870).\n- Rubrics review passed, including surgical scope, reuse of existing helpers, explicit CLI option wiring, and README sync.\n- Reviewer validation included `npm run check`, `npm run install-plugins`, `npm run build`, `npm test`, and `git diff --check`.\n\n## Issue Details\n\n<details>\n<summary>Fast path can bypass plugin failure isolation</summary>\n\n**Cause:** [`buildPlugin`](https://github.com/self-evolving/literature-template/blob/b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec/quartz/cli/plugin-git-handlers.js#L21-L44) returns early when `dist/` exists, but calls `linkPeerPlugins()` before the caught slow path.\n\n**Candidate solutions:** Wrap the fast path in the same `try/catch`, or refactor peer linking into one common caught block used by both build and skip paths.\n\n**Comments:** This is non-blocking, but it is a real regression in per-plugin failure isolation.\n</details>\n\n<details>\n<summary>`--enabled-only` fallback is silent</summary>\n\n**Cause:** [`getLockfilePluginEntries`](https://github.com/self-evolving/literature-template/blob/b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec/quartz/cli/plugin-git-handlers.js#L63-L73) returns all lockfile entries when `getEnabledPluginNames()` returns `null`.\n\n**Candidate solutions:** Log a warning when the config cannot be read, or throw if `enabledOnly` was explicitly requested and no enabled set is available.\n\n**Comments:** Falling back to the old full-restore behavior is safe, but currently invisible.\n</details>\n\n<details>\n<summary>Enabled flag semantics differ from loader</summary>\n\n**Cause:** The restore filter uses `entry.enabled !== false`, while [`loadQuartzConfig`](https://github.com/self-evolving/literature-template/blob/b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec/quartz/plugins/loader/config-loader.ts#L240) uses truthiness.\n\n**Candidate solutions:** Align restore filtering to `entry.enabled === true` if the loader’s behavior is the intended source of truth.\n\n**Comments:** Current config sets `enabled` explicitly on every entry, so this is future-proofing rather than a present defect.\n</details>\n\n<details>\n<summary>Dedicated unit coverage is absent</summary>\n\n**Cause:** The new CLI behavior is covered by manual/integration validation, not focused tests around the filtering helper or prebuilt-`dist` path.\n\n**Candidate solutions:** Add narrow tests for enabled-only lockfile filtering and build skipping if this CLI area gets a test harness.\n\n**Comments:** Reviewers did not treat this as blocking because the repo has limited existing CLI test coverage and the PR was validated end to end.\n</details>\n\n## Recommended Next Step\nHUMAN_DECISION: Remaining concerns are non-blocking follow-up choices on an already merged PR, so maintainers should decide whether to open a follow-up rather than trigger automated PR changes.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] No required branch-change action items.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-04T22:26:51Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/16#issuecomment-4626564418",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-04T22:11:44Z",
+  "files": [
+    {
+      "path": "README.md",
+      "additions": 5,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "package.json",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/bootstrap-cli.mjs",
+      "additions": 25,
+      "deletions": 6,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/cli/plugin-git-handlers.js",
+      "additions": 50,
+      "deletions": 6,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "fix/quartz-plugin-restore-fast",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-06-04T22:21:42Z",
+  "number": 16,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCCjfew",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-04T22:25:49Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec"
+      }
+    },
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCCjiWg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-04T22:25:56Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "b9fd3ff5228ad82cd28ebe6538987a0a59ddb3ec"
+      }
+    }
+  ],
+  "state": "MERGED",
+  "title": "Speed up Quartz plugin restore",
+  "updatedAt": "2026-06-04T22:26:51Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/16"
+}

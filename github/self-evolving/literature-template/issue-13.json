@@ -6,13 +6,13 @@
     "name": "Shannon Shen"
   },
   "body": "## Problem\n\n`.github/workflows/preview.yml` triggers on both `pull_request.opened` and `pull_request.labeled`, and both share one concurrency group with `cancel-in-progress: true`:\n\n```yaml\nconcurrency:\n  group: sepo-preview-${{ github.event.pull_request.number }}\n  cancel-in-progress: true\n```\n\nWhen a PR is opened, the auto-added `agent` status label fires a `labeled` event almost immediately. That `labeled` run enters the **same** concurrency group and **cancels the in-progress `opened` deploy** — then the `labeled` run itself **skips**, because the deploy gate only allows label-triggered deploys for the `sepo-preview` label:\n\n```yaml\ngithub.event.action != 'labeled' || github.event.label.name == 'sepo-preview'\n```\n\nSequence: valid `opened` deploy → **cancelled**; non-preview `agent`-label run → **skipped**; result → **no preview deployed**. (The deploy condition itself was fine — same-repo, `agent/` branch, public repo — so this is purely the concurrency interaction.)\n\n## Fix\n\nMake `cancel-in-progress` conditional so label events never cancel a live deploy:\n\n```yaml\nconcurrency:\n  group: sepo-preview-${{ github.event.pull_request.number }}\n  cancel-in-progress: ${{ github.event.action != 'labeled' }}\n```\n\nA real push (`synchronize`) still supersedes a stale in-flight deploy; a label event now queues behind the live `opened` run (and harmlessly skips) instead of killing it. (Alternative: give ignored-label runs their own concurrency group.)\n\n## Acceptance\n\n- Opening an `agent/` PR deploys a preview; the auto `agent` label no longer cancels it.\n- A later push still supersedes a stale deploy.\n- The `sepo-preview` opt-in label still triggers a deploy.\n\n## Note\n\nIf the `workflow_run` split (#12) lands first, the same trigger/concurrency shape moves to the build workflow — carry this conditional `cancel-in-progress` there too.\n",
-  "closedAt": null,
+  "closedAt": "2026-06-05T01:10:26Z",
   "comments": [],
   "createdAt": "2026-06-04T18:01:36Z",
   "labels": [],
   "number": 13,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Preview workflow: the auto `agent` label cancels the live deploy (concurrency bug)",
-  "updatedAt": "2026-06-04T18:01:36Z",
+  "updatedAt": "2026-06-05T01:10:26Z",
   "url": "https://github.com/self-evolving/literature-template/issues/13"
 }

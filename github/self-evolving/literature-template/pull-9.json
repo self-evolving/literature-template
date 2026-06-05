@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n- Add an opt-in Hypothesis Quartz component controlled by `HYPOTHESIS_ENABLED`.\n- Emit canonical links for normal rendered pages.\n- Add a Hypothesis API fetcher and wire compact annotation context into the daily literature and add-paper workflows.\n- Document browser-side annotation settings and the optional `HYPOTHESIS_API_KEY` workflow secret.\n\n## Verification\n- `npm run check`\n- `npm run build`\n- `HYPOTHESIS_ENABLED=true npm run quartz -- build`\n- `node scripts/fetch-hypothesis-annotations.mjs --format markdown --output /tmp/hypothesis-test.md`\n\nRefs: https://h.readthedocs.io/projects/client/en/latest/publishers/embedding.html, https://h.readthedocs.io/projects/client/en/stable/publishers/config.html, https://memex.readthedocs.io/en/stable/api.html#search\n\nCloses #8\n",
-  "closedAt": null,
+  "closedAt": "2026-06-04T21:25:51Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABErWiVQ",
@@ -372,8 +372,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Add Hypothesis annotation support",
-  "updatedAt": "2026-06-03T05:50:36Z",
+  "updatedAt": "2026-06-04T21:25:51Z",
   "url": "https://github.com/self-evolving/literature-template/pull/9"
 }

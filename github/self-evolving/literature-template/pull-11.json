@@ -7,7 +7,7 @@
   },
   "baseRefName": "main",
   "body": "## What\n\nAdds per-branch preview deployments via the **Sepo preview server** (`preview-api.sepo.sh`) — the same pattern just shipped to `augmented-mind/augmented-mind.github.io`.\n\nA standalone `.github/workflows/preview.yml` builds the site (`npm ci && npm run build` → `public/`), uploads it as an artifact, and deploys a preview through the server using **GitHub Actions OIDC** — **no secrets in the repo**. Tears down on PR close.\n\n**Triggering:** auto-previews every **agent PR** (gated on the `agent/` branch prefix — present at PR open, no label needed). Label overrides: `sepo-preview` opts a human PR in, `no-preview` opts an agent PR out.\n\n## Notes\n- Requires the Sepo GitHub App on the repo — org-wide on `self-evolving`, so already covered.\n- As this is the literature **template**, repos generated from it inherit the preview workflow.\n- Deploy + teardown chain proven end-to-end on augmented-mind #61.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
-  "closedAt": null,
+  "closedAt": "2026-06-04T22:21:54Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABE1pf3A",
@@ -124,13 +124,28 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/11#issuecomment-4624224174",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE8OFNw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #11.\n\nno rubric changes\n\nI did not update the rubrics branch. The durable points in the PR conversation were agent-authored review findings, and the only human comments from `lolipopshock` were `/review` triggers with `CONTRIBUTOR` association, not explicit rubric-learning instructions. The substantive issues were also already covered by existing active rubrics such as privileged workflow trust boundaries, idempotent user-facing automation, bounded transient retries, docs sync, and structured inputs.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-04T22:23:19Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/11#issuecomment-4626548023",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-04T06:11:23Z",
   "files": [
     {
-      "path": ".github/workflows/preview.yml",
-      "additions": 113,
+      "path": ".github/workflows/agent-site-preview.yml",
+      "additions": 94,
       "deletions": 0,
       "changeType": "ADDED"
     },
@@ -150,7 +165,7 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-04T22:21:54Z",
   "number": 11,
   "reviewDecision": "",
   "reviews": [
@@ -185,8 +200,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Add per-branch preview deployments via the Sepo preview server (OIDC, no secrets)",
-  "updatedAt": "2026-06-04T16:47:11Z",
+  "updatedAt": "2026-06-04T22:23:19Z",
   "url": "https://github.com/self-evolving/literature-template/pull/11"
 }

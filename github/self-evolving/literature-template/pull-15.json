@@ -1,0 +1,53 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "feat/sepo-preview",
+  "body": "Stacked on `feat/sepo-preview` (#11). Minimal fix for the bug augmented-mind#67 caught. #68 intentionally held — see below.\n\n## Concurrency race (ports augmented-mind#67)\n\nWorkflow-level `concurrency` meant a non-preview `pull_request.labeled` event — e.g. the automatic `agent` label Sepo applies — would acquire the `sepo-preview-<pr>` group and **cancel an in-flight valid preview**, then skip its own (non-preview-label) deploy. Net: the real preview is cancelled and never redeploys.\n\nMoved `concurrency` from workflow-level to **job-level** on `build` / `deploy` / `teardown`. A run whose jobs all skip (an ignored label event) never acquires the group, so it cannot cancel an active preview.\n\n## Why #68 (comment as the Sepo agent) is NOT included\n\naugmented-mind#68 swaps the comment token to the Sepo app via `resolve-github-auth`. That fits augmented-mind's **non-isolated** 2-job workflow (its deploy job already checks out and runs the build). It does **not** fit this repo's **isolated 3-job split**, where `deploy` runs no PR-controlled code and carries only the audience-scoped preview OIDC token:\n\n- `resolve-github-auth` is a local action (`uses: ./…`) → it needs a checkout in the deploy job and pulls the **high-privilege Sepo app token** into a job whose workflow a PR can modify. That *raises* the blast radius — the opposite of what the split buys.\n- The existing marker-based comment already posts correctly with `github.token`; the `--edit-last` correctness bug #68 fixes does not exist here. Only the bot identity differs (cosmetic).\n\nIf we want the comment authored by the Sepo agent, the safe path is a dedicated comment job on `workflow_run` (default-branch-trusted), as part of the broader workflow_run isolation work — not pulling the app token into the PR-controllable deploy job.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n",
+  "closedAt": "2026-06-04T21:46:51Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE8Bo4A",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Superseded by #11. #11 now mirrors augmented-mind's proven same-run 2-job preview workflow, which already has per-job concurrency baked in — so the augmented-mind#67 fix this PR ports is included there. (The `test-scripts.yml` changed-area path-filtering tweak bundled here is dropped with this close; happy to repropose it standalone if we want that CI optimization.)",
+      "createdAt": "2026-06-04T21:46:51Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/15#issuecomment-4626344160",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-04T21:15:05Z",
+  "files": [
+    {
+      "path": ".github/workflows/preview.yml",
+      "additions": 11,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/test-scripts.yml",
+      "additions": 69,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "fix/preview-concurrency-race",
+  "labels": [],
+  "mergedAt": null,
+  "number": 15,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "CLOSED",
+  "title": "Fix preview concurrency race (move concurrency to job-level)",
+  "updatedAt": "2026-06-04T21:46:52Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/15"
+}

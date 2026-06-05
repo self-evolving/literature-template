@@ -5,7 +5,7 @@
   },
   "baseRefName": "feat/sepo-preview",
   "body": "## Summary\n- Replace the single preview workflow with `preview-build.yml` and `preview-deploy.yml`.\n- Keep PR-controlled code in the unprivileged build workflow and move OIDC deploy/comment/teardown to default-branch `workflow_run` code.\n- Revalidate PR state, head SHA, labels, policy, and artifact metadata before deploy; update README docs.\n\n## Tests\n- `npx --yes --package prettier@3.8.1 prettier --check .github/workflows/preview-build.yml .github/workflows/preview-deploy.yml README.md`\n- Ruby YAML parse for both preview workflows\n\nCloses #12\n",
-  "closedAt": null,
+  "closedAt": "2026-06-04T21:25:41Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABE6m5rw",
@@ -124,8 +124,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Run preview deploy from trusted workflow_run",
-  "updatedAt": "2026-06-04T18:18:34Z",
+  "updatedAt": "2026-06-04T21:25:41Z",
   "url": "https://github.com/self-evolving/literature-template/pull/14"
 }
