@@ -1,0 +1,89 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- restore separate mobile controls and desktop toolbar layout for the left sidebar\n- keep the GitHub repo icon in the title row with the mobile dark-mode control at the top\n- preserve the desktop search/dark-mode/reader-mode flex row from the previous layout\n\n## Validation\n- npm run check\n- npm run build with Giscus env vars",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFC1e_Q",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #067J9fsTHWRW2djFlPE2ykLCVWGsR3lNIxMEtchMyBg=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlLzMxdXRUNzE3a04yOFJZOXFFYlFuRGVkeVJlaTUiLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtZml4LXJlc3BvbnNpdmUtc2lkLTAwMzA0Ny1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAiLCJuZXh0Q29tbWl0U3RhdHVzIjoiREVQTE9ZRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtZml4LXJlc3BvbnNpdmUtc2lkLTAwMzA0Ny1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAifSwicm9vdERpcmVjdG9yeSI6bnVsbH1dLCJyZXF1ZXN0UmV2aWV3VXJsIjoiaHR0cHM6Ly92ZXJjZWwuY29tL3ZlcmNlbC1hZ2VudC9yZXF1ZXN0LXJldmlldz9vd25lcj1zZWxmLWV2b2x2aW5nJnJlcG89bGl0ZXJhdHVyZS10ZW1wbGF0ZSZwcj0yMyJ9\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/31utT717kN28RY9qEbQnDedyRei5) | [Preview](https://literature-template-git-fix-responsive-sid-003047-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-fix-responsive-sid-003047-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 5, 2026 4:37pm |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=23\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-05T16:24:22Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/23#issuecomment-4633485053",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-05T16:24:20Z",
+  "files": [
+    {
+      "path": "quartz.config.yaml",
+      "additions": 18,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/DesktopOnly.tsx",
+      "additions": 1,
+      "deletions": 5,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/MobileOnly.tsx",
+      "additions": 1,
+      "deletions": 5,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/SepoPageTitle.tsx",
+      "additions": 54,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/plugins/loader/config-loader.ts",
+      "additions": 5,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/plugins/loader/types.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/styles/custom.scss",
+      "additions": 22,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "fix/responsive-sidebar-toolbar",
+  "labels": [],
+  "mergedAt": null,
+  "number": 23,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Fix responsive sidebar toolbar",
+  "updatedAt": "2026-06-05T16:37:00Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/23"
+}

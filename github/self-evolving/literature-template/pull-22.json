@@ -1,0 +1,53 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- publish Sepo preview URLs through GitHub Deployment statuses instead of PR comments\n- use the resolved Sepo auth token when it can create deployments, with GITHUB_TOKEN fallback\n- mark matching preview deployments inactive when the PR closes\n- update README preview docs\n\n## Validation\n- ruby -e 'require \"yaml\"; YAML.load_file(\".github/workflows/agent-site-preview.yml\"); puts \"yaml ok\"'\\n- git diff --check",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFC0SBg",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #D3ydA0WTO2xH8yj6wUQnsrJ8q5pACZAlkxcS857G9Ow=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlL0h6Ukhhd0dOeXV6Q3RiVjFIem92akhKN0pUZGUiLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtcHJldmlldy1kZXBsLTM0MjBmZC1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAiLCJuZXh0Q29tbWl0U3RhdHVzIjoiREVQTE9ZRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtcHJldmlldy1kZXBsLTM0MjBmZC1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAifSwicm9vdERpcmVjdG9yeSI6bnVsbH1dLCJyZXF1ZXN0UmV2aWV3VXJsIjoiaHR0cHM6Ly92ZXJjZWwuY29tL3ZlcmNlbC1hZ2VudC9yZXF1ZXN0LXJldmlldz9vd25lcj1zZWxmLWV2b2x2aW5nJnJlcG89bGl0ZXJhdHVyZS10ZW1wbGF0ZSZwcj0yMiJ9\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/HzRHawGNyuzCtbV1HzovjHJ7JTde) | [Preview](https://literature-template-git-agent-preview-depl-3420fd-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-agent-preview-depl-3420fd-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 5, 2026 4:25pm |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=22\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-05T16:21:04Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4633465350",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-05T16:20:58Z",
+  "files": [
+    {
+      "path": ".github/workflows/agent-site-preview.yml",
+      "additions": 123,
+      "deletions": 6,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "README.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/preview-deployment-status-events",
+  "labels": [],
+  "mergedAt": null,
+  "number": 22,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Use deployment events for Sepo previews",
+  "updatedAt": "2026-06-05T16:25:46Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/22"
+}

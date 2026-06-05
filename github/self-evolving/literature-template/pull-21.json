@@ -1,0 +1,65 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- route the Giscus drawer loader and theme postMessage target through a configurable Giscus host\n- default enabled comments to `https://comment-api.sepo.sh`\n- document the new `GISCUS_APP_HOST` override\n\n## Checks\n- `npm run check`\n- `GISCUS_APP_HOST=https://comment-api.sepo.sh npm run build`\n\nFollow-up customization work can now happen in `self-evolving/comment-api` without requiring another GitHub App install.",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFCnqcg",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #m/+2EjzHDmRf8/zUSqL3EqgUElPFBI6u9KBM1ZosjFI=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlL0ZLM3pZa0JLNkUzQWpvUXozcVhTM010aXFiYjkiLCJwcmV2aWV3VXJsIjoiIiwibmV4dENvbW1pdFN0YXR1cyI6IkNBTkNFTEVEIiwibGl2ZUZlZWRiYWNrIjp7InJlc29sdmVkIjowLCJ1bnJlc29sdmVkIjowLCJ0b3RhbCI6MCwibGluayI6ImxpdGVyYXR1cmUtdGVtcGxhdGUtZ2l0LWNob3JlLXVzZS1zZXBvLWNvbS1mM2IwZTItY29kaXNjb3Zlci1haS52ZXJjZWwuYXBwIn0sInJvb3REaXJlY3RvcnkiOm51bGx9XSwicmVxdWVzdFJldmlld1VybCI6Imh0dHBzOi8vdmVyY2VsLmNvbS92ZXJjZWwtYWdlbnQvcmVxdWVzdC1yZXZpZXc/b3duZXI9c2VsZi1ldm9sdmluZyZyZXBvPWxpdGVyYXR1cmUtdGVtcGxhdGUmcHI9MjEifQ==\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Canceled](https://vercel.com/static/status/canceled.svg) [Canceled](https://vercel.com/codiscover-ai/literature-template/FK3zYkBK6E3AjoQz3qXS3Mtiqbb9) | [Comment](https://vercel.live/open-feedback/literature-template-git-chore-use-sepo-com-f3b0e2-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 5, 2026 3:54pm |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=21\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-05T15:53:28Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4633258610",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-05T15:53:21Z",
+  "files": [
+    {
+      "path": "README.md",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/Comments.tsx",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/scripts/comments.inline.ts",
+      "additions": 11,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "chore/use-sepo-comment-api",
+  "labels": [],
+  "mergedAt": null,
+  "number": 21,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Use Sepo-hosted Giscus service",
+  "updatedAt": "2026-06-05T16:22:44Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/21"
+}
