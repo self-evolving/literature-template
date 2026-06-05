@@ -1,11 +1,11 @@
 ---
-name: literature-paper-import
-description: Convert an arXiv, LaTeX, or review-style paper into a clean hosted Quartz/Sepo literature-template site. Use when importing a full paper as the site entry point, splitting it into section pages, preserving citations, cleaning LaTeX cross-reference artifacts, and preparing a standalone paper-hosting repository or PR.
-argument-hint: [paper URL, arXiv ID, DOI, or source archive]
+name: paper-to-site
+description: Build a hosted Quartz/Sepo literature-template site from an arXiv, LaTeX, PDF/HTML, DOI, or review-style paper source. Use when making the paper the site entry point, splitting it into section pages, preserving citations, cleaning LaTeX cross-reference artifacts, and preparing a standalone paper-hosting repository or PR.
+argument-hint: [paper URL, arXiv ID, DOI, title, PDF URL, or source archive]
 allowed-tools: Bash, Read, Glob, Grep, Write, Edit
 ---
 
-# Literature Paper Import
+# Paper to Site
 
 Use this workflow when turning an arXiv, LaTeX, or review-style paper into a hosted `literature-template` site.
 
@@ -178,7 +178,7 @@ Before finalizing another import, inspect the built site or local dev server and
 When the paper should become a standalone hosted example:
 
 1. Create or initialize the destination repository from the selected `literature-template` baseline.
-2. Apply the paper import on a feature branch.
+2. Apply the paper-to-site changes on a feature branch.
 3. Keep the branch history clear enough that the template baseline and paper-import changes are understandable.
 4. Validate locally.
 5. Push the branch and open a PR against the destination repository's `main`.

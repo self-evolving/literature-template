@@ -4,7 +4,7 @@ This repository includes skills for Sepo skill runs and literature-template main
 
 - `deep-research`: broad investigations that combine academic search, web browsing, repositories, docs/releases, datasets, benchmarks, and optional social discovery signals.
 - `literature-review`: systematic topic reviews with explicit scope, deduplication, triage, and theme-based synthesis.
-- `literature-paper-import`: converts an arXiv, LaTeX, or review-style paper into a clean hosted Quartz/Sepo literature-template site with the paper as `/`, section pages, citations, figures, graph/backlink hygiene, and standalone-repository guidance.
+- `paper-to-site`: builds a clean hosted Quartz/Sepo literature-template site from a paper source, with the paper as `/`, section pages, citations, figures, graph/backlink hygiene, and standalone-repository guidance.
 
 The research skills install the pinned research tooling version:
 
@@ -13,7 +13,7 @@ The research skills install the pinned research tooling version:
 .skills/literature-review/setup.sh
 ```
 
-The setup scripts install `agent-papers-cli==0.2.1` and smoke-check `paper`, `paper-search`, and `paper-search env`. Installation does not require API keys. `literature-paper-import` is documentation-only and does not require a setup script.
+The setup scripts install `agent-papers-cli==0.2.1` and smoke-check `paper`, `paper-search`, and `paper-search env`. Installation does not require API keys. `paper-to-site` is documentation-only and does not require a setup script.
 
 ## Daily Literature Workflow
 
