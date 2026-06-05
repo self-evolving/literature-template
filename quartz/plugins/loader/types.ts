@@ -152,6 +152,8 @@ export interface PluginJsonEntry {
 export interface FlexGroupConfig {
   /** Explicit priority for the group. Overrides first-member priority. Lower = renders first. */
   priority?: number
+  /** Optional responsive display wrapper applied to the whole flex group. */
+  display?: LayoutDisplay
   direction?: "row" | "row-reverse" | "column" | "column-reverse"
   wrap?: "nowrap" | "wrap" | "wrap-reverse"
   gap?: string

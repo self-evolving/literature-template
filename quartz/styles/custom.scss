@@ -612,6 +612,28 @@ body {
     color 0.15s ease,
     opacity 0.15s ease;
 
+  &:not(.mobile-only):not(.desktop-only) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media all and not ($mobile) {
+    &.desktop-only {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  @media all and ($mobile) {
+    &.mobile-only {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
   &:hover {
     background: var(--lightgray);
     color: var(--dark);

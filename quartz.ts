@@ -8,6 +8,7 @@ import SepoGraph from "./quartz/components/SepoGraph"
 import SepoFooter from "./quartz/components/SepoFooter"
 import SepoPageTitle from "./quartz/components/SepoPageTitle"
 import SepoSearch from "./quartz/components/SepoSearch"
+import Spacer from "./quartz/components/Spacer"
 import Comments from "./quartz/components/Comments"
 import Hypothesis, { type Options as HypothesisOptions } from "./quartz/components/Hypothesis"
 
@@ -149,6 +150,7 @@ componentRegistry.register("hypothesis", LiteratureAnnotations, "local")
 componentRegistry.register("page-title", SepoPageTitle, "local")
 componentRegistry.register("PageTitle", SepoPageTitle, "local")
 componentRegistry.register("search", SepoSearch, "local")
+componentRegistry.register("spacer", Spacer, "local")
 componentRegistry.register("sepo-comments", LiteratureComments, "local")
 
 const config = await loadQuartzConfig({ baseUrl: siteBaseUrl })

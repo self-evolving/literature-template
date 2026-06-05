@@ -787,12 +787,16 @@ function resolveGroups(
       // Dynamically import Flex to avoid circular dependencies
       const FlexModule = require("../../components/Flex")
       const Flex = FlexModule.default as Function
-      const flexComponent = Flex({
+      let flexComponent = Flex({
         components: flexComponents,
         direction: groupConfig.direction ?? "row",
         wrap: groupConfig.wrap,
         gap: groupConfig.gap ?? "1rem",
       }) as QuartzComponent
+
+      if (groupConfig.display && groupConfig.display !== "all") {
+        flexComponent = applyDisplayWrapper(flexComponent, groupConfig.display)
+      }
 
       entries.push({ priority: groupPriority.get(item.group)!, component: flexComponent })
     } else {
