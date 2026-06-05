@@ -10,3 +10,4 @@
 - Quartz plugin restores: normal builds use enabled-only; disabled plugins stay in config/lockfile for opt-in. [[github/self-evolving/literature-template/pull-16.json]]
 - Preview workflows: ignored label events must not cancel live deploy runs; scope concurrency to jobs or actions that actually deploy. [[github/self-evolving/literature-template/issue-13.json]]
 - Preview workflows: deploy and teardown jobs must honor vars.AGENT_ENABLED != 'false'. [[github/self-evolving/literature-template/pull-7.json]]
+- Giscus comments render as a fixed drawer; use GISCUS_TRIGGER_MODE pill/bot and repo-discussions for local tests. [[github/self-evolving/literature-template/pull-17.json]]
