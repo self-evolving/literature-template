@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "## Context\n\n`.github/workflows/preview.yml` runs as a single `pull_request` workflow with three jobs — `build` (builds the site, no token), `deploy` (holds `id-token`, calls the preview API at `preview-api.sepo.sh`), and `teardown`. Because `pull_request` runs the workflow **from the PR's own head branch**, the privileged `deploy` job is defined by the pull request itself, so a PR could modify the job that holds the OIDC token.\n\n## Goal\n\nMove the privileged deploy to **trusted default-branch code** via the standard `workflow_run` pattern, so a PR cannot alter what runs with the token. Split the single workflow into two:\n\n- **`preview-build.yml`** — `on: pull_request`. Builds the site (`eval \"$AGENT_PREVIEW_BUILD_COMMAND\"`) and uploads it as an artifact. No privileged permissions (it holds no token, so running the PR's version is fine).\n- **`preview-deploy.yml`** — `on: workflow_run` (fires when the build workflow completes). Runs the **default branch's** version. Holds `id-token: write` (+ `pull-requests: write` for the comment). Mints the OIDC token, calls the preview API with the build artifact, posts the sticky preview comment, and handles teardown on PR close. Runs **no PR-controlled code** (no checkout, no build).\n\nThe deploy workflow identifies the PR from the triggering build run's metadata (head branch / PR number) and passes the build artifact to the preview API.\n\n## Acceptance\n\n- Agent PRs (and `sepo-preview`-labeled PRs) still auto-preview; `no-preview` still opts out; `AGENT_PREVIEW_POLICY` behavior unchanged.\n- The privileged deploy job runs only trusted default-branch code — no PR build or checkout.\n- Teardown on PR close still removes the preview.\n- No secrets are added to the repo (deploy authenticates via GitHub Actions OIDC).\n\n## Dependency\n\nThis relies on the preview service deriving the preview identity from the build artifact's provenance (rather than from the PR's OIDC token), because a `workflow_run` deploy's token attests the default branch, not the PR. That service-side change is coordinated separately — land and verify it before testing this end to end.\n\nThis supersedes the current single-workflow `preview.yml` (its three jobs move into the two split workflows).\n",
-  "closedAt": null,
+  "closedAt": "2026-06-05T04:51:35Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABE6hLuw",
@@ -77,8 +77,8 @@
     }
   ],
   "number": 12,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Harden preview deploys: run the privileged step from the default branch (workflow_run)",
-  "updatedAt": "2026-06-04T18:04:29Z",
+  "updatedAt": "2026-06-05T04:51:35Z",
   "url": "https://github.com/self-evolving/literature-template/issues/12"
 }

@@ -1,0 +1,51 @@
+{
+  "number": 20,
+  "title": "notes/",
+  "url": "https://github.com/self-evolving/literature-template/discussions/20",
+  "body": "# notes/\n\nSynthesis notes that connect papers around a focused topic.\n\nhttps://lit-template.sepo-preview.xyz/notes/\n\n<!-- sha1: f649ef1705e216ffb06e9d9f5c2a46e151d222b8 -->",
+  "createdAt": "2026-06-05T07:23:10Z",
+  "updatedAt": "2026-06-05T07:25:14Z",
+  "author": {
+    "login": "giscus"
+  },
+  "category": {
+    "name": "Site comments"
+  },
+  "comments": {
+    "nodes": [
+      {
+        "id": "DC_kwDOSvUJfs4BBknb",
+        "body": "@sepo-agent how to use this ? ",
+        "createdAt": "2026-06-05T07:23:11Z",
+        "url": "https://github.com/self-evolving/literature-template/discussions/20#discussioncomment-17189339",
+        "author": {
+          "login": "lolipopshock"
+        },
+        "replies": {
+          "nodes": [
+            {
+              "id": "DC_kwDOSvUJfs4BBknt",
+              "body": "I have enough context to answer this as usage guidance for the Notes page rather than making code changes. The key pattern is: durable Markdown lives under `content/`, and `/notes/` is a folder index for synthesis notes.`/notes/` is for **synthesis notes**: topic-level notes that connect multiple papers, methods, or research questions.\n\nTo use it:\n\n1. Add a new Markdown file under [`content/notes/`](https://github.com/self-evolving/literature-template/tree/main/content/notes), for example `content/notes/my-topic.md`.\n\n2. Use this frontmatter pattern, like [`content/notes/example-topic.md`](https://github.com/self-evolving/literature-template/blob/main/content/notes/example-topic.md):\n\n```md\n---\ntitle: \"My topic\"\ntype: note\ntags:\n  - note\n  - synthesis\n---\n\nWrite the synthesis here.\n\n## Linked papers\n\n- [Paper title](../papers/example-citekey.md) [@examplecitekey]\n```\n\n3. Link to paper notes from [`content/papers/`](https://github.com/self-evolving/literature-template/tree/main/content/papers). Paper citations use BibTeX citekeys from [`bibliography.bib`](https://github.com/self-evolving/literature-template/blob/main/bibliography.bib).\n\n4. Add the new note slug to [`content/notes/_meta.json`](https://github.com/self-evolving/literature-template/blob/main/content/notes/_meta.json) so it appears in the `/notes/` listing in the order you want:\n\n```json\n{\n  \"label\": \"Notes\",\n  \"pages\": [\"example-topic\", \"attention-patterns\", \"my-topic\"]\n}\n```\n\n5. Preview locally with:\n\n```bash\nnpm ci\nnpm run install-plugins\nnpm run dev\n```\n\nIf you want Sepo to add a paper for you, use the **Agent / Add Paper** GitHub Actions workflow with a paper URL, DOI, arXiv ID, title, or BibTeX entry. It will open a PR updating the paper note and bibliography.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+              "createdAt": "2026-06-05T07:25:14Z",
+              "url": "https://github.com/self-evolving/literature-template/discussions/20#discussioncomment-17189357",
+              "author": {
+                "login": "sepo-agent-app"
+              },
+              "replyTo": {
+                "id": "DC_kwDOSvUJfs4BBknb"
+              }
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    ],
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    }
+  }
+}

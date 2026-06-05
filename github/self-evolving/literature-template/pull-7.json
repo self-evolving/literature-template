@@ -6,8 +6,8 @@
     "name": "Shannon Shen"
   },
   "baseRefName": "main",
-  "body": "## Summary\n\n- adds a root `.skills/literature-paper-import` skill for converting arXiv/LaTeX/review-style papers into hosted literature-template sites\n- documents the target content shape used by the HCLLM paper example: `/` as the main paper note, `content/<paper-slug>/` as the section tree, and `content/papers/` as the reference-note area\n- captures cleanup rules for LaTeX-style refs, backlink hygiene, title/frontmatter policy, graph tags, root-page layout, standalone repo workflow, and validation checks\n- updates `.skills/README.md` to list the new documentation-only skill\n\nCloses #4.\n\n## Validation\n\n- `npm run check`\n- `npm run build`",
-  "closedAt": null,
+  "body": "## Summary\n\n- adds a root `.skills/paper-to-site` skill for building hosted literature-template sites from arXiv/LaTeX/PDF/HTML/review-style paper sources\n- documents the target content shape used by the HCLLM paper example: `/` as the main paper note, `content/<paper-slug>/` as the section tree, and `content/papers/` as the reference-note area\n- captures cleanup rules for LaTeX-style refs, backlink hygiene, title/frontmatter policy, graph tags, root-page layout, standalone repo workflow, and validation checks\n- updates `.skills/README.md` to list the new documentation-only skill\n- rebases onto current `main` and restores the required `AGENT_ENABLED` pause guard for the site-preview workflow jobs so the packaged workflow tests pass\n\nCloses #4.\n\n## Validation\n\n- `npx prettier --check .github/workflows/agent-site-preview.yml .skills/README.md .skills/paper-to-site/SKILL.md`\n- `git diff --check`\n- `npm --prefix .agent test`\n",
+  "closedAt": "2026-06-05T05:35:56Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABEqTljA",
@@ -51,10 +51,31 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/7#issuecomment-4607775223",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE-JhIw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #7.\n\nno rubric changes\n\nI found no trusted PR review/comment feedback that warrants a new or updated user/team rubric. PR #7 and linked issue #4 document a repository-specific `paper-to-site` workflow, but that belongs in the skill/docs rather than an abstract active rubric. Existing rubrics already cover the reusable parts, especially reading linked context first and keeping docs in sync.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-05T05:37:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/7#issuecomment-4628570403",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-02T22:18:19Z",
   "files": [
+    {
+      "path": ".github/workflows/agent-site-preview.yml",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
     {
       "path": ".skills/README.md",
       "additions": 5,
@@ -62,7 +83,7 @@
       "changeType": "MODIFIED"
     },
     {
-      "path": ".skills/literature-paper-import/SKILL.md",
+      "path": ".skills/paper-to-site/SKILL.md",
       "additions": 210,
       "deletions": 0,
       "changeType": "ADDED"
@@ -77,12 +98,12 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-05T05:35:56Z",
   "number": 7,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
-  "title": "docs: add paper import skill",
-  "updatedAt": "2026-06-02T23:22:54Z",
+  "state": "MERGED",
+  "title": "docs: add paper-to-site skill",
+  "updatedAt": "2026-06-05T05:37:01Z",
   "url": "https://github.com/self-evolving/literature-template/pull/7"
 }

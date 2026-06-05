@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "",
-  "closedAt": null,
+  "closedAt": "2026-06-05T05:35:56Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABEqAe0w",
@@ -27,8 +27,8 @@
   "createdAt": "2026-06-02T20:41:13Z",
   "labels": [],
   "number": 4,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Also let's add the skills for creating site from a review like paper",
-  "updatedAt": "2026-06-02T22:23:16Z",
+  "updatedAt": "2026-06-05T05:35:56Z",
   "url": "https://github.com/self-evolving/literature-template/issues/4"
 }

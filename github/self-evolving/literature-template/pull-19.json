@@ -1,0 +1,119 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- add a changed-file gate before preview build/deploy\n- only build previews when site-affecting target paths change\n- document the target paths and correct the preview workflow path\n\n## Validation\n- ruby YAML parse for `.github/workflows/agent-site-preview.yml`\n- prettier check for workflow and README\n- verified PR #18 `.skills/paper-to-site/SKILL.md` would return `site_changed=false`",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE-iqyQ",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #gsE8lyzcxqI1bWX7zckhA74jN8dC1bdfMu9OqY9eVr4=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlLzl6ejdaZERMaTVzR1NFcDNTS0VueWlMWVZtdFgiLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtcHJldmlldy10YXJnLWIxODhjYS1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAiLCJuZXh0Q29tbWl0U3RhdHVzIjoiREVQTE9ZRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtcHJldmlldy10YXJnLWIxODhjYS1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAifSwicm9vdERpcmVjdG9yeSI6bnVsbH1dLCJyZXF1ZXN0UmV2aWV3VXJsIjoiaHR0cHM6Ly92ZXJjZWwuY29tL3ZlcmNlbC1hZ2VudC9yZXF1ZXN0LXJldmlldz9vd25lcj1zZWxmLWV2b2x2aW5nJnJlcG89bGl0ZXJhdHVyZS10ZW1wbGF0ZSZwcj0xOSJ9\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/9zz7ZdDLi5sGSEp3SKEnyiLYVmtX) | [Preview](https://literature-template-git-agent-preview-targ-b188ca-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-agent-preview-targ-b188ca-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 5, 2026 6:55am |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=19\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-05T06:54:32Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/19#issuecomment-4628982473",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE-rOBA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-05T07:17:28Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/19#issuecomment-4629122564",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE-vQ8w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 87ce9aaa26ad32dda82571bb69b678d6ef6db2d5 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #19 adds a changed-file gate to the Sepo site preview workflow so preview builds only run for site-affecting paths.\n- It keeps teardown as a separate close-event job and documents the new target paths in the README.\n- The goal is to avoid spending preview build/deploy work on agent-only, config-only, or docs-only PRs such as PR #18.\n- The current implementation correctly avoids an `on.pull_request.paths` filter so close events can still reach teardown.\n\n## Review\nThe path detection itself looks reasonable, but the false branch creates a preview lifecycle regression. One reviewer considered the PR shippable with advisory notes; the other raised this edge case, and the current diff supports it.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Stale preview persists when site changes are removed | BLOCKING | When `site_changed=false`, the workflow skips build/deploy but does not clear a preview from an earlier PR revision. A PR can briefly publish changed site content, later revert to a non-site diff, and keep serving the stale public preview until close. |\n\n## Progress\n- Existing inline comments and review threads were empty before synthesis.\n- Posted one inline comment on `.github/workflows/agent-site-preview.yml` line 56 covering the stale-preview false branch.\n- The workflow `check` job is passing; current preview deploy/teardown jobs are skipped.\n- Advisory README/glob-style notes from the ship review are non-blocking and not included as automation action items.\n\n## Issue Details\n<details>\n<summary>Stale preview persists when site changes are removed</summary>\n\n**Cause:** The new gate writes `site_changed=false` and then skips checkout, build, upload, and deploy, but the only teardown path still requires `github.event.action == 'closed'`. See https://github.com/self-evolving/literature-template/blob/87ce9aaa26ad32dda82571bb69b678d6ef6db2d5/.github/workflows/agent-site-preview.yml#L56 and the teardown condition below it.\n\n**Candidate solutions:** Add a cheap false-branch cleanup path that calls the existing teardown endpoint when `site_changed=false`, and clear or update the PR preview comment so the public URL is not advertised as current. A 404 from teardown can remain acceptable for PRs that never deployed.\n\n**Comments:** This is the only material reviewer disagreement: Claude marked the PR as ship-ready, while Codex flagged this lifecycle edge case. The live workflow confirms the stale-preview path still exists.\n\n</details>\n\n## Recommended Next Step\n`FIX_PR`: the unresolved issue requires a concrete workflow change and is suitable for an automated fix-pr pass.\n\n## Final Verdict\nNEEDS_REWORK\n\n## Action Items\n- [ ] Add false-branch cleanup for `site_changed=false` so previously deployed previews are torn down or clearly marked stale when current PR changes no longer affect the site.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-05T07:27:13Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/19#issuecomment-4629188851",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-05T06:54:27Z",
+  "files": [
+    {
+      "path": ".github/workflows/agent-site-preview.yml",
+      "additions": 38,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "README.md",
+      "additions": 4,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/preview-target-path-gate",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 19,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCE8ELQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-05T07:26:21Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "87ce9aaa26ad32dda82571bb69b678d6ef6db2d5"
+      }
+    }
+  ],
+  "state": "OPEN",
+  "title": "Gate site previews on target file changes",
+  "updatedAt": "2026-06-05T07:27:13Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/19"
+}

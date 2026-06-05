@@ -1,0 +1,62 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\nAdds the **`paper-to-site`** skill — a workflow for turning an arXiv/LaTeX/review-style paper into a hosted `literature-template` site (paper as `/`, section tree, citations, figures, graph/backlinks), plus a standalone-repository workflow.\n\nThe skill was then **validated by blind-reproducing its canonical example** (arXiv 2605.06901, \"Reflections and New Directions for Human-Centered LLMs\"): running the skill from the arXiv source without consulting the existing hosted repo, then diffing. The blind run reproduced the existing site's file tree and `_meta.json` ordering exactly and ~99% of prose, and surfaced gaps that are now folded back into the skill.\n\n## What the refinement pass added\n\n- **Root page/layout** — documents the *three* layers that gate page chrome, not just one: component **conditions** (`library-page` / `not-index`), layout **`byPageType` positions** (`folder.positions.right: []` silently drops the section-index right sidebar), and index-specific **CSS** (`body[data-slug=\"index\"]` special-casing). Includes the concrete `type: paper`-gated relaxation.\n- **Figures and captions** — `<figure>/<figcaption>` or image + bold caption; don't wrap captions in emphasis (nested `\\emph`); rewrite caption cross-refs.\n- **Section index pages** — intro + figure + a `## Subsections` list.\n- **Frontmatter** — list the full author set in the root paper note.\n- **Graph tags** — conditional `showTags` guidance (avoid a single-paper `#paper` hub).\n\n## Notes\n\n- Also includes a small CI commit on this branch (`ci: honor AGENT_ENABLED in site preview workflow`).\n- Documentation-only; no runtime/build changes. `npm run check` passes.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)",
+  "closedAt": "2026-06-05T06:52:59Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE-fryA",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Sepo preview: https://self-evolving-literature-tem-pr-18-168859.surge.sh",
+      "createdAt": "2026-06-05T06:46:23Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/18#issuecomment-4628933576",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABE-ilww",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #18.\n\nno rubric changes\n\nI found no trusted human PR conversation feedback to learn from. PR #18 had only an automated `github-actions[bot]` preview comment, no reviews, and no inline comments. The PR body and diff describe project-specific skill guidance, but not a reusable user/team rubric beyond existing active rubrics like docs sync and audience-first documentation.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-05T06:54:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/18#issuecomment-4628981187",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-05T06:45:25Z",
+  "files": [
+    {
+      "path": ".skills/paper-to-site/SKILL.md",
+      "additions": 70,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/literature-paper-import-skill",
+  "labels": [],
+  "mergedAt": "2026-06-05T06:52:59Z",
+  "number": 18,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Add paper-to-site skill (validated against arXiv 2605.06901)",
+  "updatedAt": "2026-06-05T06:54:17Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/18"
+}
