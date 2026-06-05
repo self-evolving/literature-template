@@ -48,7 +48,6 @@ export default ((opts: Options) => {
         <button
           class={classNames("comments-trigger", `comments-trigger-${triggerMode}`)}
           type="button"
-          aria-label="Discuss this note"
           aria-controls="comments-drawer-panel"
           aria-expanded="false"
         >

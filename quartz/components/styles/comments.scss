@@ -170,6 +170,8 @@
   touch-action: none;
 
   &:focus-visible {
+    background: color-mix(in srgb, var(--secondary) 10%, transparent);
+    box-shadow: inset 2px 0 0 var(--secondary);
     outline: none;
   }
 }
