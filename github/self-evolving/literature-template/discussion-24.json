@@ -1,0 +1,51 @@
+{
+  "number": 24,
+  "title": "notes/example-topic",
+  "url": "https://github.com/self-evolving/literature-template/discussions/24",
+  "body": "# notes/example-topic\n\nThis is an example synthesis note. It links a topic-level question to one or more paper notes.\n\nhttps://lit-template.sepo-preview.xyz/notes/example-topic\n\n<!-- sha1: d21881de798a4f2cd5bb0b184caf30775ad013ed -->",
+  "createdAt": "2026-06-09T00:28:30Z",
+  "updatedAt": "2026-06-09T00:30:07Z",
+  "author": {
+    "login": "giscus"
+  },
+  "category": {
+    "name": "Site comments"
+  },
+  "comments": {
+    "nodes": [
+      {
+        "id": "DC_kwDOSvUJfs4BBucw",
+        "body": "@sepo-agent hi\n",
+        "createdAt": "2026-06-09T00:28:30Z",
+        "url": "https://github.com/self-evolving/literature-template/discussions/24#discussioncomment-17229616",
+        "author": {
+          "login": "lolipopshock"
+        },
+        "replies": {
+          "nodes": [
+            {
+              "id": "DC_kwDOSvUJfs4BBudC",
+              "body": "Hi! I’m here. What would you like me to help with on this literature template?\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+              "createdAt": "2026-06-09T00:30:07Z",
+              "url": "https://github.com/self-evolving/literature-template/discussions/24#discussioncomment-17229634",
+              "author": {
+                "login": "sepo-agent-app"
+              },
+              "replyTo": {
+                "id": "DC_kwDOSvUJfs4BBucw"
+              }
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      }
+    ],
+    "pageInfo": {
+      "hasNextPage": false,
+      "endCursor": null
+    }
+  }
+}
