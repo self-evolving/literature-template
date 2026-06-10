@@ -1,0 +1,65 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "chore/use-sepo-comment-api",
+  "body": "## Summary\n\nStacked on #21 (it builds on the configurable `GISCUS_APP_HOST`). Pairs with [self-evolving/comment-api#5](https://github.com/self-evolving/comment-api/pull/5), which adds the actual tabs to the widget — this PR is the template-side plumbing:\n\n- `GISCUS_TABS=discussions,issues,pulls` — enable drawer tabs (validated; default unchanged: discussions only)\n- `GISCUS_DEFAULT_TAB` — tab shown on load\n- `GISCUS_CONTENT_REPO` — repo browsed by the issues/pulls tabs when it differs from `GISCUS_REPO` (the Discussions host)\n- `SEPO_PREVIEW_PR` — for per-branch preview deployments: bake the PR number into the build and the drawer opens directly on that PR's conversation (auto-defaults the tab to `pulls`)\n\nThe new attributes flow `quartz.ts` env → `Comments.tsx` container `data-*` → `comments.inline.ts` script tag → comment-api `client.js`, and are only emitted when configured.\n\n## Checks\n\n- `npm run check` (tsc + prettier)\n- Build with `GISCUS_TABS=discussions,issues,pulls GISCUS_CONTENT_REPO=self-evolving/literature-template SEPO_PREVIEW_PR=21`: pages render `data-tabs`, `data-content-repo`, `data-pr-number=\"21\"`, and `data-default-tab=\"pulls\"` (auto-default from the preview PR)\n- Build without the new env: zero new attributes emitted, `data-app-host` default intact\n\n## Follow-up\n\nThe vendored preview-deploy workflow (sepo-plugins recipe) should export `SEPO_PREVIEW_PR` during preview builds so this activates automatically on preview deployments.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFitSQw",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #PrEf5f9gX6FymxluuWEkI7NE0H/bslk338QGiRbx0ew=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlLzRYNGtHcXp0ZTNwaXZNYmFqR0ZOd0tuRWdFUlAiLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtZmVhdC1kcmF3ZXItY29udGVudC10YWJzLWNvZGlzY292ZXItYWkudmVyY2VsLmFwcCIsIm5leHRDb21taXRTdGF0dXMiOiJERVBMT1lFRCIsImxpdmVGZWVkYmFjayI6eyJyZXNvbHZlZCI6MCwidW5yZXNvbHZlZCI6MCwidG90YWwiOjAsImxpbmsiOiJsaXRlcmF0dXJlLXRlbXBsYXRlLWdpdC1mZWF0LWRyYXdlci1jb250ZW50LXRhYnMtY29kaXNjb3Zlci1haS52ZXJjZWwuYXBwIn0sInJvb3REaXJlY3RvcnkiOm51bGx9XSwicmVxdWVzdFJldmlld1VybCI6Imh0dHBzOi8vdmVyY2VsLmNvbS92ZXJjZWwtYWdlbnQvcmVxdWVzdC1yZXZpZXc/b3duZXI9c2VsZi1ldm9sdmluZyZyZXBvPWxpdGVyYXR1cmUtdGVtcGxhdGUmcHI9MjcifQ==\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/4X4kGqzte3pivMbajGFNwKnEgERP) | [Preview](https://literature-template-git-feat-drawer-content-tabs-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-feat-drawer-content-tabs-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 10, 2026 5:36am |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=27\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-10T05:36:16Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/27#issuecomment-4666905155",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-10T05:36:14Z",
+  "files": [
+    {
+      "path": "README.md",
+      "additions": 6,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 31,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/Comments.tsx",
+      "additions": 8,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/scripts/comments.inline.ts",
+      "additions": 17,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "feat/drawer-content-tabs",
+  "labels": [],
+  "mergedAt": null,
+  "number": 27,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Add drawer tabs config for issues / pull-request browsing",
+  "updatedAt": "2026-06-10T05:36:57Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/27"
+}
