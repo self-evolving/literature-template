@@ -21,6 +21,10 @@ type Options = {
     inputPosition?: "top" | "bottom"
     lang?: string
     triggerMode?: "pill" | "bot"
+    tabs?: Array<"discussions" | "issues" | "pulls">
+    defaultTab?: "discussions" | "issues" | "pulls"
+    contentRepo?: `${string}/${string}`
+    prNumber?: number
   }
 }
 
@@ -143,6 +147,10 @@ export default ((opts: Options) => {
               data-dark-theme={opts.options.darkTheme ?? "dark"}
               data-theme-url={opts.options.themeUrl ?? "/static/giscus"}
               data-lang={opts.options.lang ?? "en"}
+              data-tabs={opts.options.tabs?.length ? opts.options.tabs.join(",") : undefined}
+              data-default-tab={opts.options.defaultTab}
+              data-content-repo={opts.options.contentRepo}
+              data-pr-number={opts.options.prNumber ? String(opts.options.prNumber) : undefined}
             ></div>
           </div>
         </aside>

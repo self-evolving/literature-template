@@ -87,6 +87,10 @@ type GiscusElement = Omit<HTMLElement, "dataset"> & {
     inputPosition: "top" | "bottom"
     lang: string
     appHost?: string
+    tabs?: string
+    defaultTab?: string
+    contentRepo?: string
+    prNumber?: string
     loaded?: string
   }
 }
@@ -119,6 +123,19 @@ const mountGiscus = (giscusContainer: GiscusElement) => {
   giscusScript.setAttribute("data-reactions-enabled", giscusContainer.dataset.reactionsEnabled)
   giscusScript.setAttribute("data-input-position", giscusContainer.dataset.inputPosition)
   giscusScript.setAttribute("data-lang", giscusContainer.dataset.lang)
+  // Sepo content tabs are optional; only forward them when configured so the
+  // widget keeps its default discussions-only behavior otherwise.
+  const optionalAttributes: Array<[string, string | undefined]> = [
+    ["data-tabs", giscusContainer.dataset.tabs],
+    ["data-default-tab", giscusContainer.dataset.defaultTab],
+    ["data-content-repo", giscusContainer.dataset.contentRepo],
+    ["data-pr-number", giscusContainer.dataset.prNumber],
+  ]
+  for (const [name, value] of optionalAttributes) {
+    if (value) {
+      giscusScript.setAttribute(name, value)
+    }
+  }
   const theme = document.documentElement.getAttribute("saved-theme")
   if (theme) {
     giscusScript.setAttribute("data-theme", getThemeUrl(getThemeName(theme)))

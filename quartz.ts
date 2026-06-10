@@ -25,7 +25,10 @@ registerCondition("library-page", (page) => isLibraryPage(page.fileData.slug))
 type GiscusMapping = "url" | "title" | "og:title" | "specific" | "number" | "pathname"
 type GiscusInputPosition = "top" | "bottom"
 type GiscusTriggerMode = "pill" | "bot"
+type GiscusContentTab = "discussions" | "issues" | "pulls"
 type HypothesisTheme = NonNullable<HypothesisOptions["theme"]>
+
+const giscusContentTabs: readonly GiscusContentTab[] = ["discussions", "issues", "pulls"]
 
 const giscusRequiredEnv = [
   "GISCUS_REPO",
@@ -91,6 +94,30 @@ function giscusComments() {
     throw new Error("GISCUS_REPO must use the owner/name format")
   }
 
+  const tabs = listEnv("GISCUS_TABS") as GiscusContentTab[] | undefined
+  for (const tab of tabs ?? []) {
+    if (!giscusContentTabs.includes(tab)) {
+      throw new Error(`GISCUS_TABS must only contain: ${giscusContentTabs.join(", ")}`)
+    }
+  }
+
+  const contentRepo = envValue("GISCUS_CONTENT_REPO")
+  if (contentRepo && !contentRepo.includes("/")) {
+    throw new Error("GISCUS_CONTENT_REPO must use the owner/name format")
+  }
+
+  // Preview deployments bake the pull request they were built from so the
+  // drawer can open directly on that PR's conversation.
+  const previewPr = envValue("SEPO_PREVIEW_PR")
+  if (previewPr && !/^[0-9]+$/.test(previewPr)) {
+    throw new Error("SEPO_PREVIEW_PR must be a pull request number")
+  }
+  const prNumber = previewPr ? Number(previewPr) : undefined
+
+  const defaultTab =
+    optionalEnumEnv<GiscusContentTab>("GISCUS_DEFAULT_TAB", giscusContentTabs) ??
+    (prNumber && tabs?.includes("pulls") ? "pulls" : undefined)
+
   return Comments({
     provider: "giscus",
     options: {
@@ -116,6 +143,10 @@ function giscusComments() {
       themeUrl: envValue("GISCUS_THEME_URL"),
       lang: envValue("GISCUS_LANG") ?? "en",
       triggerMode: enumEnv<GiscusTriggerMode>("GISCUS_TRIGGER_MODE", ["pill", "bot"], "pill"),
+      tabs,
+      defaultTab,
+      contentRepo: contentRepo as `${string}/${string}` | undefined,
+      prNumber,
     },
   })
 }
