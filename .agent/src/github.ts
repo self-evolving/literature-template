@@ -15,6 +15,23 @@ export function gh(args: string[], cwd?: string): string {
   }).toString("utf8");
 }
 
+function ghApiCommand(args: string[], token?: string): string {
+  return execFileSync("gh", ["api", ...args], {
+    env: token ? { ...process.env, GH_TOKEN: token } : process.env,
+    stdio: "pipe",
+    maxBuffer: MAX_BUFFER,
+  }).toString("utf8");
+}
+
+function ghApiCommandWithInput(args: string[], payload: unknown, token?: string): string {
+  return execFileSync("gh", ["api", ...args], {
+    env: token ? { ...process.env, GH_TOKEN: token } : process.env,
+    input: `${JSON.stringify(payload)}\n`,
+    stdio: ["pipe", "pipe", "pipe"],
+    maxBuffer: MAX_BUFFER,
+  }).toString("utf8");
+}
+
 /**
  * Runs `gh api <args>` and returns trimmed stdout. Returns "" on any
  * non-zero exit. Use for best-effort lookups where a 404 is an expected
@@ -87,6 +104,10 @@ function commandErrorText(err: unknown): string {
     .join("\n");
 }
 
+function commandErrorSummary(err: unknown): string {
+  return commandErrorText(err).replace(/\s+/g, " ").trim() || "unknown error";
+}
+
 function isAlreadyExistsLabelError(err: unknown): boolean {
   return /already exists|already_exists|name has already been taken/i.test(commandErrorText(err));
 }
@@ -143,6 +164,296 @@ export function removePrLabel(prNumber: number, label: string, repo?: string): v
   const args = ["pr", "edit", String(prNumber), "--remove-label", label];
   if (repo) args.push("--repo", repo);
   gh(args);
+}
+
+// --- Deployments ---
+
+export interface PreviewDeploymentPayloadOptions {
+  prNumber: number;
+  headRef: string;
+  headSha: string;
+  environment: string;
+}
+
+export interface PreviewDeploymentSuccessStatusOptions {
+  environment: string;
+  url: string;
+  runUrl: string;
+}
+
+export interface PreviewDeploymentInactiveStatusOptions {
+  environment: string;
+  runUrl: string;
+}
+
+export interface PreviewDeploymentWarning {
+  tokenLabel: string;
+  stage: "deployment" | "status";
+  message: string;
+}
+
+export interface PublishPreviewDeploymentOptions extends PreviewDeploymentPayloadOptions {
+  repo: string;
+  url: string;
+  runUrl: string;
+  sepoToken?: string;
+  fallbackToken?: string;
+}
+
+export interface PublishPreviewDeploymentResult {
+  deploymentId: string;
+  tokenLabel: string;
+  warnings: PreviewDeploymentWarning[];
+}
+
+export interface GitHubDeploymentRecord {
+  id: string;
+  payload: unknown;
+}
+
+export interface InactivatePreviewDeploymentsOptions {
+  repo: string;
+  prNumber: number;
+  headSha: string;
+  environment: string;
+  runUrl: string;
+  token?: string;
+}
+
+export class PreviewDeploymentPublishError extends Error {
+  warnings: PreviewDeploymentWarning[];
+
+  constructor(message: string, warnings: PreviewDeploymentWarning[]) {
+    super(message);
+    this.name = "PreviewDeploymentPublishError";
+    this.warnings = warnings;
+    Object.setPrototypeOf(this, PreviewDeploymentPublishError.prototype);
+  }
+}
+
+export function buildPreviewDeploymentPayload(opts: PreviewDeploymentPayloadOptions): Record<string, unknown> {
+  return {
+    ref: opts.headSha,
+    environment: opts.environment,
+    description: `Sepo site preview for PR #${opts.prNumber}`,
+    auto_merge: false,
+    required_contexts: [],
+    transient_environment: true,
+    production_environment: false,
+    payload: {
+      source: "sepo-preview",
+      pull_request: opts.prNumber,
+      head_ref: opts.headRef,
+      head_sha: opts.headSha,
+    },
+  };
+}
+
+export function buildPreviewDeploymentSuccessStatusPayload(
+  opts: PreviewDeploymentSuccessStatusOptions,
+): Record<string, unknown> {
+  return {
+    state: "success",
+    environment: opts.environment,
+    target_url: opts.url,
+    environment_url: opts.url,
+    log_url: opts.runUrl,
+    description: "Sepo preview is ready",
+    auto_inactive: false,
+  };
+}
+
+export function buildPreviewDeploymentInactiveStatusPayload(
+  opts: PreviewDeploymentInactiveStatusOptions,
+): Record<string, unknown> {
+  return {
+    state: "inactive",
+    environment: opts.environment,
+    log_url: opts.runUrl,
+    description: "Sepo preview was torn down",
+  };
+}
+
+export function createGitHubDeployment(repo: string, payload: Record<string, unknown>, token?: string): string {
+  return ghApiCommandWithInput([
+    "--method",
+    "POST",
+    `repos/${repo}/deployments`,
+    "--input",
+    "-",
+    "--jq",
+    ".id",
+  ], payload, token).trim();
+}
+
+export function createGitHubDeploymentStatus(
+  repo: string,
+  deploymentId: string,
+  payload: Record<string, unknown>,
+  token?: string,
+): void {
+  ghApiCommandWithInput([
+    "--method",
+    "POST",
+    `repos/${repo}/deployments/${deploymentId}/statuses`,
+    "--input",
+    "-",
+  ], payload, token);
+}
+
+function previewTokenAttempts(opts: PublishPreviewDeploymentOptions): { token: string; label: string }[] {
+  const sepoToken = String(opts.sepoToken || "").trim();
+  const fallbackToken = String(opts.fallbackToken || "").trim();
+  const attempts: { token: string; label: string }[] = [];
+
+  if (sepoToken) {
+    attempts.push({ token: sepoToken, label: "Sepo auth" });
+  }
+  if (fallbackToken && fallbackToken !== sepoToken) {
+    attempts.push({ token: fallbackToken, label: "GITHUB_TOKEN" });
+  }
+
+  return attempts;
+}
+
+export function publishPreviewDeployment(opts: PublishPreviewDeploymentOptions): PublishPreviewDeploymentResult {
+  const createPayload = buildPreviewDeploymentPayload(opts);
+  const statusPayload = buildPreviewDeploymentSuccessStatusPayload({
+    environment: opts.environment,
+    url: opts.url,
+    runUrl: opts.runUrl,
+  });
+  const warnings: PreviewDeploymentWarning[] = [];
+
+  for (const attempt of previewTokenAttempts(opts)) {
+    let deploymentId = "";
+    try {
+      deploymentId = createGitHubDeployment(opts.repo, createPayload, attempt.token);
+    } catch (err: unknown) {
+      warnings.push({
+        tokenLabel: attempt.label,
+        stage: "deployment",
+        message: commandErrorSummary(err),
+      });
+      continue;
+    }
+
+    try {
+      createGitHubDeploymentStatus(opts.repo, deploymentId, statusPayload, attempt.token);
+    } catch (err: unknown) {
+      warnings.push({
+        tokenLabel: attempt.label,
+        stage: "status",
+        message: commandErrorSummary(err),
+      });
+      continue;
+    }
+
+    return {
+      deploymentId,
+      tokenLabel: attempt.label,
+      warnings,
+    };
+  }
+
+  throw new PreviewDeploymentPublishError(
+    "Unable to publish GitHub deployment status.",
+    warnings,
+  );
+}
+
+function flattenGhPages(value: unknown): unknown[] {
+  if (!Array.isArray(value)) return value ? [value] : [];
+
+  const records: unknown[] = [];
+  for (const page of value) {
+    if (Array.isArray(page)) {
+      records.push(...page);
+    } else if (page) {
+      records.push(page);
+    }
+  }
+  return records;
+}
+
+function normalizeDeploymentRecord(value: unknown): GitHubDeploymentRecord | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const id = String(record.id || "").trim();
+  if (!id) return null;
+  return {
+    id,
+    payload: record.payload,
+  };
+}
+
+export function fetchPreviewDeployments(
+  repo: string,
+  environment: string,
+  token?: string,
+): GitHubDeploymentRecord[] {
+  const raw = ghApiCommand([
+    "--method",
+    "GET",
+    "--paginate",
+    "--slurp",
+    `repos/${repo}/deployments`,
+    "-f",
+    `environment=${environment}`,
+    "-f",
+    "per_page=100",
+  ], token).trim();
+  if (!raw) return [];
+
+  const parsed = JSON.parse(raw) as unknown;
+  return flattenGhPages(parsed)
+    .map(normalizeDeploymentRecord)
+    .filter((record): record is GitHubDeploymentRecord => Boolean(record));
+}
+
+function parseDeploymentPayload(value: unknown): Record<string, unknown> | null {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  if (typeof value !== "string") return null;
+
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export function previewDeploymentMatches(
+  deployment: GitHubDeploymentRecord,
+  prNumber: number,
+  headSha: string,
+): boolean {
+  const payload = parseDeploymentPayload(deployment.payload);
+  if (!payload || payload.source !== "sepo-preview") return false;
+
+  return String(payload.pull_request ?? "") === String(prNumber)
+    || String(payload.head_sha ?? "") === headSha;
+}
+
+export function inactivatePreviewDeployments(opts: InactivatePreviewDeploymentsOptions): string[] {
+  const deployments = fetchPreviewDeployments(opts.repo, opts.environment, opts.token);
+  const matchingIds = deployments
+    .filter((deployment) => previewDeploymentMatches(deployment, opts.prNumber, opts.headSha))
+    .map((deployment) => deployment.id);
+  const statusPayload = buildPreviewDeploymentInactiveStatusPayload({
+    environment: opts.environment,
+    runUrl: opts.runUrl,
+  });
+
+  for (const deploymentId of matchingIds) {
+    createGitHubDeploymentStatus(opts.repo, deploymentId, statusPayload, opts.token);
+  }
+
+  return matchingIds;
 }
 
 // --- Pull requests ---
