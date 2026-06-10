@@ -166,7 +166,7 @@ exit 1
   }
 });
 
-test("inactivate-preview-deployments CLI matches Sepo previews by payload PR and SHA", () => {
+test("inactivate-preview-deployments CLI matches by PR number, with SHA fallback for legacy payloads", () => {
   const tempDir = mkdtempSync(join(tmpdir(), "agent-preview-inactivate-"));
 
   try {
@@ -183,7 +183,8 @@ if [[ "$*" == *"repos/self-evolving/repo/deployments -f environment=Preview -f p
 [[{"id":101,"payload":{"source":"sepo-preview","pull_request":22,"head_sha":"old"}},
   {"id":102,"payload":{"source":"sepo-preview","pull_request":13,"head_sha":"abc123"}},
   {"id":103,"payload":{"source":"other","pull_request":22,"head_sha":"abc123"}},
-  {"id":104,"sha":"abc123","payload":{"source":"sepo-preview","pull_request":13,"head_sha":"other"}}]]
+  {"id":104,"sha":"abc123","payload":{"source":"sepo-preview","pull_request":13,"head_sha":"other"}},
+  {"id":105,"payload":{"source":"sepo-preview","head_sha":"abc123"}}]]
 JSON
   exit 0
 fi
@@ -211,16 +212,19 @@ exit 1
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
     assert.match(result.stdout, /Marked GitHub deployment 101 inactive/);
-    assert.match(result.stdout, /Marked GitHub deployment 102 inactive/);
-    assert.doesNotMatch(result.stdout, /103|104/);
+    assert.match(result.stdout, /Marked GitHub deployment 105 inactive/);
+    assert.doesNotMatch(result.stdout, /102|103|104/);
 
     const log = readFileSync(logPath, "utf8");
     assert.match(log, /^github-token\|api --method GET --paginate --slurp repos\/self-evolving\/repo\/deployments /m);
     assert.match(log, /^github-token\|api --method POST repos\/self-evolving\/repo\/deployments\/101\/statuses /m);
-    assert.match(log, /^github-token\|api --method POST repos\/self-evolving\/repo\/deployments\/102\/statuses /m);
+    assert.match(log, /^github-token\|api --method POST repos\/self-evolving\/repo\/deployments\/105\/statuses /m);
+    assert.doesNotMatch(log, /deployments\/102\/statuses/);
     assert.doesNotMatch(log, /deployments\/103\/statuses/);
     assert.doesNotMatch(log, /deployments\/104\/statuses/);
 
+    assert.equal(existsSync(join(payloadDir, "inactive-102.json")), false);
+    assert.equal(existsSync(join(payloadDir, "inactive-105.json")), true);
     const inactivePayload = JSON.parse(readFileSync(join(payloadDir, "inactive-101.json"), "utf8"));
     assert.deepEqual(inactivePayload, {
       state: "inactive",

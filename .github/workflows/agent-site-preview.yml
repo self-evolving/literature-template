@@ -97,10 +97,17 @@ jobs:
                  --data "$(jq -nc --arg t "$TOK" '{oidc_token:$t}')" -w '\n%{http_code}')
           CODE=$(tail -n1 <<<"$RESP"); echo "$RESP"
           [[ "$CODE" == 200 || "$CODE" == 404 ]] || { echo "::error::teardown failed ($CODE)"; exit 1; }
+      # The deployment-event cleanup must run even when the preview server
+      # rejects the teardown (e.g. transient 5xx), or closed PRs keep active
+      # Preview deployments. `!cancelled()` (not `always()`) so a run superseded
+      # via the concurrency group cannot race a fresh deploy's events.
       - uses: actions/checkout@v4
+        if: ${{ !cancelled() }}
       - name: Setup agent runtime
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/setup-agent-runtime
       - name: Mark preview deployments inactive
+        if: ${{ !cancelled() }}
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}

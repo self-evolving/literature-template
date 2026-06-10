@@ -435,8 +435,14 @@ export function previewDeploymentMatches(
   const payload = parseDeploymentPayload(deployment.payload);
   if (!payload || payload.source !== "sepo-preview") return false;
 
-  return String(payload.pull_request ?? "") === String(prNumber)
-    || String(payload.head_sha ?? "") === headSha;
+  // Sepo-created payloads always carry pull_request, and distinct PRs can share
+  // a head SHA (same branch opened against two bases), so a payload with a PR
+  // number is matched by PR number alone. The SHA comparison only covers legacy
+  // payloads that have no PR number.
+  if (payload.pull_request != null) {
+    return String(payload.pull_request) === String(prNumber);
+  }
+  return String(payload.head_sha ?? "") === headSha;
 }
 
 export function inactivatePreviewDeployments(opts: InactivatePreviewDeploymentsOptions): string[] {
