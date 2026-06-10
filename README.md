@@ -156,6 +156,7 @@ Giscus comments are disabled by default. To enable them, set `GISCUS_ENABLED=tru
 | `GISCUS_DEFAULT_TAB`  | Optional tab shown on load; defaults to the first tab.   |
 | `GISCUS_CONTENT_REPO` | Optional repo browsed by the issues/pulls tabs.          |
 | `SEPO_PREVIEW_PR`     | PR number baked into preview builds; opens that PR tab.  |
+| `SEPO_PREVIEW_BRANCH` | Optional branch label shown in the preview pill.         |
 
 When enabled, the site loads the drawer experience from the Sepo comments service (`sepo.js` on `GISCUS_APP_HOST`): a fixed trigger opens a right-side page discussion drawer instead of taking space at the bottom of the note. The drawer chrome, mascot animation, and the `sepo_light`/`sepo_dark` widget themes are all served by that host, so the template no longer vendors them; the site's own light/dark toggle drives the widget theme. The GitHub Discussion still maps to the page according to `GISCUS_MAPPING`.
 

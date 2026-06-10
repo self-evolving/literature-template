@@ -32,6 +32,8 @@ const forwardedKeys = [
   "defaultTab",
   "contentRepo",
   "prNumber",
+  "previewPr",
+  "previewBranch",
 ] as const
 
 const mountSepo = (cfg: HTMLElement) => {

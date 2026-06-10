@@ -113,6 +113,7 @@ function giscusComments() {
     throw new Error("SEPO_PREVIEW_PR must be a pull request number")
   }
   const prNumber = previewPr ? Number(previewPr) : undefined
+  const previewBranch = envValue("SEPO_PREVIEW_BRANCH")
 
   const defaultTab =
     optionalEnumEnv<GiscusContentTab>("GISCUS_DEFAULT_TAB", giscusContentTabs) ??
@@ -146,6 +147,7 @@ function giscusComments() {
       defaultTab,
       contentRepo: contentRepo as `${string}/${string}` | undefined,
       prNumber,
+      previewBranch,
     },
   })
 }

@@ -22,6 +22,7 @@ type Options = {
     defaultTab?: "discussions" | "issues" | "pulls"
     contentRepo?: `${string}/${string}`
     prNumber?: number
+    previewBranch?: string
   }
 }
 
@@ -62,6 +63,8 @@ export default ((opts: Options) => {
         data-default-tab={opts.options.defaultTab}
         data-content-repo={opts.options.contentRepo}
         data-pr-number={opts.options.prNumber ? String(opts.options.prNumber) : undefined}
+        data-preview-pr={opts.options.prNumber ? String(opts.options.prNumber) : undefined}
+        data-preview-branch={opts.options.previewBranch}
         hidden
       ></div>
     )
