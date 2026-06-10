@@ -34,6 +34,7 @@ const forwardedKeys = [
   "prNumber",
   "previewPr",
   "previewBranch",
+  "previewDomain",
 ] as const
 
 const mountSepo = (cfg: HTMLElement) => {

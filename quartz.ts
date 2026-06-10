@@ -114,6 +114,9 @@ function giscusComments() {
   }
   const prNumber = previewPr ? Number(previewPr) : undefined
   const previewBranch = envValue("SEPO_PREVIEW_BRANCH")
+  // For local pill testing: sepo.js only shows the pill on preview hostnames,
+  // so a localhost build simulates one with SEPO_PREVIEW_DOMAIN=localhost.
+  const previewDomain = envValue("SEPO_PREVIEW_DOMAIN")
 
   const defaultTab =
     optionalEnumEnv<GiscusContentTab>("GISCUS_DEFAULT_TAB", giscusContentTabs) ??
@@ -148,6 +151,7 @@ function giscusComments() {
       contentRepo: contentRepo as `${string}/${string}` | undefined,
       prNumber,
       previewBranch,
+      previewDomain,
     },
   })
 }

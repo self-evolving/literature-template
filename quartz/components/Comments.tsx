@@ -23,6 +23,7 @@ type Options = {
     contentRepo?: `${string}/${string}`
     prNumber?: number
     previewBranch?: string
+    previewDomain?: string
   }
 }
 
@@ -65,6 +66,7 @@ export default ((opts: Options) => {
         data-pr-number={opts.options.prNumber ? String(opts.options.prNumber) : undefined}
         data-preview-pr={opts.options.prNumber ? String(opts.options.prNumber) : undefined}
         data-preview-branch={opts.options.previewBranch}
+        data-preview-domain={opts.options.previewDomain}
         hidden
       ></div>
     )
