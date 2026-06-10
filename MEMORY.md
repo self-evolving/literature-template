@@ -14,3 +14,4 @@
 - Paper-to-site imports: root paper chrome depends on conditions, layout byPageType, and index CSS; validate built HTML. [[github/self-evolving/literature-template/pull-18.json]]
 - Preview path gates: false branches must teardown or mark stale existing previews, not leave old deploys live. [[github/self-evolving/literature-template/pull-19.json]]
 - Synthesis notes live in content/notes with type: note; update content/notes/_meta.json to show/order them. [[github/self-evolving/literature-template/discussion-20.json]]
+- Preview deployments: put reusable GitHub Deployment/status logic in .agent CLIs; keep preview-server plumbing in workflows. [[github/self-evolving/literature-template/pull-22.json]]
