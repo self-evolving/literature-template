@@ -23,6 +23,36 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/27#issuecomment-4666905155",
       "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFpXi1A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 90 | PARTIAL | 9 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Prefer explicit structured inputs | partial | 5/7 | Adds separate env fields and enum validation in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/cb3188727b68dd69418f11745acf0fa6ed8b7ac0/quartz.ts#L94-L121), but does not validate `GISCUS_DEFAULT_TAB` against enabled `GISCUS_TABS`. |\n| coding_workflow / generic | Validate preview contracts | partial | 5/7 | `SEPO_PREVIEW_PR` is numeric-validated, but `0` passes parsing and then is silently not emitted due truthy checks in [`Comments.tsx`](https://github.com/self-evolving/literature-template/blob/cb3188727b68dd69418f11745acf0fa6ed8b7ac0/quartz/components/Comments.tsx#L147-L150). |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | New attributes are optional and only forwarded when configured in [`comments.inline.ts`](https://github.com/self-evolving/literature-template/blob/cb3188727b68dd69418f11745acf0fa6ed8b7ac0/quartz/components/scripts/comments.inline.ts#L123-L135). |\n| coding_workflow / generic | Name config by capability | pass | 6/6 | Public env names describe the capability: tabs, default tab, content repo, and preview PR. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Reuses existing env helper style and the existing Quartz `Comments` data-attribute pipeline. |\n| coding_style / generic | Prefer simple implementations | pass | 7/7 | The implementation is straightforward plumbing across the existing env → component → inline script path. |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Touches only README and the three Giscus plumbing files listed in the PR diff. |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README documents the new env vars and preview behavior in the Giscus section. |\n| communication / generic | Write audience-first documentation | pass | 7/7 | README starts with the concrete setup knobs and explains the user-facing effect without internal implementation detail. |\n\n## Notes\n\n- The implementation is mostly aligned with the selected rubrics: it keeps defaults unchanged, uses typed config fields, validates the tab enum, updates docs, and keeps the change narrow.\n- The main rubric gap is cross-field validation. A configured default tab should probably be required to exist in `GISCUS_TABS`, and preview PR numbers should reject non-positive values instead of silently dropping `0`.\n\n## Findings\n\n- **WARNING:** `GISCUS_DEFAULT_TAB=pulls` with `GISCUS_TABS=discussions,issues` is accepted and emitted, even though the requested default tab is not enabled. This weakens the “explicit structured inputs” rubric because an invalid combination is deferred to the client/widget instead of failing clearly.\n- **INFO:** `SEPO_PREVIEW_PR=0` passes the regex in `quartz.ts`, becomes `0`, and is then omitted by truthy checks when rendering attributes. A positive-integer check would better satisfy the preview-contract validation rubric.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-10T19:52:39Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/27#issuecomment-4673888980",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFpamVA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: cb3188727b68dd69418f11745acf0fa6ed8b7ac0 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #27 adds template-side plumbing for Sepo drawer tabs in the Giscus comments drawer. It introduces `GISCUS_TABS`, `GISCUS_DEFAULT_TAB`, `GISCUS_CONTENT_REPO`, and `SEPO_PREVIEW_PR`, flowing them from `quartz.ts` through `Comments.tsx` into `comments.inline.ts`. The goal is to let the drawer expose discussions, issues, and pulls, and to let preview deployments open directly on the current PR conversation. The change is stacked on PR #21’s configurable `GISCUS_APP_HOST` work and keeps the default discussions-only behavior unchanged unless configured.\n\n## Review\nThe implementation is narrow and follows the existing env-to-component-to-script pattern, but the current validation permits silent misconfigurations. Reviewers agreed on the default-tab cross-field validation gap; the preview-PR findings are related contract-tightening issues rather than broad design concerns.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| GISCUS_DEFAULT_TAB can select a disabled tab | WARNING | `GISCUS_DEFAULT_TAB` is validated against the global tab enum, but not against the enabled `GISCUS_TABS` set. This can emit a default tab the widget is not configured to show. |\n| SEPO_PREVIEW_PR can be silently inert without pulls tab | WARNING | `data-pr-number` can be emitted while the `pulls` tab is not enabled, so the preview PR setting cannot achieve its stated behavior. |\n| SEPO_PREVIEW_PR accepts zero then drops it | INFO | `SEPO_PREVIEW_PR=0` passes the numeric regex, becomes `0`, and is later omitted by the truthy render check. |\n\n## Progress\n- Existing PR discussion already includes the rubrics review noting the default-tab validation gap and the `SEPO_PREVIEW_PR=0` behavior.\n- No inline comments or review threads existed before synthesis; posted one inline comment on `quartz.ts:119` for the preview-PR-without-`pulls` issue.\n- `self-evolving/comment-api#5` was not accessible with available credentials, so this synthesis only assumes the attribute contract stated in PR #27.\n- Lower-priority polish notes from one reviewer, such as duplicate tab entries and README wording, are left out of automation action items.\n\n## Issue Details\n<details>\n<summary>GISCUS_DEFAULT_TAB can select a disabled tab</summary>\n\n**Cause:** [`quartz.ts#L117-L119`](https://github.com/self-evolving/literature-template/blob/cb3188727b68dd69418f11745acf0fa6ed8b7ac0/quartz.ts#L117-L119) accepts any known tab as `GISCUS_DEFAULT_TAB`, even when `GISCUS_TABS` is unset or excludes that tab.\n\n**Candidate solutions:** Derive the active tab set, treating an unset `GISCUS_TABS` as the default discussions-only mode, then throw if the configured default tab is not active.\n\n**Comments:** All review artifacts either directly reported this issue or scored it as the main rubric gap. No duplicate inline comment was posted because the existing rubrics comment already covers it clearly.\n\n</details>\n\n<details>\n<summary>SEPO_PREVIEW_PR can be silently inert without pulls tab</summary>\n\n**Cause:** [`quartz.ts#L111-L119`](https://github.com/self-evolving/literature-template/blob/cb3188727b68dd69418f11745acf0fa6ed8b7ac0/quartz.ts#L111-L119) parses `SEPO_PREVIEW_PR`, but only auto-defaults to `pulls` when `tabs?.includes(\"pulls\")`; [`Comments.tsx#L150-L153`](https://github.com/self-evolving/literature-template/blob/cb3188727b68dd69418f11745acf0fa6ed8b7ac0/quartz/components/Comments.tsx#L150-L153) can still emit the PR number.\n\n**Candidate solutions:** Fail fast when `SEPO_PREVIEW_PR` is set without an enabled `pulls` tab, or deliberately add `pulls` as part of preview-PR mode and document that behavior.\n\n**Comments:** Posted inline comment: https://github.com/self-evolving/literature-template/pull/27#discussion_r3391142138\n\n</details>\n\n<details>\n<summary>SEPO_PREVIEW_PR accepts zero then drops it</summary>\n\n**Cause:** [`quartz.ts#L111-L115`](https://github.com/self-evolving/literature-template/blob/cb3188727b68dd69418f11745acf0fa6ed8b7ac0/quartz.ts#L111-L115) accepts any digits, including `0`; [`Comments.tsx#L153`](https://github.com/self-evolving/literature-template/blob/cb3188727b68dd69418f11745acf0fa6ed8b7ac0/quartz/components/Comments.tsx#L153) omits `0` because it checks truthiness.\n\n**Candidate solutions:** Parse `SEPO_PREVIEW_PR` as a positive integer and reject `0`; after that, render with an explicit definedness check instead of relying on truthiness.\n\n**Comments:** This is INFO-level and can be handled naturally while tightening the preview-PR validation.\n\n</details>\n\n## Recommended Next Step\nFIX_PR: the unresolved issues are localized validation changes in `quartz.ts` and `Comments.tsx`, and are safe for an automated fix-pr pass.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] Validate `GISCUS_DEFAULT_TAB` against the active `GISCUS_TABS` set and fail clearly when it targets a disabled tab.\n- [ ] Tighten `SEPO_PREVIEW_PR` handling so it requires a positive PR number and cannot be silently inert when `pulls` is not enabled.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-10T19:59:07Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/27#issuecomment-4673939028",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-10T05:36:14Z",
@@ -53,13 +83,36 @@
     }
   ],
   "headRefName": "feat/drawer-content-tabs",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "mergedAt": null,
   "number": 27,
   "reviewDecision": "",
-  "reviews": [],
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCoCIwg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-10T19:57:41Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "cb3188727b68dd69418f11745acf0fa6ed8b7ac0"
+      }
+    }
+  ],
   "state": "OPEN",
   "title": "Add drawer tabs config for issues / pull-request browsing",
-  "updatedAt": "2026-06-10T05:36:57Z",
+  "updatedAt": "2026-06-10T19:59:25Z",
   "url": "https://github.com/self-evolving/literature-template/pull/27"
 }

@@ -23,6 +23,21 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4633258610",
       "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFnxU-g",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "hey what's up? ",
+      "createdAt": "2026-06-10T16:28:16Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4672214266",
+      "viewerDidAuthor": false
     }
   ],
   "createdAt": "2026-06-05T15:53:21Z",
@@ -60,6 +75,6 @@
   "reviews": [],
   "state": "OPEN",
   "title": "Use Sepo-hosted Giscus service",
-  "updatedAt": "2026-06-05T16:22:44Z",
+  "updatedAt": "2026-06-10T16:28:16Z",
   "url": "https://github.com/self-evolving/literature-template/pull/21"
 }

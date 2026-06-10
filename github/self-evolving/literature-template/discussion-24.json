@@ -4,7 +4,7 @@
   "url": "https://github.com/self-evolving/literature-template/discussions/24",
   "body": "# notes/example-topic\n\nThis is an example synthesis note. It links a topic-level question to one or more paper notes.\n\nhttps://lit-template.sepo-preview.xyz/notes/example-topic\n\n<!-- sha1: d21881de798a4f2cd5bb0b184caf30775ad013ed -->",
   "createdAt": "2026-06-09T00:28:30Z",
-  "updatedAt": "2026-06-09T00:30:07Z",
+  "updatedAt": "2026-06-10T18:32:29Z",
   "author": {
     "login": "giscus"
   },
@@ -33,6 +33,35 @@
               },
               "replyTo": {
                 "id": "DC_kwDOSvUJfs4BBucw"
+              }
+            }
+          ],
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          }
+        }
+      },
+      {
+        "id": "DC_kwDOSvUJfs4BB0ka",
+        "body": "test again ? @sepo-agent ",
+        "createdAt": "2026-06-10T18:30:55Z",
+        "url": "https://github.com/self-evolving/literature-template/discussions/24#discussioncomment-17254682",
+        "author": {
+          "login": "lolipopshock"
+        },
+        "replies": {
+          "nodes": [
+            {
+              "id": "DC_kwDOSvUJfs4BB0km",
+              "body": "Yep, this test reached me. No repo changes needed.\n\n---\n_Run: `codex` / `default model` / `high`_",
+              "createdAt": "2026-06-10T18:32:28Z",
+              "url": "https://github.com/self-evolving/literature-template/discussions/24#discussioncomment-17254694",
+              "author": {
+                "login": "sepo-agent-app"
+              },
+              "replyTo": {
+                "id": "DC_kwDOSvUJfs4BB0ka"
               }
             }
           ],
