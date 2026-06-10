@@ -23,6 +23,43 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4633465350",
       "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFgK6sg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer should we consider all the implementation in `.agent` with the corresponding cli server? ",
+      "createdAt": "2026-06-09T21:31:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4664244914",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFgMdVg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "Yes, but not **all** of it.\n\nI’d move the reusable GitHub Deployment/status logic into `.agent` behind a CLI, because PR #22 currently embeds fairly complex deployment creation, token fallback, and inactive-marking shell directly in the workflow: `.github/workflows/agent-site-preview.yml` lines [64-154](https://github.com/self-evolving/literature-template/blob/agent/preview-deployment-status-events/.github/workflows/agent-site-preview.yml#L64-L154) and [179-213](https://github.com/self-evolving/literature-template/blob/agent/preview-deployment-status-events/.github/workflows/agent-site-preview.yml#L179-L213). That matches the existing `.agent` pattern where deterministic GitHub operations are wrapped in CLI entrypoints, e.g. comments in [`post-comment.ts`](https://github.com/self-evolving/literature-template/blob/main/.agent/src/cli/post-comment.ts) and shared `gh` helpers in [`github.ts`](https://github.com/self-evolving/literature-template/blob/main/.agent/src/github.ts#L1-L4).\n\nI would **not** move the site build, artifact upload, or preview-server OIDC deploy/teardown call just for purity. Those are workflow/server integration steps, and README already describes them as the workflow asking `preview-api.sepo.sh` to publish the artifact: [README.md#L209](https://github.com/self-evolving/literature-template/blob/agent/preview-deployment-status-events/README.md#L209).\n\nSuggested plan:\n\n1. Add a `.agent/src/cli/publish-preview-deployment.ts` CLI for creating the deployment and success status.\n2. Add a `.agent/src/cli/inactivate-preview-deployments.ts` CLI for finding Sepo preview deployments by PR/SHA and marking them inactive.\n3. Put payload construction and `gh api` calls in reusable `.agent/src/github.ts` helpers.\n4. Replace the large inline workflow shell blocks with short `node .agent/dist/cli/...` calls.\n5. Add focused CLI tests for token fallback, payload shape, matching by payload PR/SHA, and no-match teardown behavior.\n6. Keep the preview server `curl` deploy/teardown calls in the workflow unless we decide to make preview-server integration reusable across multiple workflows.\n\nSo: yes, we should consider `.agent` CLI coverage for the deterministic GitHub-side implementation, but keep workflow-only and preview-server plumbing outside unless reuse pressure appears.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-09T21:33:41Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4664270166",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-05T16:20:58Z",
@@ -41,13 +78,20 @@
     }
   ],
   "headRefName": "agent/preview-deployment-status-events",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "mergedAt": null,
   "number": 22,
   "reviewDecision": "",
   "reviews": [],
   "state": "OPEN",
   "title": "Use deployment events for Sepo previews",
-  "updatedAt": "2026-06-05T16:25:46Z",
+  "updatedAt": "2026-06-09T21:33:42Z",
   "url": "https://github.com/self-evolving/literature-template/pull/22"
 }
