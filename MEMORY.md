@@ -10,7 +10,7 @@
 - Quartz plugin restores: normal builds use enabled-only; disabled plugins stay in config/lockfile for opt-in. [[github/self-evolving/literature-template/pull-16.json]]
 - Preview workflows: ignored label events must not cancel live deploy runs; scope concurrency to jobs or actions that actually deploy. [[github/self-evolving/literature-template/issue-13.json]]
 - Preview workflows: deploy and teardown jobs must honor vars.AGENT_ENABLED != 'false'. [[github/self-evolving/literature-template/pull-7.json]]
-- Giscus comments render as a fixed drawer; use GISCUS_TRIGGER_MODE pill/bot and repo-discussions for local tests. [[github/self-evolving/literature-template/pull-17.json]]
+- Sepo comments: template emits .sepo-embed; service-hosted sepo.js owns drawer runtime/tabs/themes; style via --sepo-* vars. [[github/self-evolving/literature-template/pull-28.json]] [[github/self-evolving/literature-template/pull-30.json]]
 - Paper-to-site imports: root paper chrome depends on conditions, layout byPageType, and index CSS; validate built HTML. [[github/self-evolving/literature-template/pull-18.json]]
 - Preview path gates: false branches must teardown or mark stale existing previews, not leave old deploys live. [[github/self-evolving/literature-template/pull-19.json]]
 - Synthesis notes live in content/notes with type: note; update content/notes/_meta.json to show/order them. [[github/self-evolving/literature-template/discussion-20.json]]
