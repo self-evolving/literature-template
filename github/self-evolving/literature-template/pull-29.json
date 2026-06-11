@@ -1,0 +1,219 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "**Precondition: do not merge until `comment-api.sepo-preview.xyz` resolves** (Vercel alias on the comment-api project + GitHub App OAuth callback). Sites that set GISCUS_APP_HOST explicitly are unaffected either way.\r\n\r\n- `GISCUS_APP_HOST` default → `https://comment-api.sepo-preview.xyz` (the env-aware default in quartz.ts plus the two defensive fallbacks)\r\n- new `SEPO_PREVIEW_API` env → `data-preview-api` passthrough, for symmetry with `SEPO_PREVIEW_DOMAIN`\r\n- README updated\r\n\r\n🤖 Generated with [Claude Code](https://claude.com/claude-code)",
+  "closedAt": "2026-06-11T06:31:22Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFtBc0Q",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #mwgyxJJW1KSApYa/HtK6YUdxM0XJAm1wRSpgdkIPVEg=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlL0IyZXBHdHU5WmtnczNnQ05aVGJEeFpiN1R0YjgiLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtY2hvcmUtdW5pZmllZC1kb21haW5zLWNvZGlzY292ZXItYWkudmVyY2VsLmFwcCIsIm5leHRDb21taXRTdGF0dXMiOiJERVBMT1lFRCIsImxpdmVGZWVkYmFjayI6eyJyZXNvbHZlZCI6MCwidW5yZXNvbHZlZCI6MCwidG90YWwiOjAsImxpbmsiOiJsaXRlcmF0dXJlLXRlbXBsYXRlLWdpdC1jaG9yZS11bmlmaWVkLWRvbWFpbnMtY29kaXNjb3Zlci1haS52ZXJjZWwuYXBwIn0sInJvb3REaXJlY3RvcnkiOm51bGx9XSwicmVxdWVzdFJldmlld1VybCI6Imh0dHBzOi8vdmVyY2VsLmNvbS92ZXJjZWwtYWdlbnQvcmVxdWVzdC1yZXZpZXc/b3duZXI9c2VsZi1ldm9sdmluZyZyZXBvPWxpdGVyYXR1cmUtdGVtcGxhdGUmcHI9MjkifQ==\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/B2epGtu9Zkgs3gCNZTbDxZb7Ttb8) | [Preview](https://literature-template-git-chore-unified-domains-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-chore-unified-domains-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 11, 2026 6:30am |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=29\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-11T06:13:13Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/29#issuecomment-4677721297",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFtCrBQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-11T06:16:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/29#issuecomment-4677741317",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFtDz4g",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 95 | PARTIAL | 6 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Diff is limited to `README.md`, `quartz.ts`, `Comments.tsx`, and `comments.inline.ts`; all are directly tied to the comments host/default and preview API passthrough. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Uses existing `envValue(...)` config flow in `quartz.ts` and the existing `Options -> data-* -> forwardedKeys` path instead of adding a parallel parser or runtime. |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | Adds a distinct `SEPO_PREVIEW_API` env and `previewApi` option rather than overloading `SEPO_PREVIEW_DOMAIN` or `GISCUS_APP_HOST`. |\n| coding_workflow / generic | Name config by capability | pass | 6/6 | `SEPO_PREVIEW_API` describes the preview API capability and is documented as the “Preview registry override,” not as a one-off domain migration flag. |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | Keeps the built-in behavior to a default host plus env overrides: `GISCUS_APP_HOST` still overrides the default, and `SEPO_PREVIEW_API` is only a passthrough. |\n| coding_workflow / generic | Keep docs in sync | partial | 5/7 | README updates the env table and default host, but the explanatory sentence still lists only `SEPO_PREVIEW_BRANCH` and `SEPO_PREVIEW_DOMAIN` as verbatim-forwarded values even though code now forwards `previewApi` too. |\n\n## Notes\n\n- The implementation is compact and follows the existing comments configuration path: `SEPO_PREVIEW_API` is read in `quartz.ts`, typed in `Comments.tsx`, emitted as `data-preview-api`, and forwarded by `comments.inline.ts`.\n- Verification limitation: `git diff --check origin/main...origin/pr-29` passed. `npm run check` could not be completed in this runner because dependencies were absent and `npm ci` is blocked by the local runtime (`node v20.3.1`, while the repo requires `node >=22`).\n- Smallest useful follow-up: update the README forwarding sentence to include `SEPO_PREVIEW_API`, or otherwise clarify that only branch/domain have the described service-boundary validation contract.\n\n## Findings\n\n- **WARNING:** The docs are slightly behind the new preview API passthrough. The PR adds `SEPO_PREVIEW_API` to the env table and code forwards it as `data-preview-api`, but the README sentence immediately below still says only `SEPO_PREVIEW_BRANCH` and `SEPO_PREVIEW_DOMAIN` are forwarded verbatim. Evidence: `README.md` lines 158-165 and the new forwarding path in `quartz.ts` / `Comments.tsx` / `comments.inline.ts`.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-11T06:19:51Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/29#issuecomment-4677759970",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFtF_jQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: fcd15feab3e5f146ab126387b36602c8bc47dd09 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #29 switches the Sepo comments service default to `https://comment-api.sepo-preview.xyz` across the build config, component fallback, and client inline fallback.\n- It also adds `SEPO_PREVIEW_API` as a new preview registry passthrough, mirroring the existing `SEPO_PREVIEW_DOMAIN` flow.\n- The PR body marks an external merge precondition for the preview domain/OAuth callback; the PR is currently closed and unmerged.\n- Reviewers generally agreed the implementation is compact and follows existing patterns, but found two remaining issues.\n\n## Review\nThe default host migration is complete and the `previewApi` data path is wired consistently. No blocking issues were found, but two warnings remain before this should ship.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Validate `SEPO_PREVIEW_API` before forwarding | WARNING | [`quartz.ts#L144`](https://github.com/self-evolving/literature-template/blob/fcd15feab3e5f146ab126387b36602c8bc47dd09/quartz.ts#L144) forwards a raw API base into the browser; current `sepo.js` uses it as a `fetch` base, so relative or scheme-less values can fail at runtime. |\n| Document `SEPO_PREVIEW_API` in the forwarding contract | WARNING | [`README.md#L165`](https://github.com/self-evolving/literature-template/blob/fcd15feab3e5f146ab126387b36602c8bc47dd09/README.md#L165) still says only `SEPO_PREVIEW_BRANCH` and `SEPO_PREVIEW_DOMAIN` are forwarded verbatim, even though the PR adds `SEPO_PREVIEW_API`. |\n\n## Progress\n- Existing top-level rubrics feedback already covers the README forwarding-contract gap.\n- Posted one new inline comment on `quartz.ts:144` for the `SEPO_PREVIEW_API` validation concern: https://github.com/self-evolving/literature-template/pull/29#discussion_r3393747806\n- No existing inline comments were minimized, replied to, or resolved.\n- `git diff --check origin/main...origin/pr-29` passed.\n\n## Issue Details\n<details>\n<summary>Validate `SEPO_PREVIEW_API` before forwarding</summary>\n\n**Cause:** The PR reads `SEPO_PREVIEW_API` with `envValue(...)` and forwards it through `data-preview-api`. The served runtime currently trims trailing slashes and calls `fetch()` with that value as the base, so bad URL shapes can silently become browser-relative requests.\n\n**Candidate solutions:** Reuse the `GISCUS_APP_HOST` validation pattern or extract a small shared absolute-http(s)-URL helper for both hosts. If build-time validation is intentionally rejected, document that choice clearly and ensure `sepo.js` validates/falls back before fetching.\n\n**Comments:** Reviewers disagreed here: one treated verbatim forwarding as intentional service-boundary behavior, while another flagged the runtime failure mode. The current served runtime supports keeping this as a warning.\n\n</details>\n\n<details>\n<summary>Document `SEPO_PREVIEW_API` in the forwarding contract</summary>\n\n**Cause:** The README table adds `SEPO_PREVIEW_API`, but the explanatory sentence below it still names only branch and domain as forwarded verbatim.\n\n**Candidate solutions:** Update the sentence to include `SEPO_PREVIEW_API`, and mention any URL requirement if validation is added.\n\n**Comments:** This was independently raised by the rubrics and Claude reviews.\n\n</details>\n\n## Recommended Next Step\n`FIX_PR`: The remaining issues are concrete branch changes that are small enough for an automated fix-pr pass, though the closed PR may need to be reopened or retargeted first.\n\n## Final Verdict\n`MINOR_ISSUES`\n\n## Action Items\n- [ ] Validate `SEPO_PREVIEW_API` as an absolute http(s) URL before emitting `data-preview-api`, or otherwise enforce the equivalent fallback in the runtime contract.\n- [ ] Update the README forwarding-contract paragraph to include `SEPO_PREVIEW_API` and its URL/validation expectations.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-11T06:26:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/29#issuecomment-4677795725",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFtHv6g",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-11T06:31:18Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/29#issuecomment-4677824490",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFtIRVQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #29.\n\nno rubric changes\n\nI read PR #29’s body, comments, review comments, reviews, diff, repo owner metadata, and the existing rubric set. The only substantive feedback was bot/agent-authored, and the human comments were `/review` triggers from `lolipopshock` with `CONTRIBUTOR` association. The candidate lessons are already covered by existing active rubrics like `keep-docs-in-sync` and `validate-preview-contracts`, so I left the rubrics branch unchanged.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-11T06:32:45Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/29#issuecomment-4677833045",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFtInBQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 96 | PARTIAL | 7 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Diff is limited to `README.md`, `quartz.ts`, `Comments.tsx`, and `comments.inline.ts`, all directly tied to the comments host and preview API passthrough. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | The PR reuses the existing env/config flow and extracts `requireAbsoluteHttpUrl(...)` for both `GISCUS_APP_HOST` and `SEPO_PREVIEW_API` instead of adding a parallel parser. |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | Adds a distinct `SEPO_PREVIEW_API` env, `previewApi` option, `data-preview-api`, and `forwardedKeys` entry rather than overloading an existing field. |\n| coding_workflow / generic | Name config by capability | pass | 6/6 | `SEPO_PREVIEW_API` names the preview registry API override capability, not a one-off domain migration detail. |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | Keeps the built-in behavior to a default host plus env overrides: `GISCUS_APP_HOST` remains configurable, and `SEPO_PREVIEW_API` is optional. |\n| coding_workflow / generic | Validate preview contracts | pass | 7/7 | [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/5cce121764b1983927b2bdabf2ec28a21f72f6d2/quartz.ts#L150) validates `SEPO_PREVIEW_API` as an absolute http(s) URL before emitting browser-facing config. |\n| coding_workflow / generic | Keep docs in sync | partial | 5/7 | README adds `SEPO_PREVIEW_API` and the new default host, but the forwarding-contract sentence still names only `SEPO_PREVIEW_BRANCH` and `SEPO_PREVIEW_DOMAIN`: [`README.md`](https://github.com/self-evolving/literature-template/blob/5cce121764b1983927b2bdabf2ec28a21f72f6d2/README.md#L165). |\n\n## Notes\n\n- The current PR head resolves the earlier validation concern: `SEPO_PREVIEW_API` is now validated with the same helper used for `GISCUS_APP_HOST`.\n- The only rubric-specific gap is documentation precision around the new preview API field.\n- Smallest useful follow-up: update the README forwarding paragraph to include `SEPO_PREVIEW_API` and clarify that it is build-validated as an absolute http(s) URL.\n\n## Findings\n\n- **WARNING:** `Keep docs in sync` is only partially satisfied. The env table documents `SEPO_PREVIEW_API`, but the explanatory paragraph below still says only `SEPO_PREVIEW_BRANCH` and `SEPO_PREVIEW_DOMAIN` are forwarded verbatim, while the code now forwards and validates `previewApi`.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-11T06:33:40Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/29#issuecomment-4677838597",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFtLjPw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 5cce121764b1983927b2bdabf2ec28a21f72f6d2 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #29 switches the Sepo comments service default from `https://comment-api.sepo.sh` to `https://comment-api.sepo-preview.xyz` across the Quartz config, component fallback, and inline script fallback. It also adds `SEPO_PREVIEW_API` as an optional preview registry override, emitted as `data-preview-api` and forwarded through the existing comments embed path. The current head `5cce121764b1983927b2bdabf2ec28a21f72f6d2` adds shared absolute http(s) URL validation for both `GISCUS_APP_HOST` and `SEPO_PREVIEW_API`, resolving the earlier validation concern. The PR is already merged; the remaining issue is a small documentation mismatch.\n\n## Review\nThe implementation is compact and follows the existing env-to-options-to-data-attribute pattern. No blocking code issues remain, but reviewers still flagged one documentation gap around the new preview API contract.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Clarify `SEPO_PREVIEW_API` in README forwarding contract | WARNING | [`README.md#L165`](https://github.com/self-evolving/literature-template/blob/5cce121764b1983927b2bdabf2ec28a21f72f6d2/README.md#L165) still says only `SEPO_PREVIEW_BRANCH` and `SEPO_PREVIEW_DOMAIN` are forwarded verbatim, while `SEPO_PREVIEW_API` is now also forwarded and build-validated as an absolute http(s) URL. |\n\n## Progress\n- Current head validates `SEPO_PREVIEW_API` with `requireAbsoluteHttpUrl`, resolving the prior validation concern.\n- Minimized the superseded same-agent inline validation comment as outdated: https://github.com/self-evolving/literature-template/pull/29#discussion_r3393747806\n- No new inline comments were posted because the README issue is already covered in current PR discussion/review artifacts.\n- Codex review reported `npm ci`, `npm run check`, and `git diff --check` passed.\n\n## Issue Details\n<details>\n<summary>Clarify `SEPO_PREVIEW_API` in README forwarding contract</summary>\n\n**Cause:** The README table adds `SEPO_PREVIEW_API`, but the explanatory paragraph below it still describes only `SEPO_PREVIEW_BRANCH` and `SEPO_PREVIEW_DOMAIN` as forwarded verbatim. The code now validates `SEPO_PREVIEW_API` at build time in [`quartz.ts#L150-L152`](https://github.com/self-evolving/literature-template/blob/5cce121764b1983927b2bdabf2ec28a21f72f6d2/quartz.ts#L150-L152), so the docs no longer describe the full contract accurately.\n\n**Candidate solutions:** Update the paragraph to include `SEPO_PREVIEW_API` and distinguish its build-time absolute http(s) URL validation from branch/domain service-boundary validation.\n\n**Comments:** Claude and the rubrics review treat this as a warning; Codex downgraded it to INFO/docs polish. It is concrete and low-risk, but because PR #29 is merged it should land as a follow-up docs patch.\n\n</details>\n\n## Recommended Next Step\n`FIX_PR`: The only unresolved issue is a concrete README correction that is safe for an automated follow-up patch, with humans accounting for the fact that PR #29 is already merged.\n\n## Final Verdict\n`MINOR_ISSUES`\n\n## Action Items\n- [ ] Update the README forwarding-contract paragraph to include `SEPO_PREVIEW_API` and its build-time absolute http(s) URL validation.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-11T06:41:25Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/29#issuecomment-4677886783",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-11T06:13:11Z",
+  "files": [
+    {
+      "path": "README.md",
+      "additions": 2,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 19,
+      "deletions": 8,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/Comments.tsx",
+      "additions": 3,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/scripts/comments.inline.ts",
+      "additions": 2,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "chore/unified-domains",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-06-11T06:31:22Z",
+  "number": 29,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCq-YXg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-11T06:25:24Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "fcd15feab3e5f146ab126387b36602c8bc47dd09"
+      }
+    }
+  ],
+  "state": "MERGED",
+  "title": "Switch the comments service default to the unified domain (merge after aliases exist)",
+  "updatedAt": "2026-06-11T06:41:25Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/29"
+}

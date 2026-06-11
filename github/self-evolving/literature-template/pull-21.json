@@ -7,7 +7,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n- route the Giscus drawer loader and theme postMessage target through a configurable Giscus host\n- default enabled comments to `https://comment-api.sepo.sh`\n- document the new `GISCUS_APP_HOST` override\n\n## Checks\n- `npm run check`\n- `GISCUS_APP_HOST=https://comment-api.sepo.sh npm run build`\n\nFollow-up customization work can now happen in `self-evolving/comment-api` without requiring another GitHub App install.",
-  "closedAt": null,
+  "closedAt": "2026-06-11T06:00:48Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABFCnqcg",
@@ -111,6 +111,21 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4675898916",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFs9vOg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #21.\n\nno rubric changes\n\nI found no trusted contributor feedback in PR #21 that warrants a new or updated durable rubric. The substantive points came from agent/bot review comments, and the reusable themes are already covered by existing rubrics around explicit structured inputs, docs sync, and native escape hatches. The rubrics checkout remains unchanged.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-11T06:02:36Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4677660474",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-05T15:53:21Z",
@@ -149,7 +164,7 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-11T06:00:48Z",
   "number": 21,
   "reviewDecision": "",
   "reviews": [
@@ -169,8 +184,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Use Sepo-hosted Giscus service",
-  "updatedAt": "2026-06-11T00:10:43Z",
+  "updatedAt": "2026-06-11T06:02:36Z",
   "url": "https://github.com/self-evolving/literature-template/pull/21"
 }

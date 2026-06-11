@@ -1,0 +1,47 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "Follow-up to #29's second review warning, which merged unaddressed: the README forwarding-contract paragraph now covers SEPO_PREVIEW_API (build-validated as an absolute http(s) URL since it becomes the switcher's fetch base).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFtJ6yQ",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #hCryWFEbuORXkA2xKTQuvp5Srsr+zPLXR83zLhOtKf4=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlLzlMQ24xd2dGSnBSRzczRnl2aWN5OWZFWk1kTjEiLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtZG9jcy1wcmV2aWV3LWFwaS1jb250cmFjdC1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAiLCJuZXh0Q29tbWl0U3RhdHVzIjoiREVQTE9ZRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtZG9jcy1wcmV2aWV3LWFwaS1jb250cmFjdC1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAifSwicm9vdERpcmVjdG9yeSI6bnVsbH1dLCJyZXF1ZXN0UmV2aWV3VXJsIjoiaHR0cHM6Ly92ZXJjZWwuY29tL3ZlcmNlbC1hZ2VudC9yZXF1ZXN0LXJldmlldz9vd25lcj1zZWxmLWV2b2x2aW5nJnJlcG89bGl0ZXJhdHVyZS10ZW1wbGF0ZSZwcj0zMSJ9\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/9LCn1wgFJpRG73Fyvicy9fEZMdN1) | [Preview](https://literature-template-git-docs-preview-api-contract-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-docs-preview-api-contract-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 11, 2026 6:37am |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=31\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-11T06:37:02Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/31#issuecomment-4677860041",
+      "viewerDidAuthor": false
+    }
+  ],
+  "createdAt": "2026-06-11T06:36:59Z",
+  "files": [
+    {
+      "path": "README.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "docs/preview-api-contract",
+  "labels": [],
+  "mergedAt": null,
+  "number": 31,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Document SEPO_PREVIEW_API in the forwarding contract",
+  "updatedAt": "2026-06-11T06:37:51Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/31"
+}
