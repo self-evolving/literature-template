@@ -74,20 +74,26 @@ function listEnv(name: string) {
   return items.length > 0 ? items : undefined
 }
 
-function giscusAppHost() {
-  const appHost = envValue("GISCUS_APP_HOST") ?? "https://comment-api.sepo-preview.xyz"
-  // The value reaches the browser, where a relative or scheme-less string
-  // would silently resolve against the page origin — fail the build instead.
+// Values that reach the browser as URL bases: a relative or scheme-less
+// string would silently resolve against the page origin — fail the build.
+function requireAbsoluteHttpUrl(name: string, value: string): string {
   let parsed: URL
   try {
-    parsed = new URL(appHost)
+    parsed = new URL(value)
   } catch {
-    throw new Error(`GISCUS_APP_HOST must be an absolute URL, got: ${appHost}`)
+    throw new Error(`${name} must be an absolute URL, got: ${value}`)
   }
   if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-    throw new Error(`GISCUS_APP_HOST must use http(s), got: ${appHost}`)
+    throw new Error(`${name} must use http(s), got: ${value}`)
   }
-  return appHost
+  return value
+}
+
+function giscusAppHost() {
+  return requireAbsoluteHttpUrl(
+    "GISCUS_APP_HOST",
+    envValue("GISCUS_APP_HOST") ?? "https://comment-api.sepo-preview.xyz",
+  )
 }
 
 function giscusComments() {
@@ -141,7 +147,10 @@ function giscusComments() {
   // For local pill testing: sepo.js only shows the pill on preview hostnames,
   // so a localhost build simulates one with SEPO_PREVIEW_DOMAIN=localhost.
   const previewDomain = envValue("SEPO_PREVIEW_DOMAIN")
-  const previewApi = envValue("SEPO_PREVIEW_API")
+  const previewApiValue = envValue("SEPO_PREVIEW_API")
+  const previewApi = previewApiValue
+    ? requireAbsoluteHttpUrl("SEPO_PREVIEW_API", previewApiValue)
+    : undefined
 
   const explicitDefaultTab = optionalEnumEnv<GiscusContentTab>(
     "GISCUS_DEFAULT_TAB",
