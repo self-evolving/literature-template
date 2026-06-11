@@ -147,11 +147,25 @@ Giscus comments are disabled by default. To enable them, set `GISCUS_ENABLED=tru
 | `GISCUS_REPO_ID`      | Giscus repository ID.                                    |
 | `GISCUS_CATEGORY`     | Discussion category name.                                |
 | `GISCUS_CATEGORY_ID`  | Giscus category ID.                                      |
+| `GISCUS_APP_HOST`     | Absolute http(s) URL of the Sepo comments service host.  |
 | `GISCUS_MAPPING`      | Optional mapping; defaults to `pathname`.                |
-| `GISCUS_THEME_URL`    | Optional theme base URL for custom Giscus themes.        |
+| `GISCUS_LIGHT_THEME`  | Optional widget theme name in light mode; `sepo_light`.  |
+| `GISCUS_DARK_THEME`   | Optional widget theme name in dark mode; `sepo_dark`.    |
 | `GISCUS_TRIGGER_MODE` | Optional trigger style, `pill` or `bot`; default `pill`. |
+| `GISCUS_TABS`         | Optional drawer tabs from `discussions,issues,pulls`.    |
+| `GISCUS_DEFAULT_TAB`  | Optional tab shown on load; defaults to the first tab.   |
+| `GISCUS_CONTENT_REPO` | Optional repo browsed by the issues/pulls tabs.          |
+| `SEPO_PREVIEW_PR`     | PR number baked into preview builds; opens that PR tab.  |
+| `SEPO_PREVIEW_BRANCH` | Optional branch label shown in the preview pill.         |
+| `SEPO_PREVIEW_DOMAIN` | Preview apex override; `localhost` simulates locally.    |
 
-When enabled, Giscus renders as a fixed **Discuss** control that opens a right-side page discussion drawer instead of taking space at the bottom of the note. The GitHub Discussion still maps to the page according to `GISCUS_MAPPING`.
+`GISCUS_APP_HOST` defaults to the Sepo-operated `https://comment-api.sepo.sh` and must be an absolute http(s) URL (the build fails otherwise). The host must serve the Sepo embed runtime (`sepo.js`) — plain upstream `https://giscus.app` is not sufficient since the drawer ships from the service; use a local checkout of `self-evolving/comment-api` (e.g. `http://localhost:3000`) for development.
+
+`SEPO_PREVIEW_BRANCH` and `SEPO_PREVIEW_DOMAIN` are forwarded verbatim: validation and escaping happen at the service boundary in `sepo.js`, which gates all preview behavior on the deployment hostname and HTML-escapes the branch label at its render sink.
+
+When enabled, the site loads the drawer experience from the Sepo comments service (`sepo.js` on `GISCUS_APP_HOST`): a fixed trigger opens a right-side page discussion drawer instead of taking space at the bottom of the note. The drawer chrome, mascot animation, and the `sepo_light`/`sepo_dark` widget themes are all served by that host, so the template no longer vendors them; the site's own light/dark toggle drives the widget theme. The GitHub Discussion still maps to the page according to `GISCUS_MAPPING`.
+
+The drawer can show extra read-only tabs served by the Sepo comments service: set `GISCUS_TABS=discussions,issues,pulls` to let readers browse the site repository's issues and pull requests next to the page discussion. `GISCUS_CONTENT_REPO` points those tabs at the site's source repository when it differs from `GISCUS_REPO` (which hosts the Discussions). On per-branch preview deployments, baking `SEPO_PREVIEW_PR=<number>` into the build makes the drawer open directly on that pull request's conversation (unless `GISCUS_DEFAULT_TAB` says otherwise).
 
 For local testing, the public `self-evolving/repo-discussions` repository can host the Discussions. These identifiers are public Giscus configuration, not secrets:
 
