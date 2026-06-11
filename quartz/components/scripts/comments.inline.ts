@@ -36,10 +36,11 @@ const forwardedKeys = [
   "previewPr",
   "previewBranch",
   "previewDomain",
+  "previewApi",
 ] as const
 
 const mountSepo = (cfg: HTMLElement) => {
-  const host = (cfg.dataset.appHost ?? "https://comment-api.sepo.sh").replace(/\/+$/, "")
+  const host = (cfg.dataset.appHost ?? "https://comment-api.sepo-preview.xyz").replace(/\/+$/, "")
 
   // Re-injecting the (cached) script re-runs it; sepo.js tears down any
   // previous embed itself, so this is safe across SPA navigations.

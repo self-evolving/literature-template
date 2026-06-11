@@ -24,6 +24,7 @@ type Options = {
     prNumber?: number
     previewBranch?: string
     previewDomain?: string
+    previewApi?: string
   }
 }
 
@@ -50,7 +51,7 @@ export default ((opts: Options) => {
     return (
       <div
         class="sepo-embed"
-        data-app-host={opts.options.appHost ?? "https://comment-api.sepo.sh"}
+        data-app-host={opts.options.appHost ?? "https://comment-api.sepo-preview.xyz"}
         data-repo={opts.options.repo}
         data-repo-id={opts.options.repoId}
         data-category={opts.options.category}
@@ -70,6 +71,7 @@ export default ((opts: Options) => {
         data-preview-pr={opts.options.prNumber ? String(opts.options.prNumber) : undefined}
         data-preview-branch={opts.options.previewBranch}
         data-preview-domain={opts.options.previewDomain}
+        data-preview-api={opts.options.previewApi}
         hidden
       ></div>
     )

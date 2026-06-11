@@ -158,8 +158,9 @@ Giscus comments are disabled by default. To enable them, set `GISCUS_ENABLED=tru
 | `SEPO_PREVIEW_PR`     | PR number baked into preview builds; opens that PR tab.  |
 | `SEPO_PREVIEW_BRANCH` | Optional branch label shown in the preview pill.         |
 | `SEPO_PREVIEW_DOMAIN` | Preview apex override; `localhost` simulates locally.    |
+| `SEPO_PREVIEW_API`    | Preview registry override for the deployment switcher.   |
 
-`GISCUS_APP_HOST` defaults to the Sepo-operated `https://comment-api.sepo.sh` and must be an absolute http(s) URL (the build fails otherwise). The host must serve the Sepo embed runtime (`sepo.js`) — plain upstream `https://giscus.app` is not sufficient since the drawer ships from the service; use a local checkout of `self-evolving/comment-api` (e.g. `http://localhost:3000`) for development.
+`GISCUS_APP_HOST` defaults to the Sepo-operated `https://comment-api.sepo-preview.xyz` and must be an absolute http(s) URL (the build fails otherwise). The host must serve the Sepo embed runtime (`sepo.js`) — plain upstream `https://giscus.app` is not sufficient since the drawer ships from the service; use a local checkout of `self-evolving/comment-api` (e.g. `http://localhost:3000`) for development.
 
 `SEPO_PREVIEW_BRANCH` and `SEPO_PREVIEW_DOMAIN` are forwarded verbatim: validation and escaping happen at the service boundary in `sepo.js`, which gates all preview behavior on the deployment hostname and HTML-escapes the branch label at its render sink.
 
