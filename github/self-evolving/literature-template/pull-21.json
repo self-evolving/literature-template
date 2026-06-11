@@ -38,6 +38,79 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4672214266",
       "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFrPKvg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-11T00:00:55Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4675848894",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFrP6BQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 49/51 | PARTIAL | 7 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow/generic | Make surgical changes | pass | 8/8 | Diff touches only README and Giscus comment wiring across four files. |\n| coding_workflow/generic | Reuse existing code | pass | 8/8 | Reuses existing `envValue` config path and existing `Comments` option plumbing in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/2d94b54f5062ad65e15e83c2ea986cf75f5644b5/quartz.ts#L101). |\n| coding_workflow/generic | Minimal defaults, native escape hatches | pass | 8/8 | Adds one common-case env override, defaulting enabled comments to Sepo while preserving override behavior via `GISCUS_APP_HOST`. |\n| coding_workflow/generic | Prefer explicit structured inputs | partial | 5/7 | Uses a distinct `appHost` option and `data-app-host`, but the host is not validated before browser runtime use in [`getGiscusHost`](https://github.com/self-evolving/literature-template/blob/2d94b54f5062ad65e15e83c2ea986cf75f5644b5/quartz/components/scripts/comments.inline.ts#L5). |\n| coding_workflow/generic | Keep docs in sync | pass | 7/7 | README documents `GISCUS_APP_HOST` alongside existing Giscus env vars in [`README.md`](https://github.com/self-evolving/literature-template/blob/2d94b54f5062ad65e15e83c2ea986cf75f5644b5/README.md#L150). |\n| coding_workflow/generic | Name config by capability | pass | 6/6 | `GISCUS_APP_HOST` names the general host capability rather than the Sepo-specific default. |\n| communication/generic | Write audience-first documentation | pass | 7/7 | The README keeps the change in the existing setup table without adding internal mechanics or migration detail. |\n\n## Notes\n\n- The main rubric strength is that the PR is narrow: config flows from `GISCUS_APP_HOST` into the component, then the inline script uses it for both `postMessage` target and `client.js` loading.\n- Smallest useful follow-up: validate `GISCUS_APP_HOST` at config/build time, or document the accepted URL/host format so malformed values do not fail only when a reader opens the drawer.\n\n## Findings\n\n- **WARNING:** `GISCUS_APP_HOST` is accepted as an arbitrary string in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/2d94b54f5062ad65e15e83c2ea986cf75f5644b5/quartz.ts#L101), then parsed in browser code with `new URL(...)` in [`comments.inline.ts`](https://github.com/self-evolving/literature-template/blob/2d94b54f5062ad65e15e83c2ea986cf75f5644b5/quartz/components/scripts/comments.inline.ts#L5-L7). That partially misses the explicit-input validation preference because bad config can pass build checks and break at runtime.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-11T00:03:24Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4675860997",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFrR4CA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-11T00:09:35Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4675893256",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFrSOJA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 2d94b54f5062ad65e15e83c2ea986cf75f5644b5 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #21 makes the Giscus service host configurable for the literature template.\nIt defaults enabled comments to `https://comment-api.sepo.sh` while preserving an override through `GISCUS_APP_HOST`.\nThe change threads that host from `quartz.ts` into the rendered comments container, then uses it for both `client.js` loading and theme `postMessage`.\nThis lets Sepo customize the hosted comment service without forcing downstream sites to install a different GitHub App.\n\n## Review\nOverall, this is a narrow and mostly clean change, with no blocking findings.\nTwo reviewer artifacts support a follow-up around validating/documenting the new host setting; one reviewer found no warning-level issues after checks and a build verification.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Validate `GISCUS_APP_HOST` input | WARNING | [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/2d94b54f5062ad65e15e83c2ea986cf75f5644b5/quartz.ts#L101) accepts any string, then [`comments.inline.ts`](https://github.com/self-evolving/literature-template/blob/2d94b54f5062ad65e15e83c2ea986cf75f5644b5/quartz/components/scripts/comments.inline.ts#L5-L7) normalizes it in the browser; missing-scheme or relative values silently become the page origin. |\n| Document Sepo host dependency | WARNING | [`README.md`](https://github.com/self-evolving/literature-template/blob/2d94b54f5062ad65e15e83c2ea986cf75f5644b5/README.md#L150) says the default is “Sepo comments” but does not identify the Sepo-operated host, the absolute URL requirement, or the `https://giscus.app` escape hatch. |\n\n## Progress\n- The validation concern is already acknowledged in the current top-level rubrics review, so I did not duplicate it as an inline comment.\n- Posted one new inline comment on `README.md:150` for the documentation gap.\n- No existing inline comments or review threads were present before posting; no replies, minimizations, or thread resolutions were performed.\n- Optional INFO notes about fallback defaults and tests were left out of required action items.\n\n## Issue Details\n<details>\n<summary>Validate `GISCUS_APP_HOST` input</summary>\n\n**Cause:** `new URL(host, window.location.origin).origin` treats values like `comment-api.sepo.sh`, `\"\"`, or `/foo` as relative to the literature site, so misconfiguration can produce a same-origin `/client.js` request instead of failing clearly.\n\n**Candidate solutions:** Validate `GISCUS_APP_HOST` in `quartz.ts` as an absolute `http(s)` URL before passing it to `Comments`, or fail loudly in `getGiscusHost` when the configured value is not absolute.\n\n**Comments:** Claude and the rubrics review both flagged this; Codex reviewed the same change and found no warning-level issue. The default value itself is valid, so this is minor rather than blocking.\n\n</details>\n\n<details>\n<summary>Document Sepo host dependency</summary>\n\n**Cause:** The README adds the env var but leaves “Sepo comments” underspecified for users deciding whether to depend on the Sepo-operated Giscus-compatible origin.\n\n**Candidate solutions:** Expand the row or nearby prose to mention `https://comment-api.sepo.sh`, state that `GISCUS_APP_HOST=https://giscus.app` restores upstream Giscus behavior, and document that the value should be an absolute `https://` URL.\n\n**Comments:** This is user-facing documentation, not a runtime defect, but it is a concrete branch change and safe for an automated fix.\n\n</details>\n\n## Recommended Next Step\nFIX_PR: The remaining issues are concrete, low-risk branch changes: validate the host input and expand the README entry.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] Validate `GISCUS_APP_HOST` as an absolute `http(s)` URL before browser runtime use, or fail loudly for relative/missing-scheme input.\n- [ ] Expand the `GISCUS_APP_HOST` README documentation to identify the Sepo default host, the upstream `https://giscus.app` escape hatch, and the absolute URL requirement.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-11T00:10:43Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/21#issuecomment-4675898916",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-05T15:53:21Z",
@@ -68,13 +141,36 @@
     }
   ],
   "headRefName": "chore/use-sepo-comment-api",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "mergedAt": null,
   "number": 21,
   "reviewDecision": "",
-  "reviews": [],
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCpYFdw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-11T00:10:01Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "2d94b54f5062ad65e15e83c2ea986cf75f5644b5"
+      }
+    }
+  ],
   "state": "OPEN",
   "title": "Use Sepo-hosted Giscus service",
-  "updatedAt": "2026-06-10T16:28:16Z",
+  "updatedAt": "2026-06-11T00:10:43Z",
   "url": "https://github.com/self-evolving/literature-template/pull/21"
 }

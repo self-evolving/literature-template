@@ -7,7 +7,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n- publish Sepo preview URLs through GitHub Deployment statuses instead of PR comments\n- use the resolved Sepo auth token when it can create deployments, with GITHUB_TOKEN fallback\n- mark matching preview deployments inactive when the PR closes\n- update README preview docs\n\n## Validation\n- ruby -e 'require \"yaml\"; YAML.load_file(\".github/workflows/agent-site-preview.yml\"); puts \"yaml ok\"'\\n- git diff --check",
-  "closedAt": null,
+  "closedAt": "2026-06-10T23:57:25Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABFC0SBg",
@@ -15,7 +15,7 @@
         "login": "vercel"
       },
       "authorAssociation": "NONE",
-      "body": "[vc]: #yyDqCkmcbLewsic9UULq5MI3mexXaOJBILIUQn7F6Ks=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlL0VueDZYSjIzaGJBMkJGSGYzdVptdWE3NUNlNjYiLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtcHJldmlldy1kZXBsLTM0MjBmZC1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAiLCJuZXh0Q29tbWl0U3RhdHVzIjoiREVQTE9ZRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtcHJldmlldy1kZXBsLTM0MjBmZC1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAifSwicm9vdERpcmVjdG9yeSI6bnVsbH1dLCJyZXF1ZXN0UmV2aWV3VXJsIjoiaHR0cHM6Ly92ZXJjZWwuY29tL3ZlcmNlbC1hZ2VudC9yZXF1ZXN0LXJldmlldz9vd25lcj1zZWxmLWV2b2x2aW5nJnJlcG89bGl0ZXJhdHVyZS10ZW1wbGF0ZSZwcj0yMiJ9\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/Enx6XJ23hbA2BFHf3uZmua75Ce66) | [Preview](https://literature-template-git-agent-preview-depl-3420fd-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-agent-preview-depl-3420fd-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 10, 2026 8:00pm |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=22\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "body": "[vc]: #sKRc/wq2F6wv+Qa1StZzmObZI4sUNuLAjAr1Mml85Z0=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlLzJVQkNwWXY1bjJRYzIzTkMxcm5aU014dGV2VE4iLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtcHJldmlldy1kZXBsLTM0MjBmZC1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAiLCJuZXh0Q29tbWl0U3RhdHVzIjoiREVQTE9ZRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtcHJldmlldy1kZXBsLTM0MjBmZC1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAifSwicm9vdERpcmVjdG9yeSI6bnVsbH1dLCJyZXF1ZXN0UmV2aWV3VXJsIjoiaHR0cHM6Ly92ZXJjZWwuY29tL3ZlcmNlbC1hZ2VudC9yZXF1ZXN0LXJldmlldz9vd25lcj1zZWxmLWV2b2x2aW5nJnJlcG89bGl0ZXJhdHVyZS10ZW1wbGF0ZSZwcj0yMiJ9\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/2UBCpYv5n2Qc23NC1rnZSMxtevTN) | [Preview](https://literature-template-git-agent-preview-depl-3420fd-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-agent-preview-depl-3420fd-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 10, 2026 11:44pm |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=22\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
       "createdAt": "2026-06-05T16:21:04Z",
       "includesCreatedEdit": true,
       "isMinimized": false,
@@ -103,13 +103,144 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4673946080",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFqGFLQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-10T21:21:27Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4674651437",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFqH9Ww",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 6 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Put shared capabilities in runtime | pass | 7/7 | Reusable Deployment/status behavior now lives in `.agent/src/github.ts` helpers and two `.agent` CLIs, while the workflow only calls the CLIs: [github.ts](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.agent/src/github.ts#L169-L456), [agent-site-preview.yml](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.github/workflows/agent-site-preview.yml#L64-L75). |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | The change extends the existing shared GitHub helper module instead of embedding `gh api` logic in workflow shell, and uses the existing setup-agent-runtime action: [github.ts](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.agent/src/github.ts#L18-L33), [agent-site-preview.yml](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.github/workflows/agent-site-preview.yml#L25-L27). |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | The CLIs consume separate validated fields for repo, PR, SHA, URL, head ref, run URL, environment, and tokens rather than overloading a command string: [publish CLI](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.agent/src/cli/publish-preview-deployment.ts#L12-L57), [inactive CLI](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.agent/src/cli/inactivate-preview-deployments.ts#L7-L37). |\n| coding_workflow / generic | Surface stateful failures | pass | 7/7 | Deployment/status creation errors are surfaced as GitHub Actions warnings and final errors, and no-match teardown state is explicit rather than silently pretending work happened: [publish CLI](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.agent/src/cli/publish-preview-deployment.ts#L27-L73), [inactive CLI](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.agent/src/cli/inactivate-preview-deployments.ts#L39-L49). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README preview docs now name `agent-site-preview.yml`, Deployment status events, token fallback, and inactive teardown behavior: [README.md](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/README.md#L207-L209). |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | The diff is limited to the preview deployment runtime helpers, two CLIs, focused tests, the preview workflow wiring, and the relevant README sentence. |\n\n## Notes\n\n- The PR has no parent/tracking issue reference in the body, but the current PR discussion includes a `/answer` recommendation to move deterministic GitHub Deployment/status logic into `.agent` CLIs while keeping preview-server plumbing in the workflow; this diff follows that plan.\n- Focused tests cover publish payload shape, Sepo-token success, fallback to `GITHUB_TOKEN`, inactive matching by PR/SHA, and no-match teardown behavior: [preview-deployment-cli.test.ts](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.agent/src/__tests__/preview-deployment-cli.test.ts#L26-L279).\n- Validation from PR head `ab7ae58`: after `npm ci`, `.agent` `npm test` passed 696 tests; workflow YAML parse passed; `git diff --check origin/main...HEAD` passed.\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** No rubric-specific blocking or warning findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-10T21:24:59Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4674682203",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFqL3-w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: ab7ae58ebb254d24522748575bc1503815d94e23 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #22 replaces generated Sepo preview PR comments with GitHub Deployment/status events. It uses the resolved Sepo auth token when possible, falls back to `GITHUB_TOKEN`, marks preview deployments inactive on close, and updates the README. A follow-up `/fix-pr` moved reusable GitHub Deployment/status logic into `.agent` CLIs while leaving preview-server deploy/teardown plumbing in the workflow. The current architecture matches the PR discussion plan, but two close-path correctness issues remain.\n\n## Review\nThe implementation direction is sound and the rubrics review found no architecture or workflow-policy blockers. The unresolved issues are concrete, branch-fixable warnings around teardown scoping and cleanup reliability.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Teardown matching can inactivate another PR | WARNING | `previewDeploymentMatches` matches by PR number or head SHA, so closing one PR can mark another PR’s deployment inactive if both point at the same commit. |\n| GitHub cleanup can be skipped after teardown failure | WARNING | The inactive-status CLI runs after the preview-server teardown step, so a transient teardown error prevents GitHub Deployment cleanup from running. |\n\n## Progress\n- The prior `/fix-pr` moved Deployment/status creation and inactive marking into `.agent` CLIs backed by shared helpers.\n- Rubrics review passed with no rubric-specific blocking or warning findings.\n- Posted inline comments for both unresolved warnings: `.agent/src/github.ts:438` and `.github/workflows/agent-site-preview.yml:110`.\n- No existing inline comments or review threads needed replies, minimization, or resolution.\n- Info-only notes about setup cost, `auto_inactive`, and minor CLI ergonomics are not required branch changes.\n\n## Issue Details\n\n<details>\n<summary>Teardown matching can inactivate another PR</summary>\n\n**Cause:** [`previewDeploymentMatches`](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.agent/src/github.ts#L438-L439) returns true when either `pull_request` matches or `head_sha` matches. Two PRs can legitimately share a commit SHA.\n\n**Candidate solutions:** Match close-time cleanup by `payload.pull_request === prNumber`. If SHA fallback is needed for legacy malformed payloads, only use it when `pull_request` is absent rather than conflicting.\n\n**Comments:** Both non-rubric reviewers flagged this; the current test also asserts the risky cross-PR match behavior and should be updated with the predicate.\n\n</details>\n\n<details>\n<summary>GitHub cleanup can be skipped after teardown failure</summary>\n\n**Cause:** [`Teardown preview`](https://github.com/self-evolving/literature-template/blob/ab7ae58ebb254d24522748575bc1503815d94e23/.github/workflows/agent-site-preview.yml#L96-L110) exits nonzero before checkout/setup/mark-inactive steps run when the preview server returns a non-200/404 response.\n\n**Candidate solutions:** Add `if: always()` to the checkout, setup, and mark-inactive steps, or run GitHub inactive marking before the preview-server teardown.\n\n**Comments:** One reviewer flagged this and no current review artifact disagrees.\n\n</details>\n\n## Recommended Next Step\n`FIX_PR`: both unresolved warnings require small, concrete branch changes that are safe for an automated fix-pr pass.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] Narrow preview deployment teardown matching so a conflicting `pull_request` cannot be overridden by a matching `head_sha`.\n- [ ] Ensure GitHub inactive Deployment status cleanup runs even when preview-server teardown fails.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-10T21:31:19Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4674746363",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFrKAVg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-10T23:44:54Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4675764310",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFrLDuA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 6 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Put shared capabilities in runtime | pass | 7/7 | GitHub Deployment/status behavior is in shared `.agent/src/github.ts` helpers and CLIs, while the workflow calls `node .agent/dist/cli/...`: [github.ts](https://github.com/self-evolving/literature-template/blob/8caf421960c9278b53e2adcbd7ff42357d0f53d7/.agent/src/github.ts#L169-L463), [workflow](https://github.com/self-evolving/literature-template/blob/8caf421960c9278b53e2adcbd7ff42357d0f53d7/.github/workflows/agent-site-preview.yml#L64-L75). |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | The change extends the existing `.agent/src/github.ts` GitHub helper surface and uses the repo’s `setup-agent-runtime` action instead of leaving complex `gh api` shell in the workflow: [workflow](https://github.com/self-evolving/literature-template/blob/8caf421960c9278b53e2adcbd7ff42357d0f53d7/.github/workflows/agent-site-preview.yml#L25-L27). |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | The CLIs validate separate env fields for repo, PR, SHA, URL, head ref, run URL, environment, and tokens rather than parsing a compound command string: [publish CLI](https://github.com/self-evolving/literature-template/blob/8caf421960c9278b53e2adcbd7ff42357d0f53d7/.agent/src/cli/publish-preview-deployment.ts#L38-L57), [inactive CLI](https://github.com/self-evolving/literature-template/blob/8caf421960c9278b53e2adcbd7ff42357d0f53d7/.agent/src/cli/inactivate-preview-deployments.ts#L22-L37). |\n| coding_workflow / generic | Surface stateful failures | pass | 7/7 | Publish failures emit Actions warnings/errors, no-match teardown is explicit, and GitHub inactive cleanup now runs on failed teardown unless the job was cancelled: [publish CLI](https://github.com/self-evolving/literature-template/blob/8caf421960c9278b53e2adcbd7ff42357d0f53d7/.agent/src/cli/publish-preview-deployment.ts#L59-L73), [teardown workflow](https://github.com/self-evolving/literature-template/blob/8caf421960c9278b53e2adcbd7ff42357d0f53d7/.github/workflows/agent-site-preview.yml#L100-L117). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README preview docs now name `agent-site-preview.yml`, Deployment status events, token fallback, and inactive teardown behavior: [README.md](https://github.com/self-evolving/literature-template/blob/8caf421960c9278b53e2adcbd7ff42357d0f53d7/README.md#L207-L209). |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | The diff is limited to preview Deployment helpers/CLIs/tests, the preview workflow wiring, and the relevant README sentence. |\n\n## Notes\n\n- The PR body has no parent/tracking issue reference. The relevant linked PR discussion asked to move deterministic GitHub Deployment/status logic into `.agent` CLIs while leaving preview-server plumbing in the workflow; the current diff follows that plan.\n- The earlier review warnings are resolved in current head `8caf421`: teardown matching uses `pull_request` when present with SHA fallback only for legacy payloads, and cleanup steps use `if: !cancelled()` after preview-server teardown.\n- Focused tests cover publish payloads, token fallback, PR-vs-SHA matching, legacy SHA fallback, and no-match teardown behavior: [preview-deployment-cli.test.ts](https://github.com/self-evolving/literature-template/blob/8caf421960c9278b53e2adcbd7ff42357d0f53d7/.agent/src/__tests__/preview-deployment-cli.test.ts#L26-L283).\n- Validation checked during this review: `git diff --check origin/main...origin/pr/22` passed; workflow YAML parse passed.\n\n## Findings\n\n- **INFO:** No rubric-specific blocking or warning findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-10T23:47:58Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4675781560",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFrNRTQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 8caf421960c9278b53e2adcbd7ff42357d0f53d7 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #22 replaces generated Sepo preview PR comments with GitHub Deployment/status events. It publishes preview readiness with a resolved Sepo auth token when possible, falls back to `GITHUB_TOKEN`, marks matching deployments inactive on PR close, and updates the README. A follow-up `/fix-pr` moved reusable Deployment/status logic into `.agent` CLIs while keeping preview-server deploy/teardown plumbing in the workflow. The current review is a follow-up after earlier warning comments, and current head `8caf421` addresses those warnings.\n\n## Review\nClaude, Codex, and the rubrics reviewer agree there are no current blocking or warning findings. The remaining notes are informational implementation tradeoffs, not required branch changes.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| No unresolved actionable issues | INFO | Current head resolves the prior teardown-scope and cleanup-order warnings; no reviewer raised a remaining required code change. |\n\n## Progress\n- The PR body has no parent/tracking issue reference; the relevant PR discussion asked to move deterministic GitHub Deployment/status logic into `.agent` CLIs, and the current diff follows that plan.\n- Prior teardown matching risk is resolved: PR-number-bearing payloads match by PR number, with SHA fallback only for legacy payloads without `pull_request`.\n- Prior cleanup-order risk is resolved: teardown cleanup steps now use `if: ${{ !cancelled() }}` so GitHub inactive cleanup still runs after preview-server failure.\n- Rubrics review passed with no rubric-specific blocking or warning findings.\n- Marked two older same-agent inline review comments as outdated; no new inline comments were posted and no threads were resolved because the fetched threads were not viewer-resolvable.\n\n## Recommended Next Step\n`NO_AUTOMATED_ACTION`: no unresolved actionable branch work remains; remaining notes are informational.\n\n## Final Verdict\nSHIP\n\n## Action Items\n- [ ] No required branch-change work remains.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-10T23:54:42Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4675817805",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABFrOnpg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #22.\n\nno rubric changes\n\nI reviewed PR #22 history, review comments, trust signals, diff scope, and the relevant existing rubrics. The durable lessons are already covered by active rubrics like `reuse-existing-code`, `shared-capabilities-in-runtime`, and `surface-stateful-failures`. The detailed feedback was bot-authored and advisory, with no new trusted maintainer preference beyond those existing rubrics.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-10T23:59:09Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/22#issuecomment-4675839910",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-05T16:20:58Z",
   "files": [
     {
       "path": ".agent/src/__tests__/preview-deployment-cli.test.ts",
-      "additions": 279,
+      "additions": 283,
       "deletions": 0,
       "changeType": "ADDED"
     },
@@ -127,13 +258,13 @@
     },
     {
       "path": ".agent/src/github.ts",
-      "additions": 311,
+      "additions": 317,
       "deletions": 0,
       "changeType": "MODIFIED"
     },
     {
       "path": ".github/workflows/agent-site-preview.yml",
-      "additions": 23,
+      "additions": 30,
       "deletions": 9,
       "changeType": "MODIFIED"
     },
@@ -153,12 +284,43 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-10T23:57:25Z",
   "number": 22,
   "reviewDecision": "",
-  "reviews": [],
-  "state": "OPEN",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCokVeQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-10T21:30:39Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "ab7ae58ebb254d24522748575bc1503815d94e23"
+      }
+    },
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCokVeg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-10T21:30:39Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "ab7ae58ebb254d24522748575bc1503815d94e23"
+      }
+    }
+  ],
+  "state": "MERGED",
   "title": "Use deployment events for Sepo previews",
-  "updatedAt": "2026-06-10T20:00:47Z",
+  "updatedAt": "2026-06-10T23:59:09Z",
   "url": "https://github.com/self-evolving/literature-template/pull/22"
 }
