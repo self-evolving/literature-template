@@ -2,8 +2,8 @@ name: Agent / Site Preview
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, closed]
-# discussions: read lets the build resolve the comment widget's repo/category
-# IDs from names (quartz.ts resolveDiscussionIds) using the workflow token.
+# discussions: read lets the resolve-discussion-ids step look up the comment
+# widget's repo/category IDs from names using the workflow token.
 permissions: { id-token: write, contents: read, deployments: write, discussions: read }
 jobs:
   deploy:

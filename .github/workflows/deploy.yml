@@ -5,7 +5,8 @@ on:
 
 permissions:
   contents: read
-  # Lets the build resolve the comment widget's repo/category IDs from names.
+  # Lets the resolve-discussion-ids step look up the comment widget's
+  # repo/category IDs from names.
   discussions: read
 
 concurrency:

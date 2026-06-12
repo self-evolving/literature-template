@@ -38,20 +38,34 @@ runs:
         }'
         # Bounded retry so a transient 5xx/429/network blip cannot strip a
         # build of its comments (or fail a strict GISCUS_ENABLED=true build).
-        # Deterministic misses (repo not found) just burn the two retries.
+        # Only transient-looking failures retry; deterministic ones (repo not
+        # found, auth) warn immediately. An unrecognized transient phrasing
+        # degrades to warn-immediately — never worse than no retry at all.
         RESULT=""
         for attempt in 1 2 3; do
-          if RESULT=$(timeout 30 gh api graphql -f query="$QUERY" \
-              -f owner="${REPO%%/*}" -f name="${REPO#*/}" 2>&1); then
-            break
+          set +e
+          RESULT=$(timeout 30 gh api graphql -f query="$QUERY" \
+            -f owner="${REPO%%/*}" -f name="${REPO#*/}" 2>&1)
+          rc=$?
+          set -e
+          [[ $rc -eq 0 ]] && break
+          if [[ $rc -ne 124 ]] && ! grep -Eqi \
+              'HTTP (429|5[0-9][0-9])|rate limit|timed?[ -]?out|connection|dial tcp|no such host|TLS handshake|i/o timeout' \
+              <<<"$RESULT"; then
+            echo "::warning::comments: could not resolve ${REPO}: ${RESULT}"
+            exit 0
           fi
-          if [[ "$attempt" == 3 ]]; then
+          if [[ $attempt -eq 3 ]]; then
             echo "::warning::comments: could not resolve ${REPO} after ${attempt} attempts: ${RESULT}"
             exit 0
           fi
-          echo "comments: lookup attempt ${attempt} failed (${RESULT}); retrying in 5s"
+          echo "comments: transient lookup failure (attempt ${attempt}): ${RESULT}; retrying in 5s"
           sleep 5
         done
+        if [[ "$(jq -r '.data.repository == null' <<<"$RESULT")" == "true" ]]; then
+          echo "::warning::comments: repository ${REPO} not found or not readable by the workflow token"
+          exit 0
+        fi
         if [[ "$(jq -r '.data.repository.hasDiscussionsEnabled' <<<"$RESULT")" != "true" ]]; then
           echo "::warning::comments: Discussions are not enabled on ${REPO}"
           exit 0
