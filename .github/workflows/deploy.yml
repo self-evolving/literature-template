@@ -32,14 +32,16 @@ jobs:
 
       # Repo variables are not exported to step env automatically. Forward the
       # site-config namespaces wholesale so adding a knob never requires a
-      # workflow edit again. Heredoc form keeps multi-line values intact.
+      # workflow edit again. Heredoc form keeps multi-line values intact; the
+      # delimiter is random per run so no value can close the block early.
       - name: Export site configuration variables
         env:
           REPO_VARS: ${{ toJSON(vars) }}
         run: |
-          echo "$REPO_VARS" | jq -r 'to_entries[]
+          DELIM="SEPO_EOV_$(openssl rand -hex 16)"
+          echo "$REPO_VARS" | jq -r --arg delim "$DELIM" 'to_entries[]
             | select(.key | test("^(GISCUS_|SEPO_|HYPOTHESIS_)"))
-            | "\(.key)<<__SEPO_EOV__\n\(.value)\n__SEPO_EOV__"' >> "$GITHUB_ENV"
+            | "\(.key)<<\($delim)\n\(.value)\n\($delim)"' >> "$GITHUB_ENV"
 
       # The build itself does no network lookups: this step fills in the
       # comment widget's GraphQL IDs by name when they are not pinned.
