@@ -15,4 +15,5 @@
 - Preview path gates: false branches must teardown or mark stale existing previews, not leave old deploys live. [[github/self-evolving/literature-template/pull-19.json]]
 - Synthesis notes live in content/notes with type: note; update content/notes/_meta.json to show/order them. [[github/self-evolving/literature-template/discussion-20.json]]
 - Preview deployments: put reusable GitHub Deployment/status logic in .agent CLIs; keep preview-server plumbing in workflows. [[github/self-evolving/literature-template/pull-22.json]]
-- Giscus comments default to https://comment-api.sepo-preview.xyz; GISCUS_APP_HOST and SEPO_PREVIEW_API require absolute http(s). [[github/self-evolving/literature-template/pull-29.json]]
+- Sepo comments default to https://comment-api.sepo-preview.xyz; SEPO_COMMENTS_APP_HOST and SEPO_PREVIEW_API require absolute http(s). [[github/self-evolving/literature-template/pull-29.json]] [[github/self-evolving/literature-template/pull-35.json]]
+- Sepo comments: Quartz consumes fixed SEPO_COMMENTS_*/SEPO_PREVIEW_* env; workflows derive provider context and IDs. [[github/self-evolving/literature-template/issue-33.json]] [[github/self-evolving/literature-template/pull-35.json]]
