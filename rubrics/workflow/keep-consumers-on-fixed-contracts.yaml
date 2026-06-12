@@ -1,0 +1,29 @@
+schema_version: 1
+id: keep-consumers-on-fixed-contracts
+title: Keep consumers on fixed contracts
+description: >-
+  When application or runtime code consumes configuration supplied by workflows,
+  hosts, or providers, keep that code limited to a small fixed and documented
+  contract. Put provider-specific derivation, runner parsing, network lookups,
+  token use, and other environment preparation in workflow or integration
+  boundaries so local execution remains simple and deterministic.
+type: generic
+domain: coding_workflow
+applies_to:
+  - implement
+  - fix-pr
+  - review
+severity: should
+weight: 8
+status: active
+examples:
+  - source: https://github.com/self-evolving/literature-template/pull/32#discussion_r3400968188
+    note: >-
+      The maintainer objected to application code resolving configuration itself
+      and said it should use environment variables because local development
+      would otherwise become tricky.
+  - source: https://github.com/self-evolving/literature-template/pull/32#issuecomment-4695621294
+    note: >-
+      The maintainer asked for the implementation to be redone so the runtime
+      consumed only a fixed set of environment variables, with parsing and
+      resolution moved elsewhere.
