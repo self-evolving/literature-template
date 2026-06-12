@@ -1,11 +1,12 @@
 name: Resolve discussion IDs
 description: >-
-  Resolve the comment widget's GISCUS_REPO_ID / GISCUS_CATEGORY_ID from the
-  fixed GISCUS_REPO and GISCUS_CATEGORY build environment, then export them for
-  Quartz. Pinned ID pairs win and skip the lookup. Every failure is a warning,
-  not an error; Quartz applies the strictness policy based on GISCUS_ENABLED.
-  Requires `discussions: read` on the workflow token. Run this after preparing
-  the GISCUS_* environment and before the build.
+  Resolve the comment widget's SEPO_COMMENTS_REPO_ID / SEPO_COMMENTS_CATEGORY_ID
+  from the fixed SEPO_COMMENTS_REPO and SEPO_COMMENTS_CATEGORY build
+  environment, then export them for Quartz. Pinned ID pairs win and skip the
+  lookup. Every failure is a warning, not an error; Quartz applies the
+  strictness policy based on SEPO_COMMENTS_ENABLED. Requires `discussions: read`
+  on the workflow token. Run this after preparing the SEPO_COMMENTS_*
+  environment and before the build.
 runs:
   using: composite
   steps:
@@ -15,22 +16,22 @@ runs:
       run: |
         set -euo pipefail
         # Pinned IDs win; nothing to resolve.
-        if [[ -n "${GISCUS_REPO_ID:-}" && -n "${GISCUS_CATEGORY_ID:-}" ]]; then
-          echo "GISCUS_REPO_ID/GISCUS_CATEGORY_ID already set; skipping lookup."
+        if [[ -n "${SEPO_COMMENTS_REPO_ID:-}" && -n "${SEPO_COMMENTS_CATEGORY_ID:-}" ]]; then
+          echo "SEPO_COMMENTS_REPO_ID/SEPO_COMMENTS_CATEGORY_ID already set; skipping lookup."
           exit 0
         fi
         # Comments explicitly off; don't spend a request.
-        case "$(tr '[:upper:]' '[:lower:]' <<<"${GISCUS_ENABLED:-}")" in
-          0|false|no|off) echo "GISCUS_ENABLED is off; skipping lookup."; exit 0 ;;
+        case "$(tr '[:upper:]' '[:lower:]' <<<"${SEPO_COMMENTS_ENABLED:-}")" in
+          0|false|no|off) echo "SEPO_COMMENTS_ENABLED is off; skipping lookup."; exit 0 ;;
         esac
-        REPO="${GISCUS_REPO:-}"
-        CATEGORY="${GISCUS_CATEGORY:-}"
+        REPO="${SEPO_COMMENTS_REPO:-}"
+        CATEGORY="${SEPO_COMMENTS_CATEGORY:-}"
         if [[ -z "$REPO" || -z "$CATEGORY" ]]; then
-          echo "::warning::comments: GISCUS_REPO and GISCUS_CATEGORY must be set before ID resolution"
+          echo "::warning::comments: SEPO_COMMENTS_REPO and SEPO_COMMENTS_CATEGORY must be set before ID resolution"
           exit 0
         fi
         if [[ ! "$REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
-          echo "::warning::comments: GISCUS_REPO must use the owner/name format, got ${REPO}"
+          echo "::warning::comments: SEPO_COMMENTS_REPO must use the owner/name format, got ${REPO}"
           exit 0
         fi
         # first: 25 is exhaustive because GitHub caps repositories at 25
@@ -43,8 +44,8 @@ runs:
           }
         }'
         # Bounded retry so a transient 5xx/429/network blip cannot strip a
-        # build of its comments or fail a strict GISCUS_ENABLED=true build.
-        # Only transient-looking failures retry; deterministic ones warn
+        # build of its comments or fail a strict SEPO_COMMENTS_ENABLED=true
+        # build. Only transient-looking failures retry; deterministic ones warn
         # immediately. Unknown transient phrasing degrades to warn-immediately.
         RESULT=""
         for attempt in 1 2 3; do
@@ -85,7 +86,7 @@ runs:
           echo "::warning::comments: discussion category \"${CATEGORY}\" not found on ${REPO} (available: ${AVAILABLE:-none})"
           exit 0
         fi
-        echo "GISCUS_REPO_ID=${REPO_ID}" >> "$GITHUB_ENV"
-        echo "GISCUS_CATEGORY_ID=${CATEGORY_ID}" >> "$GITHUB_ENV"
+        echo "SEPO_COMMENTS_REPO_ID=${REPO_ID}" >> "$GITHUB_ENV"
+        echo "SEPO_COMMENTS_CATEGORY_ID=${CATEGORY_ID}" >> "$GITHUB_ENV"
         echo "Resolved ${REPO} -> ${REPO_ID}, \"${CATEGORY}\" -> ${CATEGORY_ID}" \
-             "(pin GISCUS_REPO_ID/GISCUS_CATEGORY_ID as repo variables to skip this lookup)"
+             "(pin SEPO_COMMENTS_REPO_ID/SEPO_COMMENTS_CATEGORY_ID as repo variables to skip this lookup)"

@@ -22,11 +22,15 @@ const isLibraryPage = (slug?: string) =>
 
 registerCondition("library-page", (page) => isLibraryPage(page.fileData.slug))
 
-type GiscusTriggerMode = "pill" | "bot"
-type GiscusContentTab = "discussions" | "issues" | "pulls"
+type SepoCommentsTriggerMode = "pill" | "bot"
+type SepoCommentsContentTab = "discussions" | "issues" | "pulls"
 type HypothesisTheme = NonNullable<HypothesisOptions["theme"]>
 
-const giscusContentTabs: readonly GiscusContentTab[] = ["discussions", "issues", "pulls"]
+const sepoCommentsContentTabs: readonly SepoCommentsContentTab[] = [
+  "discussions",
+  "issues",
+  "pulls",
+]
 
 function envValue(name: string) {
   const value = process.env[name]?.trim()
@@ -80,61 +84,64 @@ function requireAbsoluteHttpUrl(name: string, value: string): string {
   return value
 }
 
-function giscusAppHost() {
+function sepoCommentsAppHost() {
   return requireAbsoluteHttpUrl(
-    "GISCUS_APP_HOST",
-    envValue("GISCUS_APP_HOST") ?? "https://comment-api.sepo-preview.xyz",
+    "SEPO_COMMENTS_APP_HOST",
+    envValue("SEPO_COMMENTS_APP_HOST") ?? "https://comment-api.sepo-preview.xyz",
   )
 }
 
-function giscusComments() {
+function sepoComments() {
   // Comments are part of the literature-site product, so they default ON.
-  // An explicit GISCUS_ENABLED=true upgrades missing pieces from a warning
-  // (build continues without comments) to a hard build failure.
-  const explicitlyConfigured = envValue("GISCUS_ENABLED") !== undefined
-  if (!booleanEnv("GISCUS_ENABLED", true)) {
+  // An explicit SEPO_COMMENTS_ENABLED=true upgrades missing pieces from a
+  // warning (build continues without comments) to a hard build failure.
+  const explicitlyConfigured = envValue("SEPO_COMMENTS_ENABLED") !== undefined
+  if (!booleanEnv("SEPO_COMMENTS_ENABLED", true)) {
     return undefined
   }
   const unavailable = (reason: string) => {
     if (explicitlyConfigured) {
-      throw new Error(`GISCUS_ENABLED=true but ${reason}`)
+      throw new Error(`SEPO_COMMENTS_ENABLED=true but ${reason}`)
     }
     console.warn(`[sepo-comments] disabled: ${reason}`)
     return undefined
   }
 
-  const repo = envValue("GISCUS_REPO")
+  const repo = envValue("SEPO_COMMENTS_REPO")
   if (!repo) {
-    return unavailable("GISCUS_REPO is not set")
+    return unavailable("SEPO_COMMENTS_REPO is not set")
   }
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
-    throw new Error("GISCUS_REPO must use the owner/name format")
+    throw new Error("SEPO_COMMENTS_REPO must use the owner/name format")
   }
 
-  const category = envValue("GISCUS_CATEGORY")
+  const category = envValue("SEPO_COMMENTS_CATEGORY")
   if (!category) {
-    return unavailable("GISCUS_CATEGORY is not set")
+    return unavailable("SEPO_COMMENTS_CATEGORY is not set")
   }
-  const repoId = envValue("GISCUS_REPO_ID")
-  const categoryId = envValue("GISCUS_CATEGORY_ID")
+  const repoId = envValue("SEPO_COMMENTS_REPO_ID")
+  const categoryId = envValue("SEPO_COMMENTS_CATEGORY_ID")
   if (!repoId || !categoryId) {
     return unavailable(
-      "GISCUS_REPO_ID/GISCUS_CATEGORY_ID are not set (the shipped workflows resolve " +
-        "them automatically; for local or non-Actions builds pin them - see README)",
+      "SEPO_COMMENTS_REPO_ID/SEPO_COMMENTS_CATEGORY_ID are not set (the shipped " +
+        "workflows resolve them automatically; for local or non-Actions builds pin them - " +
+        "see README)",
     )
   }
 
-  // All drawer tabs ship by default; GISCUS_TABS=discussions trims back.
-  const tabs = (listEnv("GISCUS_TABS") as GiscusContentTab[] | undefined) ?? [...giscusContentTabs]
+  // All drawer tabs ship by default; SEPO_COMMENTS_TABS=discussions trims back.
+  const tabs = (listEnv("SEPO_COMMENTS_TABS") as SepoCommentsContentTab[] | undefined) ?? [
+    ...sepoCommentsContentTabs,
+  ]
   for (const tab of tabs) {
-    if (!giscusContentTabs.includes(tab)) {
-      throw new Error(`GISCUS_TABS must only contain: ${giscusContentTabs.join(", ")}`)
+    if (!sepoCommentsContentTabs.includes(tab)) {
+      throw new Error(`SEPO_COMMENTS_TABS must only contain: ${sepoCommentsContentTabs.join(", ")}`)
     }
   }
 
-  const contentRepo = envValue("GISCUS_CONTENT_REPO")
+  const contentRepo = envValue("SEPO_COMMENTS_CONTENT_REPO")
   if (contentRepo && !/^[\w.-]+\/[\w.-]+$/.test(contentRepo)) {
-    throw new Error("GISCUS_CONTENT_REPO must use the owner/name format")
+    throw new Error("SEPO_COMMENTS_CONTENT_REPO must use the owner/name format")
   }
 
   // Preview deployments bake the pull request they were built from through the
@@ -148,8 +155,8 @@ function giscusComments() {
     // Not fatal: the preview pill still works from the hostname/identity, but
     // the in-drawer PR deep-link needs the pulls tab.
     console.warn(
-      `SEPO_PREVIEW_PR=${prNumber} is set but the pulls tab is not enabled (GISCUS_TABS); ` +
-        "the drawer will not deep-link to the pull request.",
+      `SEPO_PREVIEW_PR=${prNumber} is set but the pulls tab is not enabled ` +
+        "(SEPO_COMMENTS_TABS); the drawer will not deep-link to the pull request.",
     )
   }
   const previewBranch = envValue("SEPO_PREVIEW_BRANCH")
@@ -161,19 +168,19 @@ function giscusComments() {
     ? requireAbsoluteHttpUrl("SEPO_PREVIEW_API", previewApiValue)
     : undefined
 
-  const explicitDefaultTab = optionalEnumEnv<GiscusContentTab>(
-    "GISCUS_DEFAULT_TAB",
-    giscusContentTabs,
+  const explicitDefaultTab = optionalEnumEnv<SepoCommentsContentTab>(
+    "SEPO_COMMENTS_DEFAULT_TAB",
+    sepoCommentsContentTabs,
   )
   if (explicitDefaultTab && !tabs.includes(explicitDefaultTab)) {
     throw new Error(
-      `GISCUS_DEFAULT_TAB=${explicitDefaultTab} is not one of the enabled tabs (${tabs.join(", ")})`,
+      `SEPO_COMMENTS_DEFAULT_TAB=${explicitDefaultTab} is not one of the enabled tabs (${tabs.join(", ")})`,
     )
   }
   const defaultTab =
     explicitDefaultTab ?? (prNumber && tabs.includes("pulls") ? "pulls" : undefined)
 
-  // The remaining giscus options are Sepo product decisions, not site knobs:
+  // The remaining widget options are Sepo product decisions, not site knobs:
   // pathname mapping, strict matching, no reactions, bottom composer, Sepo
   // themes, English UI. Re-expose one as env only when a real site needs it.
   return Comments({
@@ -183,7 +190,7 @@ function giscusComments() {
       repoId,
       category,
       categoryId,
-      appHost: giscusAppHost(),
+      appHost: sepoCommentsAppHost(),
       mapping: "pathname",
       strict: true,
       reactionsEnabled: false,
@@ -191,7 +198,11 @@ function giscusComments() {
       lightTheme: "sepo_light",
       darkTheme: "sepo_dark",
       lang: "en",
-      triggerMode: enumEnv<GiscusTriggerMode>("GISCUS_TRIGGER_MODE", ["pill", "bot"], "bot"),
+      triggerMode: enumEnv<SepoCommentsTriggerMode>(
+        "SEPO_COMMENTS_TRIGGER_MODE",
+        ["pill", "bot"],
+        "bot",
+      ),
       tabs,
       defaultTab,
       contentRepo: contentRepo as `${string}/${string}` | undefined,
@@ -219,7 +230,7 @@ function hypothesisAnnotations() {
 }
 
 const EmptyComponent: QuartzComponent = () => null
-const commentsComponent = giscusComments() ?? EmptyComponent
+const commentsComponent = sepoComments() ?? EmptyComponent
 const hypothesisComponent = hypothesisAnnotations() ?? EmptyComponent
 const LiteratureComments = (() => commentsComponent) satisfies QuartzComponentConstructor
 const LiteratureAnnotations = (() => hypothesisComponent) satisfies QuartzComponentConstructor

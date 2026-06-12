@@ -40,20 +40,20 @@ jobs:
         run: |
           DELIM="SEPO_EOV_$(openssl rand -hex 16)"
           echo "$REPO_VARS" | jq -r --arg delim "$DELIM" 'to_entries[]
-            | select(.key | test("^(GISCUS_|SEPO_PREVIEW_|HYPOTHESIS_)"))
+            | select(.key | test("^(SEPO_COMMENTS_|SEPO_PREVIEW_|HYPOTHESIS_)"))
             | "\(.key)<<\($delim)\n\(.value)\n\($delim)"' >> "$GITHUB_ENV"
 
       - name: Set comments build defaults
         env:
-          DEFAULT_GISCUS_REPO: ${{ github.repository }}
-          DEFAULT_GISCUS_CATEGORY: General
+          DEFAULT_SEPO_COMMENTS_REPO: ${{ github.repository }}
+          DEFAULT_SEPO_COMMENTS_CATEGORY: General
         run: |
           {
-            if [[ -z "${GISCUS_REPO:-}" ]]; then
-              echo "GISCUS_REPO=${DEFAULT_GISCUS_REPO}"
+            if [[ -z "${SEPO_COMMENTS_REPO:-}" ]]; then
+              echo "SEPO_COMMENTS_REPO=${DEFAULT_SEPO_COMMENTS_REPO}"
             fi
-            if [[ -z "${GISCUS_CATEGORY:-}" ]]; then
-              echo "GISCUS_CATEGORY=${DEFAULT_GISCUS_CATEGORY}"
+            if [[ -z "${SEPO_COMMENTS_CATEGORY:-}" ]]; then
+              echo "SEPO_COMMENTS_CATEGORY=${DEFAULT_SEPO_COMMENTS_CATEGORY}"
             fi
           } >> "$GITHUB_ENV"
 
