@@ -40,7 +40,7 @@ jobs:
         run: |
           DELIM="SEPO_EOV_$(openssl rand -hex 16)"
           echo "$REPO_VARS" | jq -r --arg delim "$DELIM" 'to_entries[]
-            | select(.key | test("^(GISCUS_|SEPO_|HYPOTHESIS_)"))
+            | select(.key | test("^(GISCUS_|SEPO_PREVIEW_|HYPOTHESIS_)"))
             | "\(.key)<<\($delim)\n\(.value)\n\($delim)"' >> "$GITHUB_ENV"
 
       - name: Set comments build defaults
