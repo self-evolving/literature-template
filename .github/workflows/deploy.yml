@@ -40,8 +40,10 @@ jobs:
             | select(.key | test("^(GISCUS_|SEPO_|HYPOTHESIS_)"))
             | "\(.key)<<__SEPO_EOV__\n\(.value)\n__SEPO_EOV__"' >> "$GITHUB_ENV"
 
+      # The build itself does no network lookups: this step fills in the
+      # comment widget's GraphQL IDs by name when they are not pinned.
+      - name: Resolve discussion IDs
+        uses: ./.github/actions/resolve-discussion-ids
+
       - name: Build Quartz site
-        env:
-          # Lets quartz.ts resolve discussion repo/category IDs by name.
-          GITHUB_TOKEN: ${{ github.token }}
         run: npm run build

@@ -139,14 +139,15 @@ Recommended Vercel environment variable:
 
 ## Comments and GitHub-backed surfaces
 
-Comments are **enabled by default** and need no configuration in CI: the build derives the
-repository from the runner environment (`GITHUB_REPOSITORY` on Actions, the git env on Vercel),
-uses the `General` discussion category (GitHub creates it when Discussions are enabled), and
-resolves the GraphQL IDs giscus needs with the workflow's own `GITHUB_TOKEN` (the shipped
-workflows grant it `discussions: read`). When a piece is missing — Discussions not enabled, no
-token available — the build logs a warning and ships without comments. Setting
-`GISCUS_ENABLED=true` explicitly upgrades those warnings to build failures; `GISCUS_ENABLED=false`
-opts out entirely.
+Comments are **enabled by default** and need no configuration in CI. The build itself is a pure
+environment-variable consumer — it performs no network lookups — and the shipped workflows fill
+that environment in: the repository derives from `GITHUB_REPOSITORY`, the discussion category
+defaults to `General` (GitHub creates it when Discussions are enabled), and a dedicated
+`resolve-discussion-ids` workflow step resolves the GraphQL IDs giscus needs by name using the
+workflow token (which the workflows grant `discussions: read`). When a piece is missing —
+Discussions not enabled, IDs not resolvable — the build logs a warning and ships without
+comments. Setting `GISCUS_ENABLED=true` explicitly upgrades those warnings to build failures;
+`GISCUS_ENABLED=false` opts out entirely.
 
 Everything else is an override, not a requirement:
 
@@ -158,8 +159,8 @@ Everything else is an override, not a requirement:
 | `GISCUS_DEFAULT_TAB`  | Tab shown on load; defaults to the first tab (`pulls` on PR previews).    |
 | `GISCUS_REPO`         | Discussions repository when it differs from the site repo (else derived). |
 | `GISCUS_CONTENT_REPO` | Repository browsed by the issues/pulls tabs when it differs from above.   |
-| `GISCUS_REPO_ID`      | Optional pin that skips the GraphQL lookup (use where no token exists).   |
-| `GISCUS_CATEGORY_ID`  | Optional pin that skips the GraphQL lookup, as above.                     |
+| `GISCUS_REPO_ID`      | Pin that skips the lookup step; required outside Actions (local, Vercel). |
+| `GISCUS_CATEGORY_ID`  | Pin that skips the lookup step, as above.                                 |
 | `GISCUS_TRIGGER_MODE` | `bot` (mascot, default) or `pill`.                                        |
 | `GISCUS_APP_HOST`     | Sepo comments service host; only for dev/self-hosting.                    |
 | `SEPO_PREVIEW_PR`     | Derived on `pull_request` builds; override for custom pipelines.          |
@@ -180,21 +181,26 @@ When enabled, the site loads the drawer experience from the Sepo comments servic
 
 All three drawer tabs (`discussions,issues,pulls`) ship by default, letting readers browse the site repository's issues and pull requests next to the page discussion; set `GISCUS_TABS=discussions` to trim back. `GISCUS_CONTENT_REPO` points the issues/pulls tabs at the site's source repository when it differs from `GISCUS_REPO` (which hosts the Discussions). On per-branch preview deployments the PR number is derived from the build context, so the drawer opens directly on that pull request's conversation (unless `GISCUS_DEFAULT_TAB` says otherwise).
 
-For local testing, any token that can read the Discussions repo powers the name→ID lookup:
-
-```bash
-GISCUS_REPO=self-evolving/repo-discussions \
-GH_TOKEN=$(gh auth token) \
-npm run dev
-```
-
-Without a token, pin the IDs instead (these are public Giscus configuration, not secrets):
+Local builds run without a token or network access, so pin the IDs (these are public Giscus
+configuration, not secrets). The public `self-evolving/repo-discussions` repository can host the
+Discussions for local testing:
 
 ```bash
 GISCUS_REPO=self-evolving/repo-discussions \
 GISCUS_REPO_ID=R_kgDOSjgnjQ \
 GISCUS_CATEGORY_ID=DIC_kwDOSjgnjc4C9gaF \
 npm run dev
+```
+
+To print the IDs for any repository once (the same query the workflow step runs):
+
+```bash
+gh api graphql -f owner=OWNER -f name=REPO -f query='query($owner: String!, $name: String!) {
+  repository(owner: $owner, name: $name) {
+    id
+    discussionCategories(first: 25) { nodes { id name } }
+  }
+}'
 ```
 
 Hypothesis web annotations are also disabled by default. To let readers annotate rendered pages,

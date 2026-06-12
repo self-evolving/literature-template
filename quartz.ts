@@ -87,66 +87,7 @@ function giscusAppHost() {
   )
 }
 
-// Resolve the GraphQL node IDs giscus needs from human-meaningful inputs
-// (owner/name + category name) so sites never have to look them up by hand.
-// Needs any token that can read the repository (the Actions GITHUB_TOKEN with
-// `discussions: read` is enough).
-async function resolveDiscussionIds(repo: string, categoryName: string, token: string) {
-  const [owner, name] = repo.split("/")
-  const response = await fetch("https://api.github.com/graphql", {
-    method: "POST",
-    headers: {
-      Authorization: `bearer ${token}`,
-      "Content-Type": "application/json",
-      "User-Agent": "literature-template",
-    },
-    body: JSON.stringify({
-      query: `query($owner: String!, $name: String!) {
-        repository(owner: $owner, name: $name) {
-          id
-          hasDiscussionsEnabled
-          discussionCategories(first: 25) { nodes { id name } }
-        }
-      }`,
-      variables: { owner, name },
-    }),
-  })
-  if (!response.ok) {
-    throw new Error(`GitHub GraphQL returned ${response.status} while resolving ${repo}`)
-  }
-  const payload = (await response.json()) as {
-    data?: {
-      repository?: {
-        id: string
-        hasDiscussionsEnabled: boolean
-        discussionCategories: { nodes: Array<{ id: string; name: string }> }
-      }
-    }
-    errors?: Array<{ message: string }>
-  }
-  const repository = payload.data?.repository
-  if (!repository) {
-    throw new Error(
-      payload.errors?.[0]?.message ?? `repository ${repo} not found or not readable by the token`,
-    )
-  }
-  if (!repository.hasDiscussionsEnabled) {
-    throw new Error(`Discussions are not enabled on ${repo}`)
-  }
-  const categories = repository.discussionCategories.nodes
-  const match =
-    categories.find((c) => c.name === categoryName) ??
-    categories.find((c) => c.name.toLowerCase() === categoryName.toLowerCase())
-  if (!match) {
-    throw new Error(
-      `discussion category "${categoryName}" not found on ${repo} ` +
-        `(available: ${categories.map((c) => c.name).join(", ") || "none"})`,
-    )
-  }
-  return { repoId: repository.id, categoryId: match.id }
-}
-
-async function giscusComments() {
+function giscusComments() {
   // Comments are part of the literature-site product, so they default ON.
   // An explicit GISCUS_ENABLED=true upgrades missing pieces from a warning
   // (build continues without comments) to a hard build failure.
@@ -179,27 +120,18 @@ async function giscusComments() {
   // "General" is created by GitHub itself when Discussions are enabled, so it
   // is the only category name that exists everywhere by default.
   const category = envValue("GISCUS_CATEGORY") ?? "General"
-  let repoId = envValue("GISCUS_REPO_ID")
-  let categoryId = envValue("GISCUS_CATEGORY_ID")
+  // The build is a pure env-var consumer: it performs no network lookups, so
+  // local builds need neither a token nor connectivity. In CI the shipped
+  // resolve-discussion-ids workflow step fills these in by name; elsewhere
+  // (local dev, Vercel) pin them or build without comments.
+  const repoId = envValue("GISCUS_REPO_ID")
+  const categoryId = envValue("GISCUS_CATEGORY_ID")
   if (!repoId || !categoryId) {
-    const token = envValue("GITHUB_TOKEN") ?? envValue("GH_TOKEN")
-    if (!token) {
-      return unavailable(
-        "GISCUS_REPO_ID/GISCUS_CATEGORY_ID are not set and no GITHUB_TOKEN/GH_TOKEN " +
-          "is available to resolve them",
-      )
-    }
-    try {
-      const resolved = await resolveDiscussionIds(repo, category, token)
-      repoId = resolved.repoId
-      categoryId = resolved.categoryId
-      console.info(
-        `[sepo-comments] resolved ${repo} -> ${repoId}, "${category}" -> ${categoryId} ` +
-          "(pin GISCUS_REPO_ID/GISCUS_CATEGORY_ID as repo variables to skip this lookup)",
-      )
-    } catch (error) {
-      return unavailable(error instanceof Error ? error.message : String(error))
-    }
+    return unavailable(
+      "GISCUS_REPO_ID/GISCUS_CATEGORY_ID are not set (the shipped workflows resolve " +
+        "them automatically; for local or Vercel builds pin them — " +
+        "see README § Comments)",
+    )
   }
 
   // All drawer tabs ship by default; GISCUS_TABS=discussions trims back.
@@ -304,7 +236,7 @@ function hypothesisAnnotations() {
 }
 
 const EmptyComponent: QuartzComponent = () => null
-const commentsComponent = (await giscusComments()) ?? EmptyComponent
+const commentsComponent = giscusComments() ?? EmptyComponent
 const hypothesisComponent = hypothesisAnnotations() ?? EmptyComponent
 const LiteratureComments = (() => commentsComponent) satisfies QuartzComponentConstructor
 const LiteratureAnnotations = (() => hypothesisComponent) satisfies QuartzComponentConstructor
