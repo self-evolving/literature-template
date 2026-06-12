@@ -22,20 +22,11 @@ const isLibraryPage = (slug?: string) =>
 
 registerCondition("library-page", (page) => isLibraryPage(page.fileData.slug))
 
-type GiscusMapping = "url" | "title" | "og:title" | "specific" | "number" | "pathname"
-type GiscusInputPosition = "top" | "bottom"
 type GiscusTriggerMode = "pill" | "bot"
 type GiscusContentTab = "discussions" | "issues" | "pulls"
 type HypothesisTheme = NonNullable<HypothesisOptions["theme"]>
 
 const giscusContentTabs: readonly GiscusContentTab[] = ["discussions", "issues", "pulls"]
-
-const giscusRequiredEnv = [
-  "GISCUS_REPO",
-  "GISCUS_REPO_ID",
-  "GISCUS_CATEGORY",
-  "GISCUS_CATEGORY_ID",
-] as const
 
 function envValue(name: string) {
   const value = process.env[name]?.trim()
@@ -96,28 +87,124 @@ function giscusAppHost() {
   )
 }
 
-function giscusComments() {
-  if (!booleanEnv("GISCUS_ENABLED", false)) {
+// Resolve the GraphQL node IDs giscus needs from human-meaningful inputs
+// (owner/name + category name) so sites never have to look them up by hand.
+// Needs any token that can read the repository (the Actions GITHUB_TOKEN with
+// `discussions: read` is enough).
+async function resolveDiscussionIds(repo: string, categoryName: string, token: string) {
+  const [owner, name] = repo.split("/")
+  const response = await fetch("https://api.github.com/graphql", {
+    method: "POST",
+    headers: {
+      Authorization: `bearer ${token}`,
+      "Content-Type": "application/json",
+      "User-Agent": "literature-template",
+    },
+    body: JSON.stringify({
+      query: `query($owner: String!, $name: String!) {
+        repository(owner: $owner, name: $name) {
+          id
+          hasDiscussionsEnabled
+          discussionCategories(first: 25) { nodes { id name } }
+        }
+      }`,
+      variables: { owner, name },
+    }),
+  })
+  if (!response.ok) {
+    throw new Error(`GitHub GraphQL returned ${response.status} while resolving ${repo}`)
+  }
+  const payload = (await response.json()) as {
+    data?: {
+      repository?: {
+        id: string
+        hasDiscussionsEnabled: boolean
+        discussionCategories: { nodes: Array<{ id: string; name: string }> }
+      }
+    }
+    errors?: Array<{ message: string }>
+  }
+  const repository = payload.data?.repository
+  if (!repository) {
+    throw new Error(
+      payload.errors?.[0]?.message ?? `repository ${repo} not found or not readable by the token`,
+    )
+  }
+  if (!repository.hasDiscussionsEnabled) {
+    throw new Error(`Discussions are not enabled on ${repo}`)
+  }
+  const categories = repository.discussionCategories.nodes
+  const match =
+    categories.find((c) => c.name === categoryName) ??
+    categories.find((c) => c.name.toLowerCase() === categoryName.toLowerCase())
+  if (!match) {
+    throw new Error(
+      `discussion category "${categoryName}" not found on ${repo} ` +
+        `(available: ${categories.map((c) => c.name).join(", ") || "none"})`,
+    )
+  }
+  return { repoId: repository.id, categoryId: match.id }
+}
+
+async function giscusComments() {
+  // Comments are part of the literature-site product, so they default ON.
+  // An explicit GISCUS_ENABLED=true upgrades missing pieces from a warning
+  // (build continues without comments) to a hard build failure.
+  const explicitlyConfigured = envValue("GISCUS_ENABLED") !== undefined
+  if (!booleanEnv("GISCUS_ENABLED", true)) {
+    return undefined
+  }
+  const unavailable = (reason: string) => {
+    if (explicitlyConfigured) {
+      throw new Error(`GISCUS_ENABLED=true but ${reason}`)
+    }
+    console.warn(`[sepo-comments] disabled: ${reason}`)
     return undefined
   }
 
-  const envConfig = Object.fromEntries(giscusRequiredEnv.map((name) => [name, envValue(name)]))
-  const missing = giscusRequiredEnv.filter((name) => !envConfig[name])
-  if (missing.length > 0) {
-    throw new Error(`GISCUS_ENABLED=true requires: ${missing.join(", ")}`)
+  // The repository is derivable in CI (GitHub Actions, Vercel); the env var
+  // is only an override for sites whose Discussions live in another repo.
+  const vercelRepo =
+    envValue("VERCEL_GIT_REPO_OWNER") && envValue("VERCEL_GIT_REPO_SLUG")
+      ? `${envValue("VERCEL_GIT_REPO_OWNER")}/${envValue("VERCEL_GIT_REPO_SLUG")}`
+      : undefined
+  const repo = envValue("GISCUS_REPO") ?? envValue("GITHUB_REPOSITORY") ?? vercelRepo
+  if (!repo) {
+    return unavailable("the repository could not be derived (set GISCUS_REPO)")
   }
-
-  const repo = envConfig.GISCUS_REPO as string
-  const repoId = envConfig.GISCUS_REPO_ID as string
-  const category = envConfig.GISCUS_CATEGORY as string
-  const categoryId = envConfig.GISCUS_CATEGORY_ID as string
-
   if (!repo.includes("/")) {
     throw new Error("GISCUS_REPO must use the owner/name format")
   }
 
-  const tabs = listEnv("GISCUS_TABS") as GiscusContentTab[] | undefined
-  for (const tab of tabs ?? []) {
+  // "General" is created by GitHub itself when Discussions are enabled, so it
+  // is the only category name that exists everywhere by default.
+  const category = envValue("GISCUS_CATEGORY") ?? "General"
+  let repoId = envValue("GISCUS_REPO_ID")
+  let categoryId = envValue("GISCUS_CATEGORY_ID")
+  if (!repoId || !categoryId) {
+    const token = envValue("GITHUB_TOKEN") ?? envValue("GH_TOKEN")
+    if (!token) {
+      return unavailable(
+        "GISCUS_REPO_ID/GISCUS_CATEGORY_ID are not set and no GITHUB_TOKEN/GH_TOKEN " +
+          "is available to resolve them",
+      )
+    }
+    try {
+      const resolved = await resolveDiscussionIds(repo, category, token)
+      repoId = resolved.repoId
+      categoryId = resolved.categoryId
+      console.info(
+        `[sepo-comments] resolved ${repo} -> ${repoId}, "${category}" -> ${categoryId} ` +
+          "(pin GISCUS_REPO_ID/GISCUS_CATEGORY_ID as repo variables to skip this lookup)",
+      )
+    } catch (error) {
+      return unavailable(error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  // All drawer tabs ship by default; GISCUS_TABS=discussions trims back.
+  const tabs = (listEnv("GISCUS_TABS") as GiscusContentTab[] | undefined) ?? [...giscusContentTabs]
+  for (const tab of tabs) {
     if (!giscusContentTabs.includes(tab)) {
       throw new Error(`GISCUS_TABS must only contain: ${giscusContentTabs.join(", ")}`)
     }
@@ -128,14 +215,19 @@ function giscusComments() {
     throw new Error("GISCUS_CONTENT_REPO must use the owner/name format")
   }
 
-  // Preview deployments bake the pull request they were built from so the
-  // drawer can open directly on that PR's conversation.
-  const previewPr = envValue("SEPO_PREVIEW_PR")
+  // Preview identity: pull_request builds already carry the PR number and
+  // branch in the runner's default environment, so the SEPO_PREVIEW_* vars are
+  // overrides, not requirements. Production builds (push/dispatch) derive
+  // nothing — and even a stray baked value stays inert because sepo.js gates
+  // all preview behavior on the deployment hostname.
+  const isPullRequestBuild = envValue("GITHUB_EVENT_NAME") === "pull_request"
+  const refPr = envValue("GITHUB_REF")?.match(/^refs\/pull\/([0-9]+)\/merge$/)?.[1]
+  const previewPr = envValue("SEPO_PREVIEW_PR") ?? (isPullRequestBuild ? refPr : undefined)
   if (previewPr && !/^[1-9][0-9]*$/.test(previewPr)) {
     throw new Error("SEPO_PREVIEW_PR must be a positive pull request number")
   }
   const prNumber = previewPr ? Number(previewPr) : undefined
-  if (prNumber && !tabs?.includes("pulls")) {
+  if (prNumber && !tabs.includes("pulls")) {
     // Not fatal: the preview pill still works from the hostname/identity, but
     // the in-drawer PR deep-link needs the pulls tab.
     console.warn(
@@ -143,7 +235,9 @@ function giscusComments() {
         "the drawer will not deep-link to the pull request.",
     )
   }
-  const previewBranch = envValue("SEPO_PREVIEW_BRANCH")
+  const previewBranch =
+    envValue("SEPO_PREVIEW_BRANCH") ??
+    (isPullRequestBuild ? envValue("GITHUB_HEAD_REF") : undefined)
   // For local pill testing: sepo.js only shows the pill on preview hostnames,
   // so a localhost build simulates one with SEPO_PREVIEW_DOMAIN=localhost.
   const previewDomain = envValue("SEPO_PREVIEW_DOMAIN")
@@ -156,15 +250,17 @@ function giscusComments() {
     "GISCUS_DEFAULT_TAB",
     giscusContentTabs,
   )
-  const enabledTabs: readonly GiscusContentTab[] = tabs ?? ["discussions"]
-  if (explicitDefaultTab && !enabledTabs.includes(explicitDefaultTab)) {
+  if (explicitDefaultTab && !tabs.includes(explicitDefaultTab)) {
     throw new Error(
-      `GISCUS_DEFAULT_TAB=${explicitDefaultTab} is not one of the enabled tabs (${enabledTabs.join(", ")})`,
+      `GISCUS_DEFAULT_TAB=${explicitDefaultTab} is not one of the enabled tabs (${tabs.join(", ")})`,
     )
   }
   const defaultTab =
-    explicitDefaultTab ?? (prNumber && tabs?.includes("pulls") ? "pulls" : undefined)
+    explicitDefaultTab ?? (prNumber && tabs.includes("pulls") ? "pulls" : undefined)
 
+  // The remaining giscus options are Sepo product decisions, not site knobs:
+  // pathname mapping, strict matching, no reactions, bottom composer, Sepo
+  // themes, English UI. Re-expose one as env only when a real site needs it.
   return Comments({
     provider: "giscus",
     options: {
@@ -173,22 +269,14 @@ function giscusComments() {
       category,
       categoryId,
       appHost: giscusAppHost(),
-      mapping: enumEnv<GiscusMapping>(
-        "GISCUS_MAPPING",
-        ["url", "title", "og:title", "specific", "number", "pathname"],
-        "pathname",
-      ),
-      strict: booleanEnv("GISCUS_STRICT", true),
-      reactionsEnabled: booleanEnv("GISCUS_REACTIONS_ENABLED", false),
-      inputPosition: enumEnv<GiscusInputPosition>(
-        "GISCUS_INPUT_POSITION",
-        ["top", "bottom"],
-        "bottom",
-      ),
-      lightTheme: envValue("GISCUS_LIGHT_THEME") ?? "sepo_light",
-      darkTheme: envValue("GISCUS_DARK_THEME") ?? "sepo_dark",
-      lang: envValue("GISCUS_LANG") ?? "en",
-      triggerMode: enumEnv<GiscusTriggerMode>("GISCUS_TRIGGER_MODE", ["pill", "bot"], "pill"),
+      mapping: "pathname",
+      strict: true,
+      reactionsEnabled: false,
+      inputPosition: "bottom",
+      lightTheme: "sepo_light",
+      darkTheme: "sepo_dark",
+      lang: "en",
+      triggerMode: enumEnv<GiscusTriggerMode>("GISCUS_TRIGGER_MODE", ["pill", "bot"], "bot"),
       tabs,
       defaultTab,
       contentRepo: contentRepo as `${string}/${string}` | undefined,
@@ -216,7 +304,7 @@ function hypothesisAnnotations() {
 }
 
 const EmptyComponent: QuartzComponent = () => null
-const commentsComponent = giscusComments() ?? EmptyComponent
+const commentsComponent = (await giscusComments()) ?? EmptyComponent
 const hypothesisComponent = hypothesisAnnotations() ?? EmptyComponent
 const LiteratureComments = (() => commentsComponent) satisfies QuartzComponentConstructor
 const LiteratureAnnotations = (() => hypothesisComponent) satisfies QuartzComponentConstructor

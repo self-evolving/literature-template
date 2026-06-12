@@ -5,6 +5,8 @@ on:
 
 permissions:
   contents: read
+  # Lets the build resolve the comment widget's repo/category IDs from names.
+  discussions: read
 
 concurrency:
   group: validate-literature-site-${{ github.ref }}
@@ -27,12 +29,19 @@ jobs:
       - name: Check Quartz site
         run: npm run check
 
+      # Repo variables are not exported to step env automatically. Forward the
+      # site-config namespaces wholesale so adding a knob never requires a
+      # workflow edit again. Heredoc form keeps multi-line values intact.
+      - name: Export site configuration variables
+        env:
+          REPO_VARS: ${{ toJSON(vars) }}
+        run: |
+          echo "$REPO_VARS" | jq -r 'to_entries[]
+            | select(.key | test("^(GISCUS_|SEPO_|HYPOTHESIS_)"))
+            | "\(.key)<<__SEPO_EOV__\n\(.value)\n__SEPO_EOV__"' >> "$GITHUB_ENV"
+
       - name: Build Quartz site
         env:
-          HYPOTHESIS_ENABLED: ${{ vars.HYPOTHESIS_ENABLED || 'false' }}
-          HYPOTHESIS_OPEN_SIDEBAR: ${{ vars.HYPOTHESIS_OPEN_SIDEBAR || '' }}
-          HYPOTHESIS_SHOW_HIGHLIGHTS: ${{ vars.HYPOTHESIS_SHOW_HIGHLIGHTS || '' }}
-          HYPOTHESIS_COMMENTS_MODE: ${{ vars.HYPOTHESIS_COMMENTS_MODE || '' }}
-          HYPOTHESIS_GROUPS_ALLOWLIST: ${{ vars.HYPOTHESIS_GROUPS_ALLOWLIST || '' }}
-          HYPOTHESIS_THEME: ${{ vars.HYPOTHESIS_THEME || '' }}
+          # Lets quartz.ts resolve discussion repo/category IDs by name.
+          GITHUB_TOKEN: ${{ github.token }}
         run: npm run build
