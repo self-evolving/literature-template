@@ -27,18 +27,31 @@ runs:
         esac
         REPO="${GISCUS_REPO:-$GITHUB_REPOSITORY}"
         CATEGORY="${GISCUS_CATEGORY:-General}"
-        if ! RESULT=$(gh api graphql \
-          -f query='query($owner: String!, $name: String!) {
-            repository(owner: $owner, name: $name) {
-              id
-              hasDiscussionsEnabled
-              discussionCategories(first: 25) { nodes { id name } }
-            }
-          }' \
-          -f owner="${REPO%%/*}" -f name="${REPO#*/}" 2>&1); then
-          echo "::warning::comments: could not resolve ${REPO}: ${RESULT}"
-          exit 0
-        fi
+        # first: 25 is exhaustive — GitHub caps repositories at 25 discussion
+        # categories, so the lookup never needs pagination.
+        QUERY='query($owner: String!, $name: String!) {
+          repository(owner: $owner, name: $name) {
+            id
+            hasDiscussionsEnabled
+            discussionCategories(first: 25) { nodes { id name } }
+          }
+        }'
+        # Bounded retry so a transient 5xx/429/network blip cannot strip a
+        # build of its comments (or fail a strict GISCUS_ENABLED=true build).
+        # Deterministic misses (repo not found) just burn the two retries.
+        RESULT=""
+        for attempt in 1 2 3; do
+          if RESULT=$(timeout 30 gh api graphql -f query="$QUERY" \
+              -f owner="${REPO%%/*}" -f name="${REPO#*/}" 2>&1); then
+            break
+          fi
+          if [[ "$attempt" == 3 ]]; then
+            echo "::warning::comments: could not resolve ${REPO} after ${attempt} attempts: ${RESULT}"
+            exit 0
+          fi
+          echo "comments: lookup attempt ${attempt} failed (${RESULT}); retrying in 5s"
+          sleep 5
+        done
         if [[ "$(jq -r '.data.repository.hasDiscussionsEnabled' <<<"$RESULT")" != "true" ]]; then
           echo "::warning::comments: Discussions are not enabled on ${REPO}"
           exit 0

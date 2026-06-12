@@ -113,7 +113,7 @@ function giscusComments() {
   if (!repo) {
     return unavailable("the repository could not be derived (set GISCUS_REPO)")
   }
-  if (!repo.includes("/")) {
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
     throw new Error("GISCUS_REPO must use the owner/name format")
   }
 
@@ -143,7 +143,7 @@ function giscusComments() {
   }
 
   const contentRepo = envValue("GISCUS_CONTENT_REPO")
-  if (contentRepo && !contentRepo.includes("/")) {
+  if (contentRepo && !/^[\w.-]+\/[\w.-]+$/.test(contentRepo)) {
     throw new Error("GISCUS_CONTENT_REPO must use the owner/name format")
   }
 
