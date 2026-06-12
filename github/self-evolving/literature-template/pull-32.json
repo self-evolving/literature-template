@@ -1,0 +1,270 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "Setting up the comments drawer on a site currently takes ~6 repo variables, two hand-collected GraphQL node IDs, and workflow env edits (see self-evolving/literature-example-hcllms#12 for a live example of how this goes wrong: the env block landed in the dispatch-only validate workflow and previews silently built with comments off). Nearly all of that input is derivable.\n\n## Architecture\n\n**quartz.ts is a pure environment-variable consumer** — it performs no network lookups, so local builds need neither a token nor connectivity. The shipped workflows fill the environment in before the build runs.\n\n## What changes\n\n**Derivation (quartz.ts, env-only)**\n- Repository: `GISCUS_REPO ?? GITHUB_REPOSITORY ?? VERCEL_GIT_REPO_OWNER/SLUG` — the env var is now only the override for Discussions hosted in a different repo.\n- Preview identity: on `pull_request` builds, the PR number comes from `GITHUB_REF` (`refs/pull/N/merge`) and the branch from `GITHUB_HEAD_REF`. `SEPO_PREVIEW_PR/BRANCH` remain as overrides. Non-PR builds derive nothing, and sepo.js hostname-gates all preview behavior anyway.\n\n**ID resolution (workflow step)**\n- A new `resolve-discussion-ids` composite action runs in both workflows between the variable-export step and the build: when `GISCUS_REPO_ID`/`GISCUS_CATEGORY_ID` are not pinned, it resolves them by name with one `gh api graphql` call (workflow token, `discussions: read`) and exports them via `GITHUB_ENV`, logging a pin-to-skip hint. Every miss is a warning, never a step failure — strictness policy lives in one place (quartz.ts, below).\n- Pinned IDs (repo variables, or env on tokenless hosts like Vercel/local) skip the lookup entirely.\n\n**Product defaults**\n- `GISCUS_ENABLED` defaults **true**, with best-effort semantics: missing pieces (Discussions disabled, IDs unresolved) log `[sepo-comments] disabled: …` and the build continues without comments. An explicit `GISCUS_ENABLED=true` makes those same conditions hard build failures; `false` opts out.\n- Category defaults to **General** (the only category GitHub creates itself when Discussions are enabled).\n- All drawer tabs (`discussions,issues,pulls`) ship by default; `GISCUS_TABS=discussions` trims back.\n- Trigger defaults to **bot** (the mascot).\n- `GISCUS_MAPPING/STRICT/REACTIONS_ENABLED/INPUT_POSITION/LIGHT_THEME/DARK_THEME/LANG` are no longer env-read — they're fixed product decisions (pathname, strict, off, bottom, sepo themes, en).\n\n**Workflows**\n- `discussions: read` added for the lookup step.\n- A generic \"Export site configuration variables\" step forwards all `GISCUS_*`/`SEPO_*`/`HYPOTHESIS_*` repo variables into the build env (heredoc form, multi-line safe), replacing per-variable env blocks — adding a future knob never requires a workflow edit again.\n\n## Verified locally (Node 22)\n\n- `npm run check` clean.\n- Pinned-ID build (what the workflow provides): embed emits `data-trigger-mode=\"bot\"`, `data-tabs=\"discussions,issues,pulls\"`, derived `data-repo`.\n- Simulated PR build (`GITHUB_EVENT_NAME=pull_request`, `GITHUB_REF=refs/pull/77/merge`, `GITHUB_HEAD_REF=feat/demo`): embed gains `data-pr-number=\"77\"`, `data-preview-branch=\"feat/demo\"`, `data-default-tab=\"pulls\"`.\n- Default-enabled without IDs: warns and builds comment-less, exit 0. Explicit `GISCUS_ENABLED=true` without IDs: fails, exit 1.\n- The composite action's script run verbatim against the live API: resolves hcllms `General` and `Site comments` correctly, skips when pinned, warns with the available-category list on a bad name, skips when `GISCUS_ENABLED=false`.\n- The jq export filter passes prefixed vars and drops e.g. `AGENT_ACCESS_POLICY`.\n\n## Notes for reviewers\n\n- Existing sites with the full variable set (IDs included) keep working unchanged — pinned IDs skip the lookup.\n- Repos without Discussions now get a `::warning::` annotation on each build instead of silently having no comments; that's intentional surface for the upcoming sepo-plugins `comments` recipe to act on.\n- The issues/pulls tabs default-on makes the prod App's Issues/PR permission upgrade load-bearing (tabs fail soft with a friendly message until then).\n- The old `preview-api.sepo.sh` SERVER_URL in `agent-site-preview.yml` is intentionally untouched here; it belongs to the domain-cutover change together with sepo-plugins#1.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF2oWzQ",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #2nZBtC1PIPdwTjIgvh5rtwpdqp7NB3p5CzP6zaKM4qM=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlL0JYUWdYb05ZR2hENnpXdFdNTWFjYjV2eXdoVm0iLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtaW5mcmEtY29tbWVudHMtemVyLTc3ZDllNy1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAiLCJuZXh0Q29tbWl0U3RhdHVzIjoiREVQTE9ZRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtaW5mcmEtY29tbWVudHMtemVyLTc3ZDllNy1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAifSwicm9vdERpcmVjdG9yeSI6bnVsbH1dLCJyZXF1ZXN0UmV2aWV3VXJsIjoiaHR0cHM6Ly92ZXJjZWwuY29tL3ZlcmNlbC1hZ2VudC9yZXF1ZXN0LXJldmlldz9vd25lcj1zZWxmLWV2b2x2aW5nJnJlcG89bGl0ZXJhdHVyZS10ZW1wbGF0ZSZwcj0zMiJ9\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/BXQgXoNYGhD6zWtWMMacb5vywhVm) | [Preview](https://literature-template-git-infra-comments-zer-77d9e7-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-infra-comments-zer-77d9e7-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 12, 2026 5:56am |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=32\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-12T05:33:48Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/32#issuecomment-4687795917",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF2p2tA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-12T05:38:08Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/32#issuecomment-4687820468",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF2rCpw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 88 | PARTIAL | 10 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Minimal Defaults, Native Escape Hatches | pass | 8/8 | Defaults are now product decisions, with overrides only for repo/category IDs, tabs, trigger, preview, and service host in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/quartz.ts#L149) and [`README.md`](https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/README.md#L151). |\n| coding_workflow / generic | Prefer Explicit Structured Inputs | pass | 6/7 | Inputs remain separate env vars with enum/boolean/URL validation for tabs, defaults, trigger mode, preview PR, and URLs in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/quartz.ts#L205). Minor weakness: repo format still only checks for `/`. |\n| coding_workflow / generic | Keep Docs In Sync | pass | 7/7 | README was updated with the new default-on behavior, strict opt-in, removed knobs, local token path, and pinned-ID fallback in [`README.md`](https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/README.md#L142). |\n| communication / generic | Actionable Setup Guidance | pass | 7/7 | The docs put the needed setup choices directly in the comments section, including local `GH_TOKEN` usage and pinned public IDs in [`README.md`](https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/README.md#L183). |\n| communication / generic | Audience-First Documentation | pass | 7/7 | The entry text starts with what site maintainers need to know: comments default on, what happens when pieces are missing, and how to opt out, before deeper implementation details. |\n| coding_workflow / generic | Reuse Existing Code | partial | 5/8 | The PR reuses existing env helpers and the `Comments` component, but adds a new GitHub discussion-category lookup while `.agent/src/discussion.ts` already has a paginated discussion config helper; the new query only fetches the first 25 categories in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/quartz.ts#L104), whereas the existing helper paginates in [`.agent/src/discussion.ts`](https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/.agent/src/discussion.ts#L244). |\n| coding_workflow / generic | Validate Preview Contracts | partial | 5/7 | Preview PR and branch identity are derived and validated in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/quartz.ts#L218), and `SEPO_PREVIEW_API` is URL-validated, but there is no focused regression test for the derived PR/default-tab contract. |\n| coding_workflow / generic | Bound Transient Retries | partial | 4/7 | The build performs a live GitHub GraphQL request with `fetch` and no bounded retry/backoff; explicit `GISCUS_ENABLED=true` turns any transient 5xx/network failure into a hard build failure in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/quartz.ts#L96). |\n| coding_workflow / generic | Read Docs And Linked Context First | pass | 6/6 | The PR body references the concrete failure mode from `self-evolving/literature-example-hcllms#12`, and the diff addresses both validate and preview workflows rather than only the dispatch workflow. |\n| coding_workflow / generic | Make Surgical Changes | pass | 8/8 | The diff is scoped to comment config derivation, two build workflows, and README docs; no unrelated refactors are present. |\n\n## Notes\n\n- The implementation strongly satisfies the selected setup/docs/defaults rubrics: it removes hand-collected IDs from the common CI path, forwards namespaced repo variables in both affected workflows, and documents strict/off/fallback behavior.\n- The main rubric debt is around robustness of the new GitHub lookup: it duplicates existing discussion-config behavior less completely, has no bounded transient retry, and lacks focused tests for the derived lookup/preview contracts.\n- PR checks reported `check` passing and Vercel deployments passing; I did not mutate GitHub state.\n\n## Findings\n\n- **WARNING:** Bounded transient retries are missing for the GitHub GraphQL lookup. A transient 502, rate limit, or network hiccup will disable comments in best-effort mode and fail strict builds without a bounded retry path.\n- **WARNING:** The new category lookup fetches only `discussionCategories(first: 25)`, while existing repo discussion code paginates categories. A configured category outside the first page can false-negative even though the repository already has a stronger pattern.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-12T05:42:05Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/32#issuecomment-4687839911",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF2tU6w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #32 makes the Sepo/Giscus comments drawer zero-config for the common CI path.\n- It derives the discussion repo and preview identity, resolves Giscus GraphQL IDs by name, defaults comments/tabs/trigger behavior, and forwards `GISCUS_*`, `SEPO_*`, and `HYPOTHESIS_*` repo variables in the build workflows.\n- The motivating failure was that comments setup previously required several manual repo variables and workflow edits, and a live downstream setup put those env edits in the wrong workflow.\n- The current implementation substantially addresses that setup pain, but the review found one credential-boundary regression and one reliability gap in the new build-time GitHub lookup.\n\n## Review\nThe PR is directionally strong, but it is not ready to ship as-is. The preview workflow now exposes privileged workflow credentials to install/build code, and the new external GraphQL path needs a bounded timeout/retry policy.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Preview build receives deployment-capable credentials | BLOCKING | `.github/workflows/agent-site-preview.yml` passes the job-scoped `GITHUB_TOKEN` into `npm ci` and `npm run build` while the same job has `deployments: write` and `id-token: write`. That gives PR-controlled build code broader authority than the comments lookup needs. |\n| GraphQL ID lookup has no timeout or bounded retry | WARNING | `quartz.ts` calls GitHub GraphQL with no timeout and treats all non-OK responses as terminal. A transient 5xx/429 or hung request can either stall, disable comments in best-effort mode, or fail strict builds. |\n| ID-resolution ownership needs maintainer decision | WARNING | A current inline reviewer comment disagrees with resolving IDs inside `quartz.ts` and prefers environment-provided values for local development. That architectural boundary affects the right automated fix shape. |\n\n## Progress\n- `gh pr checks` currently shows `check`, `Vercel`, and `Vercel Preview Comments` passing.\n- The rubrics review already posted the bounded-retry and category-pagination concerns in the PR discussion, so I did not duplicate those as new inline comments.\n- I posted one new inline comment on `.github/workflows/agent-site-preview.yml:43` for the credential-boundary issue.\n- No inline comments were minimized, replied to, or resolved. The existing human-authored thread on `.github/workflows/deploy.yml:45` remains unresolved.\n\n## Issue Details\n\n<details>\n<summary>Preview build receives deployment-capable credentials</summary>\n\n**Cause:** The preview job grants `deployments: write` and `id-token: write` at the job level, then injects `${{ github.token }}` into the build step that runs `npm ci` and `npm run build`: https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/.github/workflows/agent-site-preview.yml#L7 and https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/.github/workflows/agent-site-preview.yml#L43\n\n**Candidate solutions:** Split preview into a read-only build job and a later deploy/status job that owns deployment/OIDC credentials, or otherwise ensure install/build code only receives the minimum token needed for `contents: read` and `discussions: read`.\n\n**Comments:** This is the only synthesized BLOCKING issue and now has an inline comment at `.github/workflows/agent-site-preview.yml:43`.\n\n</details>\n\n<details>\n<summary>GraphQL ID lookup has no timeout or bounded retry</summary>\n\n**Cause:** `resolveDiscussionIds()` calls `fetch(\"https://api.github.com/graphql\", ...)` without `signal`, timeout, or retry handling, then fails all non-OK statuses the same way: https://github.com/self-evolving/literature-template/blob/d671a11d3b500bcbd678715a50336197ab1e6c0d/quartz.ts#L96\n\n**Candidate solutions:** Add a short timeout such as `AbortSignal.timeout(...)` and retry only transient failures like 429, 5xx, timeout, or connection reset. Keep deterministic failures like missing repo, missing category, disabled Discussions, and auth denial terminal.\n\n**Comments:** Reviewers agreed on the reliability gap. The related `discussionCategories(first: 25)` concern was raised as WARNING by the rubrics review but treated as lower-risk INFO by another reviewer, so this synthesis does not make pagination a required action item.\n\n</details>\n\n<details>\n<summary>ID-resolution ownership needs maintainer decision</summary>\n\n**Cause:** The PR’s core path resolves Giscus IDs in `quartz.ts`, while an existing human inline comment says Quartz should use environment variables instead because local development becomes trickier: https://github.com/self-evolving/literature-template/pull/32#discussion_r3400968188\n\n**Candidate solutions:** Either keep the build-time `quartz.ts` lookup and harden it with the credential/retry fixes above, or move ID resolution into a workflow/env-preparation step that exports `GISCUS_REPO_ID` and `GISCUS_CATEGORY_ID` before the site build.\n\n**Comments:** This is a maintainer/product boundary decision, not something I resolved automatically.\n\n</details>\n\n## Recommended Next Step\nHUMAN_DECISION: There is concrete branch work to do, but the open disagreement over whether ID resolution belongs in `quartz.ts` should be settled before an automated fix-pr pass changes the same area.\n\n## Final Verdict\nNEEDS_REWORK\n\n## Action Items\n- [ ] Split the preview build from deployment/OIDC credentials so `npm ci` and `npm run build` do not run with deployment-capable authority.\n- [ ] Decide and apply the comments ID-resolution boundary: hardened `quartz.ts` lookup or workflow/env preparation.\n- [ ] Add a timeout and bounded transient retry to whichever path performs the GitHub GraphQL lookup.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-12T05:49:24Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/32#issuecomment-4687877355",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF2vaLQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Disposition of the review pass (both the rubrics review and the synthesis examined d671a11, before the restructure in 5ebf1f0 moved the lookup out of quartz.ts):\r\n\r\n| Finding | Status |\r\n| -- | -- |\r\n| **BLOCKING — build receives deployment-capable `GITHUB_TOKEN`** | The flagged line is gone since 5ebf1f0: build steps receive no token; the lookup runs in an isolated `resolve-discussion-ids` step. The broader build/deploy job split is a pre-existing property of the preview workflow (also with `id-token: write`, all steps see the OIDC request env, and checkout persists credentials) — tracked as a follow-up for the shared preview-deploy workflow template, per the inline thread. |\r\n| **WARNING — no timeout/bounded retry on the GraphQL lookup** | Fixed in 017b9a6, in its new home: 3 attempts × 30s timeout, 5s apart. Transient failures degrade to the warn-and-skip path instead of stripping comments; deterministic misses (category not found) short-circuit without retrying. Verified against a live endpoint and an unreachable host. |\r\n| **WARNING — `first: 25` vs paginated categories** | Non-issue, now documented in the action: GitHub caps repositories at 25 discussion categories, so the query is exhaustive by construction. (The `.agent/src/discussion.ts` pagination helper targets discussions, an unbounded collection — different shape; the resolver is deliberately dependency-free bash since it runs before `npm ci`.) |\r\n| **Maintainer decision — ID-resolution ownership** | Decided and applied: quartz.ts is a pure env-var consumer; resolution lives in the workflow step (5ebf1f0). |\r\n| **Minor — repo format only checked for `/`** | Fixed in 017b9a6: `GISCUS_REPO`/`GISCUS_CONTENT_REPO` validated against the owner/name shape. |\r\n| **Partial — no focused test for the derived PR/default-tab contract** | Conscious debt: the template has no harness for `quartz.ts` config today; the PR body records the manual verification matrix (PR-event derivation, strict/best-effort/off paths, action script scenarios). |\r\n\r\n",
+      "createdAt": "2026-06-12T05:56:26Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/32#issuecomment-4687911469",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF2xrQQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review",
+      "createdAt": "2026-06-12T06:03:39Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/32#issuecomment-4687948609",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF2y14w",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "The current checks are passing, and the review threads show the earlier architecture objection was addressed by moving ID resolution out of `quartz.ts`. I’m now translating that into a focused rubric score, with warnings only where the current diff still conflicts with an applicable rubric.## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 85 | PARTIAL | 10 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Minimal Defaults, Native Escape Hatches | pass | 8/8 | Comments now default on with common-case derivation, while overrides remain limited to repo/category/tabs/trigger/preview fields in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/quartz.ts#L90-L219) and [`README.md`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/README.md#L142-L174). |\n| coding_workflow / generic | Prefer Explicit Structured Inputs | pass | 7/7 | Inputs stay as separate env vars with validation for booleans, enums, repo names, URLs, preview PRs, and default tabs in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/quartz.ts#L94-L191). |\n| coding_workflow / generic | Keep Docs In Sync | partial | 6/7 | README matches the new env-only build and workflow lookup model, but the preview workflow comment still says “quartz.ts resolveDiscussionIds” even though lookup moved to the composite action: [`.github/workflows/agent-site-preview.yml`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/.github/workflows/agent-site-preview.yml#L5-L7). |\n| communication / generic | Actionable Setup Guidance | pass | 7/7 | Setup docs explain default-on behavior, strict/off modes, local pinned IDs, and a one-off `gh api graphql` query for finding IDs: [`README.md`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/README.md#L184-L204). |\n| communication / generic | Audience-First Documentation | pass | 7/7 | The comments section leads with what site maintainers need to do and what happens when config is missing, before deeper implementation details: [`README.md`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/README.md#L140-L182). |\n| coding_workflow / generic | Reuse Existing Code | pass | 7/8 | The lookup is factored into one reusable composite action used by both workflows, and `quartz.ts` keeps using existing env parsing helpers rather than duplicating config parsing. |\n| coding_workflow / generic | Validate Preview Contracts | partial | 5/7 | PR number/branch derivation and default-tab behavior are validated in code, but there is no focused regression coverage for the derived PR/default-tab contract; the PR relies on manual verification. |\n| coding_workflow / generic | Bound Transient Retries | partial | 5/7 | The lookup now has a bounded `3 x 30s` retry loop, but it retries all `gh api graphql` failures rather than classifying deterministic auth/validation failures as terminal: [`action.yml`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/.github/actions/resolve-discussion-ids/action.yml#L39-L53). |\n| coding_workflow / generic | Keep Privileged Workflows On Trusted Runtime | partial | 4/8 | The preview job grants `id-token: write`, `deployments: write`, and `discussions: read`, then invokes a checked-out local composite action that receives `${{ github.token }}`: [workflow](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/.github/workflows/agent-site-preview.yml#L7-L43), [action](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/.github/actions/resolve-discussion-ids/action.yml#L14-L17). |\n| coding_workflow / generic | Make Surgical Changes | pass | 8/8 | The diff is scoped to comments configuration, the two relevant workflows, the new resolver action, and README docs. |\n\n## Notes\n\n- The current head addresses the earlier quartz-bound lookup objection: `quartz.ts` is now an env-only consumer, and the GraphQL lookup lives in `.github/actions/resolve-discussion-ids/action.yml`.\n- The strongest remaining rubric concerns are around the privileged preview workflow boundary and retry classification.\n- Current PR checks show `check`, Vercel, and Vercel Preview Comments passing.\n\n## Findings\n\n- **WARNING:** The preview workflow still runs a PR-checked-out local action with the job-scoped token in a job that also has deployment/OIDC authority. This remains a mismatch with the trusted-runtime rubric even though the build step itself no longer receives the token.\n- **WARNING:** The resolver retries every failed `gh api graphql` call. The retry loop is bounded, but deterministic failures such as auth denial or malformed inputs should fail or warn terminally instead of burning retry attempts.\n- **INFO:** Update the stale preview workflow comment that still references `quartz.ts resolveDiscussionIds`.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-12T06:07:14Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/32#issuecomment-4687967715",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF21cgw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 017b9a6932f427d07a1430ad8d5557a9a5107db2 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #32 makes Sepo/Giscus comments default-on and zero-config for the common GitHub Actions path.\n- It derives repo/preview identity, forwards site-config repo variables generically, and resolves Giscus repo/category IDs in a composite workflow action.\n- The motivating failure was a downstream setup where manual Giscus workflow env edits landed in the wrong workflow.\n- Current head `017b9a6` addresses the earlier blocker by moving lookup out of `quartz.ts` and keeping the build step token-free.\n\n## Review\nThe PR is no longer blocked. The remaining concerns are minor: one resolver retry-classification warning, plus INFO-level follow-ups around privileged preview hardening and stale/misleading comments.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Resolver retries deterministic API failures | WARNING | `.github/actions/resolve-discussion-ids/action.yml` now has a bounded retry loop, but it retries every `gh api graphql` failure, including deterministic auth/config errors. Codex and rubrics rated this as WARNING; Claude considered the bounded delay acceptable INFO. |\n| Preview runtime hardening remains follow-up | INFO | The preview job still invokes a checked-out local action with a job token in a job that has deployment/OIDC authority. The build-token exposure from the prior blocker is fixed, and the maintainer marked the broader job split as shared-template follow-up. |\n| Minor diagnostics/comment drift | INFO | The preview workflow permission comment still references `quartz.ts resolveDiscussionIds`, and a null repository GraphQL response can warn as if Discussions are disabled. Both are clarity issues, not behavior blockers. |\n\n## Progress\n- Prior `GITHUB_TOKEN`-into-build blocker is addressed: `npm ci` / `npm run build` no longer receive the token.\n- The maintainer resolved the ID-resolution ownership concern by making `quartz.ts` an env-only consumer and moving lookup to `resolve-discussion-ids`.\n- Checks currently pass: `check`, Vercel, and Vercel Preview Comments; preview deploy/teardown jobs are skipped by their gates.\n- No new inline comments were posted, and no comments or threads were replied to, minimized, or resolved; existing PR discussion already covers the retry and stale-comment points.\n\n## Issue Details\n\n<details>\n<summary>Resolver retries deterministic API failures</summary>\n\n**Cause:** The retry loop at [`action.yml#L43-L53`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/.github/actions/resolve-discussion-ids/action.yml#L43-L53) retries all non-zero `gh api graphql` exits. Its own comment notes deterministic misses burn retries.\n\n**Candidate solutions:** Retry only transient signatures such as timeout, 429/rate-limit, 5xx, or connection failures. Warn immediately for deterministic auth, malformed repo, missing permission, or validation failures.\n\n**Comments:** This is the only synthesized branch-change candidate. Reviewer severity differed: Codex/rubrics marked WARNING; Claude marked INFO because the retry window is bounded.\n\n</details>\n\n<details>\n<summary>Preview runtime hardening remains follow-up</summary>\n\n**Cause:** [`agent-site-preview.yml#L7`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/.github/workflows/agent-site-preview.yml#L7) grants deployment/OIDC-capable permissions, and [`agent-site-preview.yml#L42-L43`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/.github/workflows/agent-site-preview.yml#L42-L43) invokes a repo-local composite action.\n\n**Candidate solutions:** Track the broader split into an unprivileged build job and privileged deploy/status job in the shared preview-deploy template.\n\n**Comments:** The current PR did remove the specific token exposure to build/install code. The remaining hardening is real but was characterized as pre-existing/shared-template work.\n\n</details>\n\n<details>\n<summary>Minor diagnostics/comment drift</summary>\n\n**Cause:** [`agent-site-preview.yml#L5-L6`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/.github/workflows/agent-site-preview.yml#L5-L6) still names a removed `quartz.ts` resolver. [`action.yml#L55-L57`](https://github.com/self-evolving/literature-template/blob/017b9a6932f427d07a1430ad8d5557a9a5107db2/.github/actions/resolve-discussion-ids/action.yml#L55-L57) also treats a null repository response like Discussions-disabled.\n\n**Candidate solutions:** Update the workflow comment to name the composite action, and branch on `.data.repository == null` before checking `hasDiscussionsEnabled`.\n\n</details>\n\n## Recommended Next Step\nHUMAN_DECISION: The remaining branch change is minor and reviewer-disagreed, while the other concerns are optional or tracked as follow-up.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] If maintainers require the retry-classification warning before merge, update `resolve-discussion-ids` to retry only transient GraphQL failures and warn immediately for deterministic auth/config failures.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-12T06:15:10Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/32#issuecomment-4688010371",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-12T05:33:40Z",
+  "files": [
+    {
+      "path": ".github/actions/resolve-discussion-ids/action.yml",
+      "additions": 72,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/agent-site-preview.yml",
+      "additions": 17,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/deploy.yml",
+      "additions": 18,
+      "deletions": 7,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "README.md",
+      "additions": 49,
+      "deletions": 25,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 69,
+      "deletions": 49,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "infra/comments-zero-config",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 32,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCzJvbg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "",
+      "submittedAt": "2026-06-12T05:43:32Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "d671a11d3b500bcbd678715a50336197ab1e6c0d"
+      }
+    },
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCzL8Mg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-12T05:47:58Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "d671a11d3b500bcbd678715a50336197ab1e6c0d"
+      }
+    },
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCzMKRg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "",
+      "submittedAt": "2026-06-12T05:48:53Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "5ebf1f0219bbe33f2a521b961d267470e0a89217"
+      }
+    },
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABCzNByQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "",
+      "submittedAt": "2026-06-12T05:52:15Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "5ebf1f0219bbe33f2a521b961d267470e0a89217"
+      }
+    }
+  ],
+  "state": "OPEN",
+  "title": "Zero-config comments: derive, resolve, and default everything but the decisions",
+  "updatedAt": "2026-06-12T06:15:10Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/32"
+}
