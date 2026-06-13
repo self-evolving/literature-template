@@ -1,0 +1,165 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- keep comments config in `quartz.ts` on the fixed env contract, with no GitHub/Vercel runner derivation\n- add a reusable `resolve-discussion-ids` action that resolves only prepared `GISCUS_REPO` + `GISCUS_CATEGORY`\n- prepare comments defaults and PR preview identity in the validate and preview workflows\n- update README docs for the fixed contract and local pinned-ID path\n\n## Verification\n- `npm run check`\n- `npm run build`\n\nCloses #33\n",
+  "closedAt": "2026-06-12T23:39:41Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-M9tg",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #N0W7yIgwjbbHEpE0od50kJhICS/RVX7qf5ehHByj8LM=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlLzM3bkdVZlVSRnVlRFpybk1nYUU0SzFyRGhVUVoiLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtaW1wbGVtZW50LWlzLWEyOWE1My1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAiLCJuZXh0Q29tbWl0U3RhdHVzIjoiREVQTE9ZRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtYWdlbnQtaW1wbGVtZW50LWlzLWEyOWE1My1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAifSwicm9vdERpcmVjdG9yeSI6bnVsbH1dLCJyZXF1ZXN0UmV2aWV3VXJsIjoiaHR0cHM6Ly92ZXJjZWwuY29tL3ZlcmNlbC1hZ2VudC9yZXF1ZXN0LXJldmlldz9vd25lcj1zZWxmLWV2b2x2aW5nJnJlcG89bGl0ZXJhdHVyZS10ZW1wbGF0ZSZwcj0zNCJ9\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/37nGUfURFueDZrnMgaE4K1rDhUQZ) | [Preview](https://literature-template-git-agent-implement-is-a29a53-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-agent-implement-is-a29a53-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 12, 2026 11:20pm |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=34\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-12T21:53:30Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/34#issuecomment-4695735734",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-oWrg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review",
+      "createdAt": "2026-06-12T22:58:45Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/34#issuecomment-4696184494",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-qdxQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 94 | PARTIAL | 7 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Changes are scoped to the comments env boundary: workflows, one resolver action, `quartz.ts`, and README. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Keeps Quartz consuming `Comments(...)` and existing env helpers in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/6ace3d1b2fd382635fa7fb63bf9e1d1d2f0555b8/quartz.ts#L90-L203), while workflow prep owns derivation. |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | Uses explicit `GISCUS_*` and `SEPO_PREVIEW_*` fields rather than deriving from GitHub/Vercel provider vars in Quartz. |\n| coding_workflow / generic | Bound transient retries | pass | 7/7 | Resolver retries only transient-looking failures, caps attempts at 3, and warns on deterministic failures in [`action.yml`](https://github.com/self-evolving/literature-template/blob/6ace3d1b2fd382635fa7fb63bf9e1d1d2f0555b8/.github/actions/resolve-discussion-ids/action.yml#L45-L68). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README documents the fixed contract, workflow-side defaults, strict/best-effort behavior, and local pinned-ID path. |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | Product defaults are kept minimal in `quartz.ts`, with repo/category/ID pinning and documented env overrides for common site customization. |\n| coding_workflow / generic | Keep privileged workflows on trusted runtime code | partial | 5/8 | The preview workflow remains a privileged job with `id-token: write` and `deployments: write`, and this PR adds another repo-local action from the checked-out PR branch at [`agent-site-preview.yml`](https://github.com/self-evolving/literature-template/blob/6ace3d1b2fd382635fa7fb63bf9e1d1d2f0555b8/.github/workflows/agent-site-preview.yml#L61-L62). |\n\n## Notes\n\n- The implementation satisfies issue #33’s core boundary: `quartz.ts` no longer reads the prohibited comments/preview derivation vars, and workflow prep now sets `GISCUS_REPO`, `GISCUS_CATEGORY`, `SEPO_PREVIEW_PR`, and `SEPO_PREVIEW_BRANCH`.\n- Verified on PR head after `npm ci`: `npm run check` passed and `npm run build` passed. The local build logged `[sepo-comments] disabled: GISCUS_REPO is not set`, matching the documented best-effort default.\n\n## Findings\n\n- **WARNING:** Against the trusted-runtime rubric, `.github/workflows/agent-site-preview.yml` still runs repo-local action/runtime code from the PR checkout inside a job with deployment and OIDC privileges. This PR adds `./.github/actions/resolve-discussion-ids` to that same privileged job. Consider isolating unmerged build/runtime code from privileged deploy/status steps in a follow-up.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-12T23:02:26Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/34#issuecomment-4696219077",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-uqKw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 6ace3d1b2fd382635fa7fb63bf9e1d1d2f0555b8 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #34 addresses issue #33 by moving comments and preview environment derivation out of `quartz.ts` and into GitHub workflow preparation.\n- The PR adds a reusable `resolve-discussion-ids` action to resolve `GISCUS_REPO` and `GISCUS_CATEGORY` into the IDs required by giscus.\n- It also updates preview/validate workflows to prepare comments defaults and preview identity, while documenting the fixed `GISCUS_*`, `SEPO_PREVIEW_*`, and `HYPOTHESIS_*` contract in the README.\n- Reviewers agree the core issue #33 boundary is largely satisfied: `quartz.ts` no longer reads the prohibited GitHub/Vercel runner variables.\n\n## Review\n- The implementation is close, but one concrete workflow-contract gap should be fixed before merging.\n- Other concerns are non-blocking product/default or workflow-hardening judgments that maintainers should acknowledge or track separately.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Workflow export filter includes all `SEPO_*` variables | WARNING | Both workflows forward every `SEPO_*` repo variable even though the fixed build contract is scoped to `SEPO_PREVIEW_*`. This broadens the environment exposed to install/build steps beyond what `quartz.ts` consumes. |\n| Comments defaults changed beyond env-derivation scope | WARNING | `quartz.ts` now defaults comments on, enables all tabs, and switches the default trigger to `bot`. The README documents this, but it is broader than issue #33’s narrow env-derivation request and should be intentional. |\n| Preview workflow still runs PR-local action code in a privileged job | WARNING | The preview job already has OIDC/deployment permissions, and this PR adds another local action from the PR checkout into that job. The rubric review frames this as a trusted-runtime follow-up risk rather than a merge blocker. |\n\n## Progress\n- The current PR conversation and review artifacts were inspected, including the linked issue #33.\n- Existing inline review comments and review threads were checked before mutation; none existed.\n- Posted one inline comment on `.github/workflows/agent-site-preview.yml:40` covering the shared `SEPO_*` export-filter issue; no replies, minimizations, or thread resolutions were performed.\n- Reviewer verification reports `npm run check` and `npm run build` passed on the PR head.\n\n## Issue Details\n\n<details>\n<summary>Workflow export filter includes all `SEPO_*` variables</summary>\n\n**Cause:** The workflow filters at [`agent-site-preview.yml#L40`](https://github.com/self-evolving/literature-template/blob/6ace3d1b2fd382635fa7fb63bf9e1d1d2f0555b8/.github/workflows/agent-site-preview.yml#L40) and [`deploy.yml#L43`](https://github.com/self-evolving/literature-template/blob/6ace3d1b2fd382635fa7fb63bf9e1d1d2f0555b8/.github/workflows/deploy.yml#L43) use `^(GISCUS_|SEPO_|HYPOTHESIS_)`, which exports unrelated `SEPO_*` variables.\n\n**Candidate solutions:** Narrow both filters to `^(GISCUS_|SEPO_PREVIEW_|HYPOTHESIS_)`.\n\n**Comments:** This is concrete, localized, and safe for an automated fix-pr pass.\n\n</details>\n\n<details>\n<summary>Comments defaults changed beyond env-derivation scope</summary>\n\n**Cause:** The PR changes comment behavior defaults in [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/6ace3d1b2fd382635fa7fb63bf9e1d1d2f0555b8/quartz.ts#L91): default enabled behavior, all default tabs, and default `bot` trigger mode.\n\n**Candidate solutions:** If intended, explicitly acknowledge the product-default change in the PR/issue context; otherwise restore prior defaults and keep this PR focused on env derivation.\n\n**Comments:** Claude flagged this as a non-blocking policy expansion; the other reviews did not treat it as a code defect.\n\n</details>\n\n<details>\n<summary>Preview workflow still runs PR-local action code in a privileged job</summary>\n\n**Cause:** [`agent-site-preview.yml`](https://github.com/self-evolving/literature-template/blob/6ace3d1b2fd382635fa7fb63bf9e1d1d2f0555b8/.github/workflows/agent-site-preview.yml#L61) runs repo-local action code in a job with preview deployment privileges.\n\n**Candidate solutions:** Track a follow-up to isolate privileged deployment/status work onto trusted runtime code or a separate trusted checkout.\n\n**Comments:** This is broader than the narrow issue #33 fix and was raised by the rubric review as follow-up risk.\n\n</details>\n\n## Recommended Next Step\n- `FIX_PR`: Narrow the workflow export regex in both workflows; the default-policy and trusted-runtime notes are maintainer/follow-up judgments rather than automation blockers.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] Narrow the workflow export filters in `.github/workflows/agent-site-preview.yml` and `.github/workflows/deploy.yml` from `SEPO_*` to `SEPO_PREVIEW_*`.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-12T23:09:38Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/34#issuecomment-4696287787",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-_Ruw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nUpdated [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #34.\n\nAdded one active rubric:\n\n`rubrics/workflow/keep-consumers-on-fixed-contracts.yaml`\n\nIt captures the durable maintainer preference that runtime/application consumers should stick to a fixed documented config contract, while provider-specific parsing, derivation, token use, and lookups belong in workflow or integration prep.\n\nSkipped bot-only review points and one-off implementation details. No commit was created.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-12T23:41:59Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/34#issuecomment-4696560059",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-12T21:53:27Z",
+  "files": [
+    {
+      "path": ".github/actions/resolve-discussion-ids/action.yml",
+      "additions": 91,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/agent-site-preview.yml",
+      "additions": 36,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/deploy.yml",
+      "additions": 35,
+      "deletions": 7,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "README.md",
+      "additions": 56,
+      "deletions": 24,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 50,
+      "deletions": 47,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-33/codex-27444631883",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-06-12T23:39:41Z",
+  "number": 34,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABC5wieA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-12T23:08:42Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "6ace3d1b2fd382635fa7fb63bf9e1d1d2f0555b8"
+      }
+    }
+  ],
+  "state": "MERGED",
+  "title": "Move comments env derivation into workflows",
+  "updatedAt": "2026-06-12T23:41:59Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/34"
+}

@@ -1,0 +1,151 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- rename the comments build contract from `GISCUS_*` to canonical `SEPO_COMMENTS_*` variables\n- keep Quartz as a fixed-contract consumer with no legacy alias parsing\n- update workflow env export/defaults and the discussion ID resolver to emit `SEPO_COMMENTS_*` IDs\n- update README docs and local pinned-ID examples for the new names\n\n## Validation\n- `npm run check`\n- `SEPO_COMMENTS_REPO=self-evolving/repo-discussions SEPO_COMMENTS_REPO_ID=R_kgDOSjgnjQ SEPO_COMMENTS_CATEGORY=General SEPO_COMMENTS_CATEGORY_ID=DIC_kwDOSjgnjc4C9gaF SEPO_PREVIEW_PR=77 SEPO_PREVIEW_BRANCH=agent/demo npm run build`\n\nStacked on #34.",
+  "closedAt": "2026-06-12T23:39:40Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-jS1w",
+      "author": {
+        "login": "vercel"
+      },
+      "authorAssociation": "NONE",
+      "body": "[vc]: #r1D0LfS8+h+lxHZCTFefpgzl/YBxNEvbwhaR3f4krwg=:eyJpc01vbm9yZXBvIjp0cnVlLCJ0eXBlIjoiZ2l0aHViIiwicHJvamVjdHMiOlt7Im5hbWUiOiJsaXRlcmF0dXJlLXRlbXBsYXRlIiwicHJvamVjdElkIjoicHJqX1BQZmhSeXlQcmhFNlhuVVFMWmlDMzU1Zml6N2EiLCJpbnNwZWN0b3JVcmwiOiJodHRwczovL3ZlcmNlbC5jb20vY29kaXNjb3Zlci1haS9saXRlcmF0dXJlLXRlbXBsYXRlL0hXcThBaHV6b21iMllrOTVEY1BCdExXdUxqdDYiLCJwcmV2aWV3VXJsIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtc3RhY2stc2Vwby1jb21tZW50LWJhYWQxNy1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAiLCJuZXh0Q29tbWl0U3RhdHVzIjoiREVQTE9ZRUQiLCJsaXZlRmVlZGJhY2siOnsicmVzb2x2ZWQiOjAsInVucmVzb2x2ZWQiOjAsInRvdGFsIjowLCJsaW5rIjoibGl0ZXJhdHVyZS10ZW1wbGF0ZS1naXQtc3RhY2stc2Vwby1jb21tZW50LWJhYWQxNy1jb2Rpc2NvdmVyLWFpLnZlcmNlbC5hcHAifSwicm9vdERpcmVjdG9yeSI6bnVsbH1dLCJyZXF1ZXN0UmV2aWV3VXJsIjoiaHR0cHM6Ly92ZXJjZWwuY29tL3ZlcmNlbC1hZ2VudC9yZXF1ZXN0LXJldmlldz9vd25lcj1zZWxmLWV2b2x2aW5nJnJlcG89bGl0ZXJhdHVyZS10ZW1wbGF0ZSZwcj0zNSJ9\nThe latest updates on your projects. Learn more about [Vercel for GitHub](https://vercel.link/github-learn-more).\n\n| Project | Deployment | Actions | Updated (UTC) |\n| :--- | :----- | :------ | :------ |\n| [literature-template](https://vercel.com/codiscover-ai/literature-template) | ![Ready](https://vercel.com/static/status/ready.svg) [Ready](https://vercel.com/codiscover-ai/literature-template/HWq8Ahuzomb2Yk95DcPBtLWuLjt6) | [Preview](https://literature-template-git-stack-sepo-comment-baad17-codiscover-ai.vercel.app), [Comment](https://vercel.live/open-feedback/literature-template-git-stack-sepo-comment-baad17-codiscover-ai.vercel.app?via=pr-comment-feedback-link) | Jun 12, 2026 11:21pm |\n\n<a href=\"https://vercel.com/vercel-agent/request-review?owner=self-evolving&repo=literature-template&pr=35\" rel=\"noreferrer\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://agents-vade-review.vercel.sh/request-review-light.svg\"><img src=\"https://agents-vade-review.vercel.sh/request-review-light.svg\" alt=\"Request Review\"></picture></a>\n\n",
+      "createdAt": "2026-06-12T22:50:14Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/35#issuecomment-4696101591",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-oykg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-12T22:59:32Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/35#issuecomment-4696191634",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-rOcQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 8 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow/generic | Keep docs in sync | pass | 7/7 | README documents the renamed `SEPO_COMMENTS_*` contract, defaults, strict/off behavior, and local pinned-ID example. [README.md#L142-L214](https://github.com/self-evolving/literature-template/blob/e2fe4c1713c3d9885551157d225030c230a77a6c/README.md#L142-L214) |\n| coding_workflow/generic | Prefer explicit structured inputs | pass | 7/7 | The contract uses distinct env vars for enablement, repo, category, IDs, tabs, app host, and preview metadata instead of overloading a single command/string. [quartz.ts#L87-L205](https://github.com/self-evolving/literature-template/blob/e2fe4c1713c3d9885551157d225030c230a77a6c/quartz.ts#L87-L205) |\n| coding_workflow/generic | Name config by capability | pass | 6/6 | Public knobs are named for the Sepo comments capability (`SEPO_COMMENTS_*`) while preview-specific knobs remain under `SEPO_PREVIEW_*`. [README.md#L158-L173](https://github.com/self-evolving/literature-template/blob/e2fe4c1713c3d9885551157d225030c230a77a6c/README.md#L158-L173) |\n| coding_workflow/generic | Minimal defaults, native escape hatches | pass | 8/8 | Quartz keeps product defaults fixed for mapping, strict matching, reactions, input position, themes, and language, while documenting only common configuration knobs. [quartz.ts#L183-L205](https://github.com/self-evolving/literature-template/blob/e2fe4c1713c3d9885551157d225030c230a77a6c/quartz.ts#L183-L205), [README.md#L175-L177](https://github.com/self-evolving/literature-template/blob/e2fe4c1713c3d9885551157d225030c230a77a6c/README.md#L175-L177) |\n| coding_workflow/generic | Bounded transient retries | pass | 7/7 | The resolver preserves bounded 3-attempt retry behavior only for transient-looking GraphQL failures and warns immediately for deterministic failures. [.github/actions/resolve-discussion-ids/action.yml#L46-L69](https://github.com/self-evolving/literature-template/blob/e2fe4c1713c3d9885551157d225030c230a77a6c/.github/actions/resolve-discussion-ids/action.yml#L46-L69) |\n| coding_workflow/generic | Reuse existing code | pass | 8/8 | The PR renames the existing Quartz consumer, resolver action, and workflow env-prep path rather than adding parallel alias parsing or new resolver logic. [quartz.ts#L94-L214](https://github.com/self-evolving/literature-template/blob/e2fe4c1713c3d9885551157d225030c230a77a6c/quartz.ts#L94-L214), [.github/actions/resolve-discussion-ids/action.yml#L18-L92](https://github.com/self-evolving/literature-template/blob/e2fe4c1713c3d9885551157d225030c230a77a6c/.github/actions/resolve-discussion-ids/action.yml#L18-L92) |\n| coding_workflow/generic | Make surgical changes | pass | 8/8 | The diff is limited to the comments contract rename across five directly related files: Quartz config, two workflows, resolver action, and README. PR files: `.github/actions/resolve-discussion-ids/action.yml`, `.github/workflows/agent-site-preview.yml`, `.github/workflows/deploy.yml`, `README.md`, `quartz.ts`. |\n| communication/generic | Write audience-first documentation | pass | 7/7 | The README leads with what site owners configure and how workflows prepare the build env, then gives the variable table and local testing path. [README.md#L142-L214](https://github.com/self-evolving/literature-template/blob/e2fe4c1713c3d9885551157d225030c230a77a6c/README.md#L142-L214) |\n\n## Notes\n\n- PR #35 is stacked on #34, which implements issue #33’s boundary: Quartz consumes a fixed comments/preview env contract while workflows derive provider-specific values. This rename layer preserves that boundary with `SEPO_COMMENTS_*`.\n- Validation run on PR head: `npm run check` passed, and the PR-body comments build with pinned `SEPO_COMMENTS_*` IDs passed under Node 22.\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** No rubric-specific findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-12T23:03:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/35#issuecomment-4696231537",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-stsA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: e2fe4c1713c3d9885551157d225030c230a77a6c -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #35 renames the comments build contract from `GISCUS_*` to canonical `SEPO_COMMENTS_*` variables across Quartz config, workflows, resolver action, and docs.\n- It is stacked on PR #34 / issue #33, preserving the intended boundary that Quartz only consumes a fixed comments/preview environment contract while workflows prepare defaults and resolve IDs.\n- The PR intentionally avoids legacy alias parsing because the underlying contract has not merged yet.\n- README examples and local pinned-ID guidance were updated to the new names.\n\n## Review\nAll current reviewer artifacts support shipping: Codex reported no blocking or warning findings, Rubrics Review passed, and Claude’s notes were INFO-level cosmetic/future-maintenance observations. There are no meaningful reviewer disagreements and no unresolved actionable branch changes.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| No actionable issues | INFO | Current review artifacts and PR state do not show blocking or warning findings. Remaining notes are optional cosmetics or future-maintenance guidance. |\n\n## Progress\n- Reviewed all files under `/reviews`: Codex, Rubrics Review, and Claude.\n- Inspected current PR conversation, inline comments, and review threads.\n- No existing inline review comments or unresolved review threads were present.\n- No new inline comments were posted.\n- Reviewer validation reports `npm run check` and the pinned `SEPO_COMMENTS_*` build passing.\n\n## Recommended Next Step\n`NO_AUTOMATED_ACTION`: No unresolved actionable work remains, so another automated fix-pr pass is not needed.\n\n## Final Verdict\nSHIP\n\n## Action Items\n- [ ] No required branch-change work remains.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-12T23:06:11Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/35#issuecomment-4696255920",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF--6mg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #35.\n\nno rubric changes\n\nI found no trusted, durable PR #35 conversation feedback that warrants a new or updated rubric. The only human PR #35 comment was a `/review` trigger from `lolipopshock`; substantive guidance was bot-authored and already covered by existing rubrics like `name-config-by-capability`, `keep-docs-in-sync`, `minimal-defaults-native-escape-hatches`, and `surgical-changes`.\n\nI left `/Users/shannons/clawd/self-evolving-local-runner/runner-4/_work/_temp/agent-rubrics` unchanged.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-12T23:41:11Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/35#issuecomment-4696554138",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-12T22:50:09Z",
+  "files": [
+    {
+      "path": ".github/actions/resolve-discussion-ids/action.yml",
+      "additions": 92,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/agent-site-preview.yml",
+      "additions": 36,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/deploy.yml",
+      "additions": 35,
+      "deletions": 7,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "README.md",
+      "additions": 79,
+      "deletions": 34,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 78,
+      "deletions": 64,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "stack/sepo-comments-env-names",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-06-12T23:39:40Z",
+  "number": 35,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Rename comments build contract to Sepo",
+  "updatedAt": "2026-06-12T23:41:11Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/35"
+}

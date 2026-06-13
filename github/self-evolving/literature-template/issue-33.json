@@ -1,0 +1,39 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "body": "## Goal\nRework PR #32 so `quartz.ts` is only a consumer of the fixed comments/preview environment contract. Provider- and runner-specific derivation should happen in workflow/env preparation before the Quartz build runs.\n\n## Context\nPR: https://github.com/self-evolving/literature-template/pull/32\n\nThe latest maintainer request agrees with the boundary that `quartz.ts` should not read or derive from provider-specific variables. Current conflicting code is around repo and preview derivation in `quartz.ts`, specifically the reads of `GITHUB_REPOSITORY`, `VERCEL_GIT_REPO_*`, `GITHUB_EVENT_NAME`, `GITHUB_REF`, and `GITHUB_HEAD_REF`.\n\nThe desired contract is that Quartz consumes only `GISCUS_*`, `SEPO_PREVIEW_*`, and `HYPOTHESIS_*`. Workflow/env-prep owns deriving those values from GitHub Actions context or repo variables.\n\n## Acceptance Criteria\n- Remove provider/runner derivation from `quartz.ts`; it must not read `GITHUB_REPOSITORY`, `VERCEL_GIT_REPO_*`, `GITHUB_EVENT_NAME`, `GITHUB_REF`, or `GITHUB_HEAD_REF`.\n- Keep `quartz.ts` limited to validating/consuming the fixed env contract: `GISCUS_*`, `SEPO_PREVIEW_*`, and `HYPOTHESIS_*`.\n- In workflow/env-prep, set `GISCUS_REPO` from `${{ github.repository }}` when it is not explicitly configured.\n- In workflow/env-prep, set `GISCUS_CATEGORY=General` before `resolve-discussion-ids` when absent.\n- In `agent-site-preview.yml`, set `SEPO_PREVIEW_PR` and `SEPO_PREVIEW_BRANCH` directly from pull request context.\n- Keep `resolve-discussion-ids` responsible only for resolving `GISCUS_REPO` + `GISCUS_CATEGORY` into `GISCUS_REPO_ID` + `GISCUS_CATEGORY_ID`.\n- Update README to document the fixed env contract and workflow-side derivation, not Quartz-side derivation.\n- Preserve the existing strict/best-effort comments behavior and existing resolver retry behavior.\n\n---\n\nRequested via issue_comment at https://github.com/self-evolving/literature-template/pull/32\n",
+  "closedAt": "2026-06-12T23:39:43Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABF-M9tA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-33/codex-27444631883`\n- Pull request: https://github.com/self-evolving/literature-template/pull/34\n\nImplemented the fixed comments env boundary: `quartz.ts` now only consumes documented `GISCUS_*`, `SEPO_PREVIEW_*`, and `HYPOTHESIS_*` values, while the workflows prepare repo/category/preview values and a resolver action fills Giscus IDs with bounded retry. Verified with `npm run check` and `npm run build`.\n\n---\n_Run: `codex` / `default model` / `xhigh`_",
+      "createdAt": "2026-06-12T21:53:30Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/33#issuecomment-4695735732",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-12T21:40:10Z",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 33,
+  "state": "CLOSED",
+  "title": "Move comments env derivation out of Quartz",
+  "updatedAt": "2026-06-12T23:39:43Z",
+  "url": "https://github.com/self-evolving/literature-template/issues/33"
+}
