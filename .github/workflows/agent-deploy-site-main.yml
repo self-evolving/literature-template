@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: vars.AGENT_ENABLED != 'false'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout site
