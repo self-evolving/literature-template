@@ -1,0 +1,131 @@
+name: Agent / Deploy Site Main
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  deployments: write
+  # Lets the resolve-discussion-ids step look up the comment widget's
+  # repo/category IDs from names.
+  discussions: read
+
+concurrency:
+  group: canonical-site-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Repo variables are not exported to step env automatically. Forward the
+      # site-config namespaces wholesale so adding a knob never requires a
+      # workflow edit again. Heredoc form keeps multi-line values intact; the
+      # delimiter is random per run so no value can close the block early.
+      - name: Export site configuration variables
+        env:
+          REPO_VARS: ${{ toJSON(vars) }}
+        run: |
+          DELIM="SEPO_EOV_$(openssl rand -hex 16)"
+          echo "$REPO_VARS" | jq -r --arg delim "$DELIM" 'to_entries[]
+            | select(.key | test("^(SEPO_COMMENTS_|SEPO_PREVIEW_|HYPOTHESIS_)"))
+            | "\(.key)<<\($delim)\n\(.value)\n\($delim)"' >> "$GITHUB_ENV"
+
+      - name: Set comments build defaults
+        env:
+          DEFAULT_SEPO_COMMENTS_REPO: ${{ github.repository }}
+          DEFAULT_SEPO_COMMENTS_CATEGORY: General
+        run: |
+          {
+            if [[ -z "${SEPO_COMMENTS_REPO:-}" ]]; then
+              echo "SEPO_COMMENTS_REPO=${DEFAULT_SEPO_COMMENTS_REPO}"
+            fi
+            if [[ -z "${SEPO_COMMENTS_CATEGORY:-}" ]]; then
+              echo "SEPO_COMMENTS_CATEGORY=${DEFAULT_SEPO_COMMENTS_CATEGORY}"
+            fi
+          } >> "$GITHUB_ENV"
+
+      # The build itself does no network lookups: this step fills in the
+      # comment widget's GraphQL IDs by name when they are not pinned.
+      - name: Resolve discussion IDs
+        uses: ./.github/actions/resolve-discussion-ids
+
+      - name: Build site
+        run: npm run build
+
+      - name: Upload artifact
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: sepo-canonical-site
+          path: ./public
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Deploy canonical site
+        id: deploy
+        env:
+          SERVER_URL: https://preview-api.sepo.sh
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+        run: |
+          set -euo pipefail
+          TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
+          [[ "$TOK" != "null" && -n "$TOK" ]] || { echo "::error::OIDC token fetch failed"; exit 1; }
+          RESP=$(curl -sS -X POST "$SERVER_URL/api/deploy/preview" -H 'Content-Type: application/json' \
+                 --data "$(jq -nc --arg t "$TOK" --argjson a "$ARTIFACT_ID" '{oidc_token:$t,artifact_id:$a,canonical:true}')" \
+                 -w '\n%{http_code}')
+          CODE=$(tail -n1 <<<"$RESP"); BODY=$(sed '$d' <<<"$RESP"); echo "$BODY"
+          [[ "$CODE" == 200 ]] || { echo "::error::canonical deploy failed ($CODE)"; exit 1; }
+          URL=$(jq -r .url <<<"$BODY")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "### Canonical site: $URL" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish GitHub deployment URL
+        id: github-deployment
+        if: steps.deploy.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ steps.deploy.outputs.url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          CREATE_PAYLOAD=$(jq -nc --arg ref "$SHA" '{
+            ref: $ref,
+            environment: "Production",
+            description: "Sepo canonical site",
+            auto_merge: false,
+            required_contexts: [],
+            transient_environment: false,
+            production_environment: true,
+            payload: {source: "sepo-canonical", canonical: true}
+          }')
+          DEPLOYMENT_ID=$(gh api --method POST "repos/${GITHUB_REPOSITORY}/deployments" \
+            --input - --jq .id <<<"$CREATE_PAYLOAD")
+          STATUS_PAYLOAD=$(jq -nc --arg url "$URL" --arg run_url "$RUN_URL" '{
+            state: "success",
+            environment: "Production",
+            target_url: $url,
+            environment_url: $url,
+            log_url: $run_url,
+            description: "Sepo canonical site is ready",
+            auto_inactive: true
+          }')
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/deployments/${DEPLOYMENT_ID}/statuses" \
+            --input - <<<"$STATUS_PAYLOAD"
+          echo "deployment_id=$DEPLOYMENT_ID" >> "$GITHUB_OUTPUT"
+          echo "GitHub deployment: $DEPLOYMENT_ID" >> "$GITHUB_STEP_SUMMARY"

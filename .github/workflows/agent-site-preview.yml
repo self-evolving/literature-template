@@ -10,13 +10,12 @@ jobs:
     concurrency:
       group: sepo-preview-${{ github.event.pull_request.number }}
       cancel-in-progress: true
-    # AGENT_PREVIEW_POLICY: unset/auto = public repos only, `all` = include private, `off` = disabled.
+    # AGENT_PREVIEW_POLICY: unset/auto/all = enabled for public and private repos; `off` = disabled.
     # Within that, auto-preview every agent PR (agent/ branch prefix). Label overrides:
     # `sepo-preview` opts any PR in, `no-preview` opts an agent PR out.
     if: >-
       vars.AGENT_ENABLED != 'false' &&
       vars.AGENT_PREVIEW_POLICY != 'off' &&
-      (vars.AGENT_PREVIEW_POLICY == 'all' || github.event.repository.private == false) &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.action != 'closed' &&
       (github.event.action != 'labeled' || github.event.label.name == 'sepo-preview') &&
