@@ -66,7 +66,7 @@ jobs:
     if: vars.AGENT_ENABLED != 'false'
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.repository.default_branch }}
@@ -149,7 +149,7 @@ jobs:
             cp "${{ steps.review.outputs.session_log_file }}" "${{ runner.temp }}/events.jsonl"
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ steps.review.outputs.response_file != '' }}
         with:
           name: rubrics-review-${{ inputs.pr_number }}
