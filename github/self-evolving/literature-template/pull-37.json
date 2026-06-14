@@ -1,0 +1,119 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- add bounded retry/backoff around Sepo site deploy OIDC token fetches and deploy API POSTs\n- validate that the Sepo deploy response includes a non-empty http(s) URL before publishing outputs\n- restrict manual canonical site deploy workflow runs to the main branch while preserving AGENT_ENABLED gating\n\n## Validation\n- actionlint .github/workflows/agent-deploy-site-main.yml .github/workflows/agent-site-preview.yml\n- ruby -e 'require \"yaml\"; ARGV.each { |f| YAML.load_file(f); puts \"ok #{f}\" }' .github/actions/deploy-sepo-site/action.yml .github/workflows/agent-deploy-site-main.yml .github/workflows/agent-site-preview.yml\n- npx prettier .github/actions/deploy-sepo-site/action.yml .github/workflows/agent-deploy-site-main.yml --check\n- cd .agent && npm ci && npm test",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGE0bvQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review \r\n(in relation to #36 ",
+      "createdAt": "2026-06-14T18:36:31Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/37#issuecomment-4702673853",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGE01pA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 95 | PARTIAL | 5 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow/generic | Bound transient retries | partial | 5/7 | Sepo deploy POST now retries only bounded attempts for `000`, timeout/rate-limit/server-like HTTP statuses, and keeps other deploy statuses terminal; however OIDC uses `curl --fail` and retries any failed HTTP response, including deterministic auth/permission 4xx. [action.yml#L44-L76](https://github.com/self-evolving/literature-template/blob/02662faff8b6c19f53041222f7211e25374ad28f/.github/actions/deploy-sepo-site/action.yml#L44-L76) |\n| coding_workflow/generic | Validate preview contracts | pass | 7/7 | A successful Sepo response must now contain a string `http(s)` URL before writing the action output or summary. [action.yml#L78-L84](https://github.com/self-evolving/literature-template/blob/02662faff8b6c19f53041222f7211e25374ad28f/.github/actions/deploy-sepo-site/action.yml#L78-L84) |\n| coding_workflow/generic | Keep privileged workflows on trusted runtime code | pass | 8/8 | The privileged canonical deploy job now preserves `AGENT_ENABLED` and only runs when `github.ref == 'refs/heads/main'`, closing the manual-dispatch trusted-runtime gap from #36. [agent-deploy-site-main.yml#L20-L23](https://github.com/self-evolving/literature-template/blob/02662faff8b6c19f53041222f7211e25374ad28f/.github/workflows/agent-deploy-site-main.yml#L20-L23) |\n| coding_workflow/generic | Make surgical changes | pass | 8/8 | The PR touches only the shared Sepo deploy action and the canonical workflow guard, directly matching the #36 hardening follow-up. PR diff: `.github/actions/deploy-sepo-site/action.yml`, `.github/workflows/agent-deploy-site-main.yml`. |\n| coding_workflow/generic | Reuse existing code | pass | 8/8 | The hardening is added inside the existing shared deploy action used by both preview and canonical workflows, rather than creating a separate deploy path. [agent-site-preview.yml#L71-L76](https://github.com/self-evolving/literature-template/blob/02662faff8b6c19f53041222f7211e25374ad28f/.github/workflows/agent-site-preview.yml#L71-L76), [agent-deploy-site-main.yml#L79-L84](https://github.com/self-evolving/literature-template/blob/02662faff8b6c19f53041222f7211e25374ad28f/.github/workflows/agent-deploy-site-main.yml#L79-L84) |\n\n## Notes\n\n- PR #37 directly addresses the #36 rubric findings: main-only privileged canonical dispatch, bounded Sepo deploy retries, and strict URL output validation.\n- The only rubric-specific gap is retry classification for the OIDC token fetch. Because `curl --fail` hides the response body and returns failure for all 4xx/5xx statuses, deterministic OIDC auth/permission failures are retried instead of failing terminally.\n- Current GitHub checks show `check` passing for PR #37; deploy-related jobs are skipped.\n\n## Findings\n\n- **WARNING:** OIDC token fetch retries are bounded, but not limited to likely transient failures. Preserve the new retry behavior for network/timeout/5xx/rate-limit cases while making deterministic OIDC HTTP 4xx failures terminal.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-14T18:39:15Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/37#issuecomment-4702680484",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGE17iQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 02662faff8b6c19f53041222f7211e25374ad28f -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #37 hardens the Sepo site deploy path after the follow-up items from PR #36. It adds bounded retry handling around OIDC token fetches and Sepo deploy POSTs, validates that successful deploy responses include an `http(s)` URL, and gates manual canonical deploy runs to `refs/heads/main`. The PR is intentionally narrow, touching the shared deploy composite action and the canonical main deploy workflow. Current checks show the main `check` job passing, with deploy-related jobs skipped.\n\n## Review\nThe PR addresses the main #36 hardening goals and keeps the change set surgical. There are no BLOCKING findings, but reviewers identified two concrete reliability/output-safety gaps that are still supported by the current diff.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Deploy URL validation accepts multiline output values | WARNING | The new URL check only verifies an `http(s)` prefix before writing the raw value to `$GITHUB_OUTPUT`, so a newline-bearing URL string can create extra output lines. |\n| OIDC retry loop retries deterministic HTTP failures | WARNING | The OIDC fetch uses `curl --fail`, so auth/permission 4xx failures are retried like transient network or 5xx failures instead of failing terminally. |\n| Per-attempt request timeouts are still implicit | INFO | The retry loops bound attempt count, but a stalled `curl` can still wait on curl/job defaults because no `--max-time` is set. |\n\n## Progress\n- The privileged canonical workflow now preserves `AGENT_ENABLED` and requires `github.ref == 'refs/heads/main'`.\n- Sepo deploy POST retries are now bounded and status-classified for `000`, timeout/rate-limit/server-like statuses.\n- Successful deploy responses now require an `http(s)` URL before publishing outputs, though the value still needs single-line/output-safe validation.\n- Existing inline comments and review threads were empty before cleanup. I posted one new inline comment on `.github/actions/deploy-sepo-site/action.yml` line 80 and did not reply to, minimize, or resolve any existing comments.\n- Reviewers differed on OIDC retry severity: Rubrics called the 4xx retry behavior a warning, while Claude considered the asymmetry acceptable but worth documenting.\n\n## Issue Details\n<details>\n<summary>Deploy URL validation accepts multiline output values</summary>\n\n**Cause:** [`action.yml#L80`](https://github.com/self-evolving/literature-template/blob/02662faff8b6c19f53041222f7211e25374ad28f/.github/actions/deploy-sepo-site/action.yml#L80) uses `test(\"^https?://\")`, which accepts strings such as `https://example.test\\nextra=value`; line 84 then writes that raw value to `$GITHUB_OUTPUT`.\n\n**Candidate solutions:** Require a full single-line absolute URL before assignment, for example by rejecting whitespace/control characters or by parsing the value with a stricter URL validator before writing `url=$URL`.\n\n**Comments:** This was posted inline because it is concrete, changed-line-specific, and not already covered by existing PR feedback.\n\n</details>\n\n<details>\n<summary>OIDC retry loop retries deterministic HTTP failures</summary>\n\n**Cause:** [`action.yml#L46-L55`](https://github.com/self-evolving/literature-template/blob/02662faff8b6c19f53041222f7211e25374ad28f/.github/actions/deploy-sepo-site/action.yml#L46-L55) uses `curl --fail`, which collapses all HTTP failures into a generic nonzero exit path.\n\n**Candidate solutions:** Capture the OIDC HTTP status with `-o`/`-w '%{http_code}'`, retry only likely transient statuses and network failures, and fail fast for deterministic 4xx responses.\n\n</details>\n\n<details>\n<summary>Per-attempt request timeouts are still implicit</summary>\n\n**Cause:** The OIDC and deploy POST `curl` calls have retry counts but no explicit `--max-time`, so a hung request can consume much more than the intended retry window.\n\n**Candidate solutions:** Add a modest per-attempt timeout consistent with the repo’s existing OIDC broker patterns, while preserving the current three-attempt retry budget.\n\n</details>\n\n## Recommended Next Step\nFIX_PR: The remaining warnings are concrete, scoped branch changes in the shared deploy action and are safe for an automated fix-pr pass.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] Tighten deploy response URL validation so only a single-line, output-safe absolute `http(s)` URL is written to `$GITHUB_OUTPUT`.\n- [ ] Classify OIDC HTTP failures before retrying so deterministic auth/permission 4xx responses fail terminally.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-14T18:46:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/37#issuecomment-4702698377",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-14T17:48:39Z",
+  "files": [
+    {
+      "path": ".github/actions/deploy-sepo-site/action.yml",
+      "additions": 48,
+      "deletions": 10,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-deploy-site-main.yml",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/site-deploy-hardening",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 37,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABC9PGSw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-14T18:45:24Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "02662faff8b6c19f53041222f7211e25374ad28f"
+      }
+    }
+  ],
+  "state": "OPEN",
+  "title": "Harden Sepo site deployment action",
+  "updatedAt": "2026-06-14T18:46:34Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/37"
+}
