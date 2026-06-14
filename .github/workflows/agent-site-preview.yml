@@ -70,22 +70,9 @@ jobs:
           { name: sepo-preview-site, path: ./public, retention-days: 1, if-no-files-found: error }
       - name: Deploy preview
         id: deploy
-        env:
-          SERVER_URL: https://preview-api.sepo.sh
-          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
-        run: |
-          set -euo pipefail
-          TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-                "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
-          [[ "$TOK" != "null" && -n "$TOK" ]] || { echo "::error::OIDC token fetch failed"; exit 1; }
-          RESP=$(curl -sS -X POST "$SERVER_URL/api/deploy/preview" -H 'Content-Type: application/json' \
-                 --data "$(jq -nc --arg t "$TOK" --argjson a "$ARTIFACT_ID" '{oidc_token:$t,artifact_id:$a}')" \
-                 -w '\n%{http_code}')
-          CODE=$(tail -n1 <<<"$RESP"); BODY=$(sed '$d' <<<"$RESP"); echo "$BODY"
-          [[ "$CODE" == 200 ]] || { echo "::error::deploy failed ($CODE)"; exit 1; }
-          URL=$(jq -r .url <<<"$BODY")
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
-          echo "### Preview: $URL" >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/deploy-sepo-site
+        with:
+          artifact_id: ${{ steps.upload.outputs.artifact-id }}
       - name: Resolve Sepo agent auth
         id: auth
         if: steps.deploy.outputs.url != ''

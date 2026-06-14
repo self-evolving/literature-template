@@ -78,71 +78,10 @@ jobs:
 
       - name: Deploy canonical site
         id: deploy
-        env:
-          SERVER_URL: https://preview-api.sepo.sh
-          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
-        run: |
-          set -euo pipefail
-
-          retry_sleep() {
-            local attempt="$1"
-            sleep $((2 ** (attempt - 1)))
-          }
-
-          should_retry_http() {
-            local code="$1"
-            [[ "$code" =~ ^(000|408|409|425|429|5[0-9][0-9])$ ]]
-          }
-
-          TOK=""
-          for attempt in 1 2 3; do
-            if OIDC_RESP=$(curl --fail --silent --show-error \
-              -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview"); then
-              TOK=$(jq -r '.value // empty' <<<"$OIDC_RESP" 2>/dev/null || true)
-              if [[ -n "$TOK" ]]; then
-                break
-              fi
-            fi
-            if [[ "$attempt" -eq 3 ]]; then
-              echo "::error::OIDC token fetch failed"
-              exit 1
-            fi
-            echo "::warning::OIDC token fetch attempt $attempt failed; retrying"
-            retry_sleep "$attempt"
-          done
-          echo "::add-mask::$TOK"
-
-          PAYLOAD=$(jq -nc --arg t "$TOK" --argjson a "$ARTIFACT_ID" \
-            '{oidc_token:$t,artifact_id:$a,canonical:true}')
-          BODY_FILE=$(mktemp)
-          trap 'rm -f "$BODY_FILE"' EXIT
-          CODE="000"
-          for attempt in 1 2 3; do
-            if CODE=$(curl --silent --show-error -o "$BODY_FILE" -w '%{http_code}' \
-              -X POST "$SERVER_URL/api/deploy/preview" \
-              -H 'Content-Type: application/json' \
-              --data "$PAYLOAD"); then
-              if [[ "$CODE" == 200 ]]; then
-                break
-              fi
-            else
-              CODE="000"
-            fi
-            if [[ "$attempt" -eq 3 ]] || ! should_retry_http "$CODE"; then
-              cat "$BODY_FILE" || true
-              echo "::error::canonical deploy failed ($CODE)"
-              exit 1
-            fi
-            echo "::warning::canonical deploy attempt $attempt failed with HTTP $CODE; retrying"
-            retry_sleep "$attempt"
-          done
-
-          BODY=$(cat "$BODY_FILE")
-          echo "$BODY"
-          URL=$(jq -r .url <<<"$BODY")
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
-          echo "### Canonical site: $URL" >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/deploy-sepo-site
+        with:
+          artifact_id: ${{ steps.upload.outputs.artifact-id }}
+          canonical: "true"
 
       - name: Setup agent runtime
         if: steps.deploy.outputs.url != ''
