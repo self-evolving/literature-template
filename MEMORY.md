@@ -17,3 +17,4 @@
 - Preview deployments: put reusable GitHub Deployment/status logic in .agent CLIs; keep preview-server plumbing in workflows. [[github/self-evolving/literature-template/pull-22.json]]
 - Sepo comments default to https://comment-api.sepo-preview.xyz; SEPO_COMMENTS_APP_HOST and SEPO_PREVIEW_API require absolute http(s). [[github/self-evolving/literature-template/pull-29.json]] [[github/self-evolving/literature-template/pull-35.json]]
 - Sepo comments: Quartz consumes fixed SEPO_COMMENTS_*/SEPO_PREVIEW_* env; workflows derive provider context and IDs. [[github/self-evolving/literature-template/issue-33.json]] [[github/self-evolving/literature-template/pull-35.json]]
+- Canonical site deploys: main pushes use Sepo canonical mode and publish GitHub Production deployment status via .agent helpers. [[github/self-evolving/literature-template/pull-36.json]]
