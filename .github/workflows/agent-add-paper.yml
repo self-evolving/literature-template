@@ -38,7 +38,7 @@ jobs:
       PAPER_INPUT: ${{ inputs.paper }}
       ADDITIONAL_REQUEST_INPUT: ${{ inputs.additional_request || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: false
