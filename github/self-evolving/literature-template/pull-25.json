@@ -50,6 +50,12 @@
       "changeType": "MODIFIED"
     },
     {
+      "path": ".github/workflows/agent-deploy-site-main.yml",
+      "additions": 3,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
       "path": ".github/workflows/agent-fix-pr.yml",
       "additions": 1,
       "deletions": 1,
@@ -209,6 +215,6 @@
   "reviews": [],
   "state": "OPEN",
   "title": "Bump the ci-dependencies group across 1 directory with 5 updates",
-  "updatedAt": "2026-06-12T23:44:48Z",
+  "updatedAt": "2026-06-14T07:57:53Z",
   "url": "https://github.com/self-evolving/literature-template/pull/25"
 }

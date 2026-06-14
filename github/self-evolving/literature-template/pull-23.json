@@ -7,7 +7,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n- restore separate mobile controls and desktop toolbar layout for the left sidebar\n- keep the GitHub repo icon in the title row with the mobile dark-mode control at the top\n- preserve the desktop search/dark-mode/reader-mode flex row from the previous layout\n\n## Validation\n- npm run check\n- npm run build with Giscus env vars",
-  "closedAt": null,
+  "closedAt": "2026-06-14T07:27:00Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABFC1e_Q",
@@ -82,8 +82,8 @@
   "number": 23,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Fix responsive sidebar toolbar",
-  "updatedAt": "2026-06-05T16:37:00Z",
+  "updatedAt": "2026-06-14T07:27:00Z",
   "url": "https://github.com/self-evolving/literature-template/pull/23"
 }

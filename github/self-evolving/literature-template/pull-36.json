@@ -1,0 +1,206 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- add a main-branch canonical site deployment workflow using the Sepo preview API's canonical deploy mode\n- publish the canonical URL as a GitHub Production deployment status using the workflow token's deployments permission\n- default PR previews on for private repos unless AGENT_PREVIEW_POLICY=off, relying on the Sepo private-site gate\n- update docs for canonical deploys and the relaxed preview policy\n\n## Notes\n- The workflow intentionally does not update the repository sidebar homepage URL. That requires repository Administration: write permission, which GITHUB_TOKEN cannot grant; the Production deployment status provides the deploy URL without that permission.\n\n## Validation\n- actionlint .github/workflows/deploy-canonical-site.yml .github/workflows/agent-site-preview.yml\n- git diff --check",
+  "closedAt": "2026-06-14T07:55:10Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGDRWZQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-14T07:29:43Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/36#issuecomment-4701050469",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGDR05A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 82 | PARTIAL | 10 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow/generic | Keep docs in sync | pass | 7/7 | README adds canonical deploy docs and updates private preview policy docs. [README.md#L267-L299](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/README.md#L267-L299) |\n| coding_workflow/generic | Keep consumers on fixed contracts | pass | 8/8 | The new main deploy workflow derives comments defaults in workflow env before build; Quartz remains a fixed env consumer. [.github/workflows/agent-deploy-site-main.yml#L34-L67](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.github/workflows/agent-deploy-site-main.yml#L34-L67) |\n| coding_workflow/generic | Minimal defaults, native escape hatches | pass | 8/8 | Preview policy stays a small `auto`/`all`/`off` surface, with `off` as the documented escape hatch. [README.md#L279-L289](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/README.md#L279-L289) |\n| coding_workflow/generic | Prefer explicit structured inputs | pass | 7/7 | Canonical deploy sends structured API fields including `oidc_token`, `artifact_id`, and `canonical:true` rather than overloading a string. [.github/workflows/agent-deploy-site-main.yml#L83-L90](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.github/workflows/agent-deploy-site-main.yml#L83-L90) |\n| coding_workflow/generic | Keep privileged workflows on trusted runtime code | pass | 8/8 | The canonical workflow runs on `push` to `main`, has narrow permissions, and production status creation is gated on a successful canonical deploy URL. [.github/workflows/agent-deploy-site-main.yml#L3-L18](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.github/workflows/agent-deploy-site-main.yml#L3-L18), [.github/workflows/agent-deploy-site-main.yml#L97-L129](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.github/workflows/agent-deploy-site-main.yml#L97-L129) |\n| communication/generic | Make setup guidance actionable | pass | 7/7 | Docs make the changed default and the exact disable command visible near the policy table. [README.md#L279-L289](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/README.md#L279-L289) |\n| coding_workflow/generic | Make surgical changes | pass | 8/8 | The diff is limited to the new canonical workflow, the preview policy gate, and matching README docs. PR files: `.github/workflows/agent-deploy-site-main.yml`, `.github/workflows/agent-site-preview.yml`, `README.md`. |\n| coding_workflow/generic | Reuse existing code | partial | 5/8 | The PR reuses the existing discussion-ID action and env-prep pattern, but adds production GitHub Deployment creation inline with `gh api` even though runtime helpers already own deployment/status API calls. [.github/workflows/agent-deploy-site-main.yml#L97-L129](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.github/workflows/agent-deploy-site-main.yml#L97-L129), [.agent/src/github.ts#L276-L303](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.agent/src/github.ts#L276-L303) |\n| coding_workflow/generic | Put shared capabilities in runtime | partial | 4/7 | Preview deployment publishing already goes through `.agent/dist/cli/publish-preview-deployment.js`; the analogous canonical deployment status path is embedded directly in workflow shell. [.github/workflows/agent-site-preview.yml#L98-L109](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.github/workflows/agent-site-preview.yml#L98-L109), [.github/workflows/agent-deploy-site-main.yml#L105-L129](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.github/workflows/agent-deploy-site-main.yml#L105-L129) |\n| coding_workflow/generic | Bound transient retries | partial | 2/7 | New OIDC, Sepo preview API, and GitHub Deployment API calls fail immediately on transient 5xx/rate-limit/network failures; no bounded retry/backoff is present. [.github/workflows/agent-deploy-site-main.yml#L83-L92](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.github/workflows/agent-deploy-site-main.yml#L83-L92), [.github/workflows/agent-deploy-site-main.yml#L117-L129](https://github.com/self-evolving/literature-template/blob/4a5154d77a3ed62dda152ae9582f535ef8c4be6e/.github/workflows/agent-deploy-site-main.yml#L117-L129) |\n\n## Notes\n\n- The strongest rubric misses are concentrated in the new canonical deployment workflow: it duplicates reusable deployment/status behavior in shell and has no bounded transient retry around external calls.\n- The fixed build-contract boundary and docs are otherwise aligned with the prior comments/preview work.\n- Smallest useful follow-up: move canonical deployment status publishing into the `.agent` runtime helper/CLI surface and add focused bounded retry for transient OIDC, Sepo API, and GitHub API failures.\n\n## Findings\n\n- **WARNING:** The canonical workflow embeds GitHub Deployment/status creation directly in YAML shell instead of extending the existing `.agent` deployment helpers, which weakens `reuse-existing-code` and `shared-capabilities-in-runtime`.\n- **WARNING:** The new canonical deploy path performs external OIDC, Sepo API, and GitHub API calls with immediate failure behavior and no bounded retry/backoff for transient failures.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-14T07:33:07Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/36#issuecomment-4701058276",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGDSs4A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #36 adds a main-branch canonical site deployment workflow for Sepo-hosted sites. It builds the site, uploads the artifact, asks the Sepo preview API for a canonical deploy, and publishes the resulting URL as a GitHub Production deployment status. It also changes PR preview policy so private repos preview by default unless `AGENT_PREVIEW_POLICY=off`, with docs updated around the Sepo private-site gate. The PR intentionally avoids updating the repository sidebar URL because that would require broader Administration permissions than `GITHUB_TOKEN` provides.\n\n## Review\nThe current PR state has addressed the earlier missing `AGENT_ENABLED` blocker. One remaining code-quality issue is still supported by the current diff and multiple review artifacts: the new canonical deployment status path duplicates existing `.agent` deployment helper patterns in workflow shell.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Canonical deployment status publishing bypasses existing `.agent` helpers | WARNING | The new workflow builds GitHub Deployment/status payloads and calls `gh api` inline, while the existing preview path routes this class of behavior through tested `.agent` helpers and CLI glue. |\n\n## Progress\n- The earlier reviewer finding that the new job ignored `AGENT_ENABLED=false` is fixed in the current head at `.github/workflows/agent-deploy-site-main.yml` line 22.\n- Current PR checks show the main `check` job passing, with preview deploy/teardown jobs skipped.\n- Existing PR discussion already includes a top-level Rubrics Review warning about inline deployment/status publishing, so I did not post duplicate inline comments.\n- No existing inline review comments or review threads were present, so nothing was replied to, minimized, or resolved.\n\n## Issue Details\n<details>\n<summary>Canonical deployment status publishing bypasses existing `.agent` helpers</summary>\n\n**Cause:** The canonical workflow constructs deployment and status payloads directly in YAML shell at `.github/workflows/agent-deploy-site-main.yml` lines 98-130. The preview workflow already uses `node .agent/dist/cli/publish-preview-deployment.js`, backed by shared helpers such as `createGitHubDeployment` and `createGitHubDeploymentStatus`.\n\n**Candidate solutions:** Add a small canonical deployment helper/CLI in `.agent` that reuses the existing GitHub Deployment/status helpers, covers the canonical payload shape with tests, and replace the inline `jq`/`gh api` block with a short CLI invocation.\n\n**Comments:** Reviewers agreed this is a real reuse/runtime-boundary concern, but differed on severity: Claude called it blocking, while the Rubrics and Codex reviews classified it as a warning. Given the current fixed pause guard and passing checks, this synthesis treats it as a warning rather than a release blocker.\n\n</details>\n\n## Recommended Next Step\nFIX_PR: The remaining issue is a concrete, scoped branch change that can be handled safely by moving canonical deployment publishing into the existing `.agent` helper/CLI pattern with focused tests.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] Move canonical GitHub Deployment/status publishing out of workflow shell into a tested `.agent` helper/CLI and update the workflow to call it.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-14T07:39:34Z",
+      "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/36#issuecomment-4701072608",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGDUgew",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-14T07:52:42Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/36#issuecomment-4701102203",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGDVDmA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 85 | PARTIAL | 11 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow/generic | Keep docs in sync | pass | 7/7 | README documents canonical deploys, deployment status behavior, private-site gating, and the new private-preview default. [README.md#L267-L299](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/README.md#L267-L299) |\n| coding_workflow/generic | Keep consumers on fixed contracts | pass | 8/8 | Build-time site config is still passed as fixed `SEPO_COMMENTS_*`, `SEPO_PREVIEW_*`, and `HYPOTHESIS_*` env namespaces from workflow prep, keeping app code out of provider resolution. [.github/workflows/agent-deploy-site-main.yml#L39-L65](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.github/workflows/agent-deploy-site-main.yml#L39-L65) |\n| coding_workflow/generic | Minimal defaults, native escape hatches | pass | 8/8 | Preview policy remains a small `unset/auto`, `all`, `off` surface; docs give `off` as the escape hatch. [README.md#L279-L289](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/README.md#L279-L289) |\n| coding_workflow/generic | Prefer explicit structured inputs | pass | 7/7 | Canonical deploy sends typed JSON fields `oidc_token`, `artifact_id`, and conditional `canonical:true`; deployment publishing uses structured env inputs. [.github/actions/deploy-sepo-site/action.yml#L39-L42](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.github/actions/deploy-sepo-site/action.yml#L39-L42), [.agent/src/cli/publish-canonical-deployment.ts#L13-L30](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.agent/src/cli/publish-canonical-deployment.ts#L13-L30) |\n| coding_workflow/generic | Keep privileged workflows on trusted runtime code | partial | 3/8 | The workflow has `id-token: write` and `deployments: write`, supports `workflow_dispatch`, and runs local checked-out actions/runtime without restricting manual runs to `main`. [.github/workflows/agent-deploy-site-main.yml#L3-L14](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.github/workflows/agent-deploy-site-main.yml#L3-L14), [.github/workflows/agent-deploy-site-main.yml#L25-L98](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.github/workflows/agent-deploy-site-main.yml#L25-L98) |\n| communication/generic | Make setup guidance actionable | pass | 7/7 | The docs place the changed default and exact disable command directly beside the policy table. [README.md#L279-L289](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/README.md#L279-L289) |\n| coding_workflow/generic | Make surgical changes | pass | 8/8 | Scope is limited to canonical deploy workflow/action, deployment helper runtime, preview workflow reuse, focused tests, and matching docs. |\n| coding_workflow/generic | Reuse existing code | pass | 8/8 | The earlier inline deployment concern is addressed by adding `publishCanonicalDeployment` on top of existing GitHub deployment helpers and calling it from a CLI. [.agent/src/github.ts#L364-L424](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.agent/src/github.ts#L364-L424) |\n| coding_workflow/generic | Put shared capabilities in runtime | pass | 7/7 | Canonical GitHub Deployment/status publishing now lives in `.agent` runtime/CLI with tests, while workflows only invoke the CLI. [.agent/src/cli/publish-canonical-deployment.ts#L1-L37](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.agent/src/cli/publish-canonical-deployment.ts#L1-L37), [.agent/src/__tests__/preview-deployment-cli.test.ts#L169-L262](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.agent/src/__tests__/preview-deployment-cli.test.ts#L169-L262) |\n| coding_workflow/generic | Bound transient retries | partial | 3/7 | GitHub Deployment/status calls now retry transient failures, but OIDC token fetch and Sepo deploy API calls in the shared deploy action still fail immediately. [.agent/src/github.ts#L111-L138](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.agent/src/github.ts#L111-L138), [.github/actions/deploy-sepo-site/action.yml#L35-L44](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.github/actions/deploy-sepo-site/action.yml#L35-L44) |\n| coding_workflow/generic | Validate preview contracts | partial | 4/7 | The deploy action fails on non-200 responses, but does not validate that a 200 response contains a non-empty, non-`null` `.url` before publishing `url` output. [.github/actions/deploy-sepo-site/action.yml#L43-L46](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.github/actions/deploy-sepo-site/action.yml#L43-L46) |\n\n## Notes\n\n- The current PR has fixed the prior runtime-boundary issue by moving canonical deployment status publishing into `.agent` helpers and adding retry coverage for GitHub API transient failures.\n- Remaining rubric misses are narrower: manual dispatch of a privileged workflow is not constrained to trusted runtime code, and the shared Sepo deploy action still lacks bounded retries and strict URL-output validation.\n- PR checks currently show the main `check` job passing; deploy and teardown preview jobs are skipped.\n\n## Findings\n\n- **WARNING:** `workflow_dispatch` can run the privileged canonical deploy workflow at a selected ref while the job executes local checked-out actions/runtime with `id-token: write` and `deployments: write`. Constrain manual dispatch to the default branch or keep privileged runtime checkout pinned to trusted code.\n- **WARNING:** The shared deploy action performs OIDC and Sepo API calls without bounded transient retry/backoff, so temporary 5xx/rate-limit/network failures still fail the deploy path immediately.\n- **INFO:** Validate the Sepo deploy response URL before writing `url=$URL`; a 200 response with missing `.url` currently becomes a successful `null` output.\n\n## Final Rubric Verdict\n\nPARTIAL\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-14T07:56:06Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/36#issuecomment-4701111192",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGDVGGw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #36.\n\nno rubric changes\n\nI found no trusted human feedback in PR #36 that warranted a new or updated durable rubric. The substantive review points were agent-authored and already covered by active rubrics like `reuse-existing-code`, `shared-capabilities-in-runtime`, and `bounded-transient-retries`. The rubrics checkout remains clean.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-14T07:56:26Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/36#issuecomment-4701111835",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGDWAlQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #36 adds canonical deployment for `main` through the Sepo preview API, publishing the resulting URL as a GitHub `Production` deployment status without requiring repository Administration permissions. It also changes PR previews so private repositories preview by default unless `AGENT_PREVIEW_POLICY=off`, relying on the Sepo private-site gate. The PR factors shared preview/canonical deploy logic into a composite action and moves canonical GitHub Deployment publishing into `.agent` runtime helpers. The PR is already merged at head `26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7`.\n\n## Review\nThe earlier runtime-boundary issue is fixed, and reviewers generally agreed the implementation is sound. The remaining concerns are hardening items around trusted privileged workflow dispatch and transient failure handling, not release blockers.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Shared deploy action has one-shot OIDC and Sepo API calls | WARNING | `.github/actions/deploy-sepo-site/action.yml` fetches the OIDC token and posts to Sepo with immediate failure behavior, so transient 429/5xx/network failures can fail both preview and canonical deploys. |\n| Canonical workflow manual dispatch can run privileged local runtime from selected refs | WARNING | The workflow has `workflow_dispatch`, `id-token: write`, and `deployments: write`, then executes local checked-out actions/runtime without constraining manual dispatch to trusted `main` code. |\n| Deploy response URL is not validated before output | INFO | A 200 Sepo response with missing or `null` `.url` would still be written as the action output and step summary. |\n\n## Progress\n- The prior finding about inline GitHub Deployment/status publishing is fixed: canonical deployment publishing now lives in `.agent/src/github.ts` plus `publish-canonical-deployment`.\n- Review artifacts report the main `check` job passing for head `26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7`.\n- Existing inline comments and review threads are empty; no replies, minimizations, resolutions, or new inline comments were made.\n- I skipped the suggested inline retry comment because current top-level PR discussion already clearly covers the same issue.\n\n## Issue Details\n<details>\n<summary>Shared deploy action has one-shot OIDC and Sepo API calls</summary>\n\n**Cause:** The shared action runs direct `curl` calls for the OIDC token and Sepo deploy POST at [`action.yml#L35-L44`](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.github/actions/deploy-sepo-site/action.yml#L35-L44). The new `.agent` GitHub Deployment retry helper does not cover this earlier deploy path.\n\n**Candidate solutions:** Add bounded retry/backoff around likely transient OIDC/Sepo failures, while keeping auth, validation, and malformed-response failures terminal. Alternatively, move OIDC+Sepo deploy into a `.agent` CLI so retry behavior can share runtime code.\n\n**Comments:** Claude, Codex, and Rubrics all identified this as the main remaining reliability gap.\n\n</details>\n\n<details>\n<summary>Canonical workflow manual dispatch can run privileged local runtime from selected refs</summary>\n\n**Cause:** [`agent-deploy-site-main.yml#L3-L11`](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.github/workflows/agent-deploy-site-main.yml#L3-L11) enables manual dispatch with privileged permissions, and later runs local checkout/actions without a `main`-only dispatch guard.\n\n**Candidate solutions:** Restrict manual runs with a job condition such as `github.ref == 'refs/heads/main'`, remove `workflow_dispatch`, or pin privileged runtime checkout/actions to trusted default-branch code.\n\n**Comments:** This was raised by the rubrics review as a trusted-runtime concern; other reviewers treated the permission scope itself as narrow.\n\n</details>\n\n<details>\n<summary>Deploy response URL is not validated before output</summary>\n\n**Cause:** [`action.yml#L45-L46`](https://github.com/self-evolving/literature-template/blob/26c78a2d0196120adf8c5c0b1d17f6f8cfe8a4a7/.github/actions/deploy-sepo-site/action.yml#L45-L46) reads `.url` and writes it directly to `GITHUB_OUTPUT`.\n\n**Candidate solutions:** Require a non-empty, non-`null` URL, ideally absolute `http(s)`, before writing the output or summary.\n\n**Comments:** INFO-level cleanup; it can be folded into the retry/response-validation hardening if that file is touched.\n\n</details>\n\n## Recommended Next Step\nHUMAN_DECISION: PR #36 is already merged, and the remaining concerns are follow-up hardening/policy choices that should not trigger an automatic fix-pr pass without maintainer confirmation.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] Add bounded retry/backoff around the OIDC token fetch and Sepo deploy POST in `.github/actions/deploy-sepo-site/action.yml`, keeping auth and validation failures terminal.\n- [ ] Restrict canonical workflow manual dispatch to trusted `main` runtime, or remove `workflow_dispatch` if manual canonical deploys are not needed.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-14T08:03:15Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/36#issuecomment-4701126805",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-14T07:22:56Z",
+  "files": [
+    {
+      "path": ".agent/src/__tests__/preview-deployment-cli.test.ts",
+      "additions": 95,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/publish-canonical-deployment.ts",
+      "additions": 37,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/github.ts",
+      "additions": 113,
+      "deletions": 5,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/actions/deploy-sepo-site/action.yml",
+      "additions": 51,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/agent-deploy-site-main.yml",
+      "additions": 98,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/agent-site-preview.yml",
+      "additions": 4,
+      "deletions": 18,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "README.md",
+      "additions": 17,
+      "deletions": 11,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/main-private-deploy",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-06-14T07:55:10Z",
+  "number": 36,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Deploy canonical sites and allow private previews",
+  "updatedAt": "2026-06-14T08:03:15Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/36"
+}
