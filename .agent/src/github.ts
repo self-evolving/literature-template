@@ -108,6 +108,35 @@ function commandErrorSummary(err: unknown): string {
   return commandErrorText(err).replace(/\s+/g, " ").trim() || "unknown error";
 }
 
+function isTransientGitHubApiError(err: unknown): boolean {
+  const text = commandErrorText(err);
+  return /\b(429|50[0-9])\b|rate limit|secondary rate limit|timed?\s*out|timeout|ECONNRESET|ETIMEDOUT|EAI_AGAIN|temporarily unavailable/i.test(text);
+}
+
+function sleepSync(ms: number): void {
+  if (ms <= 0) return;
+  const buffer = new SharedArrayBuffer(4);
+  Atomics.wait(new Int32Array(buffer), 0, 0, ms);
+}
+
+function withGitHubApiRetries<T>(operation: () => T, retry?: GitHubApiRetryOptions): T {
+  const attempts = Math.max(1, Math.floor(retry?.attempts ?? 1));
+  const delayMs = Math.max(0, Math.floor(retry?.delayMs ?? 0));
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return operation();
+    } catch (err: unknown) {
+      if (attempt >= attempts || !isTransientGitHubApiError(err)) {
+        throw err;
+      }
+      sleepSync(delayMs * (2 ** (attempt - 1)));
+    }
+  }
+
+  throw new Error("unreachable GitHub API retry state");
+}
+
 function isAlreadyExistsLabelError(err: unknown): boolean {
   return /already exists|already_exists|name has already been taken/i.test(commandErrorText(err));
 }
@@ -168,6 +197,11 @@ export function removePrLabel(prNumber: number, label: string, repo?: string): v
 
 // --- Deployments ---
 
+export interface GitHubApiRetryOptions {
+  attempts?: number;
+  delayMs?: number;
+}
+
 export interface PreviewDeploymentPayloadOptions {
   prNumber: number;
   headRef: string;
@@ -183,6 +217,17 @@ export interface PreviewDeploymentSuccessStatusOptions {
 
 export interface PreviewDeploymentInactiveStatusOptions {
   environment: string;
+  runUrl: string;
+}
+
+export interface CanonicalDeploymentPayloadOptions {
+  ref: string;
+  environment: string;
+}
+
+export interface CanonicalDeploymentSuccessStatusOptions {
+  environment: string;
+  url: string;
   runUrl: string;
 }
 
@@ -204,6 +249,18 @@ export interface PublishPreviewDeploymentResult {
   deploymentId: string;
   tokenLabel: string;
   warnings: PreviewDeploymentWarning[];
+}
+
+export interface PublishCanonicalDeploymentOptions extends CanonicalDeploymentPayloadOptions {
+  repo: string;
+  url: string;
+  runUrl: string;
+  token?: string;
+  retry?: GitHubApiRetryOptions;
+}
+
+export interface PublishCanonicalDeploymentResult {
+  deploymentId: string;
 }
 
 export interface GitHubDeploymentRecord {
@@ -274,8 +331,43 @@ export function buildPreviewDeploymentInactiveStatusPayload(
   };
 }
 
-export function createGitHubDeployment(repo: string, payload: Record<string, unknown>, token?: string): string {
-  return ghApiCommandWithInput([
+export function buildCanonicalDeploymentPayload(opts: CanonicalDeploymentPayloadOptions): Record<string, unknown> {
+  return {
+    ref: opts.ref,
+    environment: opts.environment,
+    description: "Sepo canonical site",
+    auto_merge: false,
+    required_contexts: [],
+    transient_environment: false,
+    production_environment: true,
+    payload: {
+      source: "sepo-canonical",
+      canonical: true,
+    },
+  };
+}
+
+export function buildCanonicalDeploymentSuccessStatusPayload(
+  opts: CanonicalDeploymentSuccessStatusOptions,
+): Record<string, unknown> {
+  return {
+    state: "success",
+    environment: opts.environment,
+    target_url: opts.url,
+    environment_url: opts.url,
+    log_url: opts.runUrl,
+    description: "Sepo canonical site is ready",
+    auto_inactive: true,
+  };
+}
+
+export function createGitHubDeployment(
+  repo: string,
+  payload: Record<string, unknown>,
+  token?: string,
+  retry?: GitHubApiRetryOptions,
+): string {
+  return withGitHubApiRetries(() => ghApiCommandWithInput([
     "--method",
     "POST",
     `repos/${repo}/deployments`,
@@ -283,7 +375,7 @@ export function createGitHubDeployment(repo: string, payload: Record<string, unk
     "-",
     "--jq",
     ".id",
-  ], payload, token).trim();
+  ], payload, token), retry).trim();
 }
 
 export function createGitHubDeploymentStatus(
@@ -291,14 +383,15 @@ export function createGitHubDeploymentStatus(
   deploymentId: string,
   payload: Record<string, unknown>,
   token?: string,
+  retry?: GitHubApiRetryOptions,
 ): void {
-  ghApiCommandWithInput([
+  withGitHubApiRetries(() => ghApiCommandWithInput([
     "--method",
     "POST",
     `repos/${repo}/deployments/${deploymentId}/statuses`,
     "--input",
     "-",
-  ], payload, token);
+  ], payload, token), retry);
 }
 
 function previewTokenAttempts(opts: PublishPreviewDeploymentOptions): { token: string; label: string }[] {
@@ -314,6 +407,21 @@ function previewTokenAttempts(opts: PublishPreviewDeploymentOptions): { token: s
   }
 
   return attempts;
+}
+
+export function publishCanonicalDeployment(opts: PublishCanonicalDeploymentOptions): PublishCanonicalDeploymentResult {
+  const createPayload = buildCanonicalDeploymentPayload({
+    ref: opts.ref,
+    environment: opts.environment,
+  });
+  const statusPayload = buildCanonicalDeploymentSuccessStatusPayload({
+    environment: opts.environment,
+    url: opts.url,
+    runUrl: opts.runUrl,
+  });
+  const deploymentId = createGitHubDeployment(opts.repo, createPayload, opts.token, opts.retry);
+  createGitHubDeploymentStatus(opts.repo, deploymentId, statusPayload, opts.token, opts.retry);
+  return { deploymentId };
 }
 
 export function publishPreviewDeployment(opts: PublishPreviewDeploymentOptions): PublishPreviewDeploymentResult {

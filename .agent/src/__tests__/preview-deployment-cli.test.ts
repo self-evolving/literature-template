@@ -166,6 +166,101 @@ exit 1
   }
 });
 
+test("publish-canonical-deployment CLI creates production deployment and retries transient failures", () => {
+  const tempDir = mkdtempSync(join(tmpdir(), "agent-canonical-publish-"));
+
+  try {
+    const payloadDir = join(tempDir, "payloads");
+    const logPath = join(tempDir, "gh.log");
+    mkdirSync(payloadDir, { recursive: true });
+    writeFakeGh(
+      tempDir,
+      `#!/usr/bin/env bash
+set -euo pipefail
+printf '%s|%s\n' "$GH_TOKEN" "$*" >> "$FAKE_GH_LOG"
+if [[ "$*" == *"repos/self-evolving/repo/deployments --input - --jq .id" ]]; then
+  count_file="$FAKE_PAYLOAD_DIR/create.count"
+  count=0
+  [[ -f "$count_file" ]] && count="$(cat "$count_file")"
+  count=$((count + 1))
+  printf '%s\n' "$count" > "$count_file"
+  if [[ "$count" -eq 1 ]]; then
+    cat >/dev/null
+    printf 'HTTP 502 Bad Gateway\n' >&2
+    exit 1
+  fi
+  cat > "$FAKE_PAYLOAD_DIR/create.json"
+  printf '999\n'
+  exit 0
+fi
+if [[ "$*" == *"repos/self-evolving/repo/deployments/999/statuses --input -" ]]; then
+  count_file="$FAKE_PAYLOAD_DIR/status.count"
+  count=0
+  [[ -f "$count_file" ]] && count="$(cat "$count_file")"
+  count=$((count + 1))
+  printf '%s\n' "$count" > "$count_file"
+  if [[ "$count" -eq 1 ]]; then
+    cat >/dev/null
+    printf 'HTTP 503 Service Unavailable\n' >&2
+    exit 1
+  fi
+  cat > "$FAKE_PAYLOAD_DIR/status.json"
+  exit 0
+fi
+printf 'unexpected gh args: %s\n' "$*" >&2
+exit 1
+`,
+    );
+
+    const result = runCli("publish-canonical-deployment", tempDir, {
+      FAKE_GH_LOG: logPath,
+      FAKE_PAYLOAD_DIR: payloadDir,
+      GITHUB_REPOSITORY: "self-evolving/repo",
+      GITHUB_TOKEN: "github-token",
+      URL: "https://site.example.test",
+      SHA: "abc123",
+      RUN_URL: "https://github.com/self-evolving/repo/actions/runs/1",
+      ENVIRONMENT: "Production",
+    });
+
+    assert.equal(result.status, 0);
+    assert.equal(result.stderr, "");
+    assert.match(result.stdout, /Published GitHub deployment 999 for https:\/\/site\.example\.test/);
+
+    const log = readFileSync(logPath, "utf8").trim().split(/\r?\n/);
+    assert.equal(log.filter((line) => line.includes("repos/self-evolving/repo/deployments --input - --jq .id")).length, 2);
+    assert.equal(log.filter((line) => line.includes("repos/self-evolving/repo/deployments/999/statuses --input -")).length, 2);
+
+    const createPayload = JSON.parse(readFileSync(join(payloadDir, "create.json"), "utf8"));
+    assert.deepEqual(createPayload, {
+      ref: "abc123",
+      environment: "Production",
+      description: "Sepo canonical site",
+      auto_merge: false,
+      required_contexts: [],
+      transient_environment: false,
+      production_environment: true,
+      payload: {
+        source: "sepo-canonical",
+        canonical: true,
+      },
+    });
+
+    const statusPayload = JSON.parse(readFileSync(join(payloadDir, "status.json"), "utf8"));
+    assert.deepEqual(statusPayload, {
+      state: "success",
+      environment: "Production",
+      target_url: "https://site.example.test",
+      environment_url: "https://site.example.test",
+      log_url: "https://github.com/self-evolving/repo/actions/runs/1",
+      description: "Sepo canonical site is ready",
+      auto_inactive: true,
+    });
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
 test("inactivate-preview-deployments CLI matches by PR number, with SHA fallback for legacy payloads", () => {
   const tempDir = mkdtempSync(join(tmpdir(), "agent-preview-inactivate-"));
 
