@@ -7,7 +7,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n- keep the Sepo drawer enabled when Discussion IDs are missing or Discussions are disabled\n- make Discussion repo/category IDs optional in the Quartz comments component\n- update the discussion-ID resolver and workflow comments to treat Discussion lookup as optional for the drawer\n- document Issues/Pulls-only drawer configuration\n\n## Validation\n- `npm run check`\n- `npm test`\n\nNote: per request, I did not wait on a full local build before pushing.",
-  "closedAt": null,
+  "closedAt": "2026-06-14T21:11:43Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABGE2JGA",
@@ -46,8 +46,8 @@
       "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 9 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Keep consumers on fixed contracts | pass | 8/8 | `quartz.ts` still consumes only fixed `SEPO_COMMENTS_*` / `SEPO_PREVIEW_*` inputs and validates repo/tab fields; provider lookup remains in workflow/action boundaries. See [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/1fedffc9fd613265891336fb20ded6c06fefab95/quartz.ts#L110-L138). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README now documents optional Discussion IDs, Issues/Pulls-only setup, and strict/best-effort behavior. See [`README.md`](https://github.com/self-evolving/literature-template/blob/1fedffc9fd613265891336fb20ded6c06fefab95/README.md#L151-L227). |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | The change adjusts existing `sepoComments`, `Comments`, workflows, and `resolve-discussion-ids`; it does not add a parallel resolver or parser. |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | The public contract stays minimal: `SEPO_COMMENTS_REPO` is required, Discussion IDs are optional, and `SEPO_COMMENTS_TABS=issues,pulls` is the escape hatch. |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | Keeps separate typed env knobs for repo, IDs, category, tabs, and default tab; existing validation remains explicit. See [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/1fedffc9fd613265891336fb20ded6c06fefab95/quartz.ts#L122-L179). |\n| coding_workflow / generic | Bound transient retries | pass | 7/7 | The modified resolver keeps bounded 3-attempt retry behavior and only retries transient-looking failures. See [`action.yml`](https://github.com/self-evolving/literature-template/blob/1fedffc9fd613265891336fb20ded6c06fefab95/.github/actions/resolve-discussion-ids/action.yml#L46-L70). |\n| communication / generic | Make setup guidance actionable | pass | 7/7 | README includes copyable local commands for Issues/Pulls-only and Discussions-enabled setups. See [`README.md`](https://github.com/self-evolving/literature-template/blob/1fedffc9fd613265891336fb20ded6c06fefab95/README.md#L209-L227). |\n| communication / generic | Write audience-first documentation | pass | 7/7 | The docs lead with the required input and common behavior before deeper ID lookup details. |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | The PR is scoped to six directly related files: resolver action, two workflows, README, `quartz.ts`, and `Comments.tsx`. |\n\n## Notes\n\n- No parent/tracking issue was referenced in the PR body or comments, so this review used the live PR diff, PR summary, repo memory, and selected rubrics.\n- Independent validation on PR ref `1fedffc9fd613265891336fb20ded6c06fefab95`: `npm run check`, `npm test`, and a targeted `SEPO_COMMENTS_REPO=self-evolving/literature-template SEPO_COMMENTS_TABS=issues,pulls npm run build` all passed.\n- The targeted build emitted `.sepo-embed` markup with `data-repo` and `data-tabs=\"issues,pulls\"` and without `data-repo-id`, `data-category-id`, or `undefined` placeholders.\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** No rubric-specific blocking or warning findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
       "createdAt": "2026-06-14T18:51:49Z",
       "includesCreatedEdit": false,
-      "isMinimized": false,
-      "minimizedReason": "",
+      "isMinimized": true,
+      "minimizedReason": "outdated",
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/38#issuecomment-4702710950",
       "viewerDidAuthor": true
@@ -61,10 +61,98 @@
       "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 1fedffc9fd613265891336fb20ded6c06fefab95 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #38 makes the Sepo drawer usable when GitHub Discussions are disabled or Discussion IDs cannot be resolved. It changes Discussion repo/category IDs from required Quartz inputs to optional ones, updates the resolver action and workflow comments, and documents Issues/Pulls-only setup. The intended outcome is that a minimal `SEPO_COMMENTS_REPO` setup can still render useful Issues and Pull requests tabs. No parent or tracking issue was referenced in the current PR body or comments.\n\n## Review\nThe overall direction is sound, and the rubric review found the scoped contract/documentation changes acceptable. However, the default no-Discussion path still sends `discussions` as the first enabled tab, which currently opens the drawer on a broken/loading Comments view instead of Issues/Pulls.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Missing Discussion IDs leave Discussions selected | BLOCKING | `quartz.ts` warns when Discussion config is incomplete, but still passes `tabs=[\"discussions\",\"issues\",\"pulls\"]` through to the embed. The live widget currently chooses `defaultTab:\"discussions\"` for that query with empty IDs, so the documented minimal setup does not deliver the intended Issues/Pulls experience. |\n| Optional-ID path lacks regression coverage | WARNING | The existing checks passed, but reviewers found no focused coverage for `SEPO_COMMENTS_REPO` set with Discussion IDs absent. A targeted fixture/test would lock the new optional-ID behavior and catch the default-tab regression. |\n\n## Progress\n- Considered all reviewer outputs found under `/Users/shannons/clawd/self-evolving-local-runner/runner-2/_work/_temp/reviews`: rubrics, Claude, and Codex.\n- Current PR conversation had no prior inline comments or review threads before this synthesis run.\n- Posted one new inline comment on `quartz.ts` line 133: https://github.com/self-evolving/literature-template/pull/38#discussion_r3410059256\n- No comments were minimized, no replies were added, and no threads were resolved.\n- Reviewer validation reported `npm run check` and `npm test` passing; the blocker is about the no-Discussion default runtime configuration.\n\n## Issue Details\n<details>\n<summary>Missing Discussion IDs leave Discussions selected</summary>\n\n**Cause:** [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/1fedffc9fd613265891336fb20ded6c06fefab95/quartz.ts#L122-L138) computes `tabs` before `hasDiscussionConfig` and only warns when IDs are missing. The unchanged `tabs` array is then passed into the component, so the embed emits `data-tabs=\"discussions,issues,pulls\"` without `repoId`/`categoryId`.\n\n**Candidate solutions:** Derive an effective tab list after `hasDiscussionConfig`; remove `discussions` when IDs are absent, then compute/validate `defaultTab` from that filtered list. If the user explicitly requests only `discussions` without IDs, fail or disable according to the strict/best-effort policy instead of rendering an empty drawer.\n\n**Comments:** Rubrics passed because an explicit `SEPO_COMMENTS_TABS=issues,pulls` setup works. The blocker is the documented minimal/default setup, where the service still opens on Discussions first.\n\n</details>\n\n<details>\n<summary>Optional-ID path lacks regression coverage</summary>\n\n**Cause:** The test suite does not appear to exercise the generated `.sepo-embed` config for the new “repo set, Discussion IDs absent” path.\n\n**Candidate solutions:** Add a focused test or build fixture asserting that missing Discussion IDs do not emit an effective Discussions tab/default tab, while Issues/Pulls remain available. Also cover the explicit `SEPO_COMMENTS_TABS=discussions` missing-ID case if the fix chooses fail/disable semantics.\n\n**Comments:** This is secondary to the behavior fix, but it is directly tied to the new optional-ID contract.\n\n</details>\n\n## Recommended Next Step\nFIX_PR: The unresolved default-tab behavior requires a concrete branch change and is safe for an automated fix-pr pass.\n\n## Final Verdict\nNEEDS_REWORK\n\n## Action Items\n- [ ] Filter `discussions` out of the effective tabs when Discussion IDs are missing, and recompute/validate `defaultTab` from the filtered tabs.\n- [ ] Add focused regression coverage for the missing-Discussion-IDs path, including the explicit discussions-only edge case.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
       "createdAt": "2026-06-14T18:57:58Z",
       "includesCreatedEdit": false,
+      "isMinimized": true,
+      "minimizedReason": "outdated",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/38#issuecomment-4702726285",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGFJsqg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "Addressed the follow-up review in additive commit `97e5988` (no force push).\n\nChanges:\n- derive an effective Sepo drawer tab list after checking whether Discussion IDs are configured\n- remove `discussions` from default tabs when IDs are absent, so minimal `SEPO_COMMENTS_REPO` starts with Issues/Pulls instead of a broken Discussions tab\n- disable/fail via the existing best-effort vs `SEPO_COMMENTS_ENABLED=true` policy when the effective tab list would be empty or an explicit default tab is no longer valid\n- added focused regression tests for missing-ID defaults, explicit Issues/Pulls, explicit discussions-only, explicit default-tab conflict, and PR preview defaulting to Pulls\n- updated README to describe effective tab filtering\n\nValidation:\n- `npm run check`\n- `npm test`\n\nI did not run a full local build per the earlier request to skip direct builds.",
+      "createdAt": "2026-06-14T20:54:40Z",
+      "includesCreatedEdit": false,
       "isMinimized": false,
       "minimizedReason": "",
       "reactionGroups": [],
-      "url": "https://github.com/self-evolving/literature-template/pull/38#issuecomment-4702726285",
+      "url": "https://github.com/self-evolving/literature-template/pull/38#issuecomment-4703022250",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGFJtsQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review",
+      "createdAt": "2026-06-14T20:54:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/38#issuecomment-4703022513",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGFKFkQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 11 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Keep consumers on fixed contracts | pass | 8/8 | `quartz.ts` still consumes fixed `SEPO_COMMENTS_*` / `SEPO_PREVIEW_*` env fields, while Discussion lookup remains in the workflow/action boundary. See [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/97e5988de891e901e84657f2a247e4187de70ca4/quartz.ts#L109-L182). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | README now documents optional Discussion IDs, effective tab filtering, strict/best-effort behavior, and local Issues/Pulls-only setup. See [`README.md`](https://github.com/self-evolving/literature-template/blob/97e5988de891e901e84657f2a247e4187de70ca4/README.md#L151-L231). |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | The PR extends the existing comments config path and extracts focused tab/default derivation into `quartz/util/sepoComments.ts`; it does not add a parallel comments resolver or alternate config system. |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | `SEPO_COMMENTS_REPO` remains the minimal required contract, missing Discussion IDs degrade to Issues/Pulls, and `SEPO_COMMENTS_TABS` / `SEPO_COMMENTS_DEFAULT_TAB` remain the native escape hatches. |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | The implementation keeps separate validated fields for repo, category, IDs, tabs, default tab, content repo, and preview fields rather than overloading a single string. See [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/97e5988de891e901e84657f2a247e4187de70ca4/quartz.ts#L117-L180). |\n| coding_workflow / generic | Validate preview contracts | pass | 7/7 | The new default-tab helper is covered for PR preview behavior, asserting previews default to `pulls` when effective tabs include it. See [`sepoComments.test.ts`](https://github.com/self-evolving/literature-template/blob/97e5988de891e901e84657f2a247e4187de70ca4/quartz/util/sepoComments.test.ts#L60-L64). |\n| coding_workflow / generic | Bound transient retries | pass | 7/7 | The resolver keeps bounded three-attempt retry behavior and still warns instead of retrying deterministic failures. See [`action.yml`](https://github.com/self-evolving/literature-template/blob/97e5988de891e901e84657f2a247e4187de70ca4/.github/actions/resolve-discussion-ids/action.yml#L46-L70). |\n| communication / generic | Make setup guidance actionable | pass | 7/7 | README includes concrete local commands for Issues/Pulls-only and Discussions-enabled setup. See [`README.md`](https://github.com/self-evolving/literature-template/blob/97e5988de891e901e84657f2a247e4187de70ca4/README.md#L213-L231). |\n| communication / generic | Write audience-first documentation | pass | 7/7 | The docs lead with the user-facing required input and behavior before deeper service/runtime details. See [`README.md`](https://github.com/self-evolving/literature-template/blob/97e5988de891e901e84657f2a247e4187de70ca4/README.md#L151-L180). |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | The diff is scoped to the comments resolver, two workflows, README, comments config/component code, and focused tests. |\n| review_quality / generic | Ground review synthesis in current artifacts | pass | 8/8 | This scoring uses the current PR head `97e5988`, including the additive fix commit that resolved the earlier stale `discussions` default-tab finding. |\n\n## Notes\n\n- No parent or tracking issue is referenced in the PR body or current comments, so the review is based on the live PR diff, current PR discussion, repo memory, and selected rubrics.\n- The additive commit addresses the prior blocker: `deriveSepoCommentsTabs` removes `discussions` when Discussion IDs are absent, rejects discussions-only config without IDs, and `quartz.ts` passes `effectiveTabs` into the component.\n- I attempted `npm run check` and `npm test` on PR head `97e5988`. They failed in this worktree because dependencies are missing from `node_modules`; the new Sepo comments tests did execute and passed all six cases before the broader suite failed on unrelated missing packages.\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** No rubric-specific blocking or warning findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-14T20:57:12Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/38#issuecomment-4703028625",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGFK-NQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 97e5988de891e901e84657f2a247e4187de70ca4 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #38 makes the Sepo comments drawer work when GitHub Discussions are disabled or Discussion IDs are unavailable. It changes Discussion repo/category IDs from required Quartz inputs to optional config, updates workflow/resolver messaging, and documents Issues/Pulls-only setup. A prior review found that the no-Discussion path still selected the Discussions tab by default; follow-up commit `97e5988` addresses that by deriving effective tabs and default tab after checking Discussion config. No parent or tracking issue was referenced in the current PR body or comments.\n\n## Review\nThe current PR head looks ready to ship. All current reviewer outputs agree there are no blocking or warning findings, and the previous blocker is resolved with focused tests.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| No actionable issues | INFO | Current review artifacts and the current PR diff show no unresolved branch-change work. Remaining notes are cosmetic or optional and do not require automation. |\n\n## Progress\n- Used all review outputs under `/Users/shannons/clawd/self-evolving-local-runner/runner-2/_work/_temp/reviews`: rubrics, Claude, and Codex.\n- Verified current PR head `97e5988de891e901e84657f2a247e4187de70ca4` and fetched the PR ref for file-level inspection.\n- Prior blocker is addressed: [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/97e5988de891e901e84657f2a247e4187de70ca4/quartz.ts#L122-L152) now passes effective tabs, and [`sepoComments.test.ts`](https://github.com/self-evolving/literature-template/blob/97e5988de891e901e84657f2a247e4187de70ca4/quartz/util/sepoComments.test.ts#L8-L64) covers the missing-ID/default-tab cases.\n- Existing inline comment `#discussion_r3410059256` is superseded by the follow-up commit. I did not resolve or minimize it because the re-fetched thread reports `viewerCanResolve=false`; no new inline comments, replies, minimizations, or thread resolutions were made.\n- `git diff --check origin/main...origin/pr/38` passed. Codex review also reports `npm run check` and `npm test` passing on the PR head.\n\n## Recommended Next Step\nNO_AUTOMATED_ACTION: There are no unresolved actionable branch changes for an automated fix-pr pass.\n\n## Final Verdict\nSHIP\n\n## Action Items\n- [ ] No required branch-change work remains.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-14T21:02:57Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/38#issuecomment-4703043125",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGFM8VQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #38.\n\nno rubric changes\n\nI reviewed PR #38’s issue comments, review comments, reviews, maintainer/collaborator signals, and existing active rubrics. The reusable points from the PR are bot-authored or already covered by existing rubrics like minimal defaults, docs in sync, explicit inputs, and regression coverage. The human comments did not add a new durable user/team preference.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-14T21:12:52Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/38#issuecomment-4703075413",
       "viewerDidAuthor": true
     }
   ],
@@ -90,14 +178,14 @@
     },
     {
       "path": "README.md",
-      "additions": 50,
+      "additions": 54,
       "deletions": 36,
       "changeType": "MODIFIED"
     },
     {
       "path": "quartz.ts",
-      "additions": 8,
-      "deletions": 10,
+      "additions": 26,
+      "deletions": 25,
       "changeType": "MODIFIED"
     },
     {
@@ -105,6 +193,18 @@
       "additions": 3,
       "deletions": 3,
       "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/util/sepoComments.test.ts",
+      "additions": 65,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "quartz/util/sepoComments.ts",
+      "additions": 76,
+      "deletions": 0,
+      "changeType": "ADDED"
     }
   ],
   "headRefName": "feat/drawer-without-discussions",
@@ -116,7 +216,7 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-14T21:11:43Z",
   "number": 38,
   "reviewDecision": "",
   "reviews": [
@@ -136,8 +236,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Allow Sepo drawer without Discussions",
-  "updatedAt": "2026-06-14T18:57:58Z",
+  "updatedAt": "2026-06-14T21:12:52Z",
   "url": "https://github.com/self-evolving/literature-template/pull/38"
 }
