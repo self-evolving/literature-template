@@ -19,3 +19,4 @@
 - Sepo comments: Quartz consumes fixed SEPO_COMMENTS_*/SEPO_PREVIEW_* env; workflows derive provider context and IDs. [[github/self-evolving/literature-template/issue-33.json]] [[github/self-evolving/literature-template/pull-35.json]]
 - Canonical site deploys: main pushes use Sepo canonical mode and publish GitHub Production deployment status via .agent helpers. [[github/self-evolving/literature-template/pull-36.json]]
 - Sepo comments: Discussion IDs are optional; when absent, drop discussions from effective tabs and keep Issues/Pulls. [[github/self-evolving/literature-template/pull-38.json]]
+- Sepo comments: main-site branch switcher is opt-in via SEPO_COMMENTS_PREVIEW_SWITCHER=hover; omit to keep disabled. [[github/self-evolving/literature-template/pull-40.json]]
