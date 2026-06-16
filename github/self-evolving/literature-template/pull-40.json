@@ -1,0 +1,102 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- add SEPO_COMMENTS_PREVIEW_SWITCHER=hover as the template-side opt-in for the comment-api main-site bot switcher\n- forward data-preview-switcher through the comments config element and sepo.js loader\n- document that omitting the env keeps the main-site branch switcher disabled\n\nRequires self-evolving/comment-api#37 for the sepo.js runtime behavior.\n\n## Validation\n- npx tsc --noEmit\n- npx prettier README.md quartz.ts quartz/components/Comments.tsx quartz/components/scripts/comments.inline.ts --check\n- npx tsx --test quartz/util/sepoComments.test.ts quartz/components/scripts/search.test.ts quartz/util/path.test.ts quartz/util/fileTrie.test.ts\n- npm run build\n- SEPO_COMMENTS_REPO=self-evolving/repo-discussions SEPO_COMMENTS_REPO_ID=R_kgDOSjgnjQ SEPO_COMMENTS_CATEGORY=General SEPO_COMMENTS_CATEGORY_ID=DIC_kwDOSjgnjc4C9gaF SEPO_COMMENTS_PREVIEW_SWITCHER=hover npm run build\n\nNote: full npm test currently includes unrelated .agent tests that fail because local generated script/dist fixtures are absent (e.g. scripts/resolve-scheduled-activity-gate.sh, dist/cli/session-restore.js).",
+  "closedAt": "2026-06-16T16:53:30Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGWYWVw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 98 | PASS | 11 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Put shared capabilities in runtime | pass | 7/7 | Template only adds the opt-in/env forwarding; PR body states runtime behavior lives in `self-evolving/comment-api#37`. |\n| coding_workflow / generic | Keep consumers on fixed contracts | pass | 8/8 | [`quartz.ts`](https://github.com/self-evolving/literature-template/blob/47f76308fdf3527e10c12c5233cb16f5f0673c26/quartz.ts) consumes one fixed env knob and passes a typed `previewSwitcher`; provider/runtime logic remains outside the template. |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | Adds explicit `SEPO_COMMENTS_PREVIEW_SWITCHER` with the single allowed value `hover`, instead of overloading an existing preview or trigger setting. |\n| coding_workflow / generic | Validate preview contracts | partial | 5/7 | The new env is validated with `optionalEnumEnv(..., [\"hover\"])`, and the PR validation includes a build with `SEPO_COMMENTS_PREVIEW_SWITCHER=hover`; no committed regression test directly asserts invalid-value failure or emitted/forwarded `data-preview-switcher`. |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | README documents that omitting the env keeps the main-site branch switcher disabled; only the minimal `hover` opt-in is exposed. |\n| coding_workflow / generic | Name config by capability | pass | 6/6 | `SEPO_COMMENTS_PREVIEW_SWITCHER` names the capability being enabled rather than a provider-specific implementation detail. |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | [`README.md`](https://github.com/self-evolving/literature-template/blob/47f76308fdf3527e10c12c5233cb16f5f0673c26/README.md) adds the env to the documented comments/preview variables and explains default-disabled behavior. |\n| communication / generic | Write audience-first documentation | pass | 7/7 | The README entry is task-oriented: set `SEPO_COMMENTS_PREVIEW_SWITCHER=hover` to reveal the main-site branch switcher; omit it to keep the switcher disabled. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Reuses existing `optionalEnumEnv`, component option plumbing, and `forwardedKeys` script forwarding pattern. |\n| coding_style / generic | Prefer simple implementations | pass | 7/7 | The implementation is a small typed env value plus one data attribute and one forwarded dataset key. |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Diff is limited to README and the existing comments config/loader files needed for the opt-in. |\n\n## Notes\n\n- Main score drivers are strong: the PR keeps runtime behavior in the comment API, exposes a narrow typed contract, forwards it through existing surfaces, and documents the default-disabled behavior.\n- Smallest useful follow-up: add a focused regression test or snapshot for `SEPO_COMMENTS_PREVIEW_SWITCHER=hover` proving the emitted config includes `data-preview-switcher` and that unsupported values fail clearly.\n\n## Findings\n\n- **INFO:** The preview contract is validated in code and exercised by the PR’s build command, but the invariant is not locked in by a committed test. This is a rubric-quality gap, not a blocking implementation issue.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-16T16:37:51Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/40#issuecomment-4721088087",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGWbkUA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 47f76308fdf3527e10c12c5233cb16f5f0673c26 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #40 adds `SEPO_COMMENTS_PREVIEW_SWITCHER=hover` as a template-side opt-in for the main-site branch switcher. It threads the value through the existing comments config path: env validation in `quartz.ts`, `data-preview-switcher` emission in `Comments.tsx`, and dataset forwarding in `comments.inline.ts`. The README documents the new env var and the default-disabled behavior when it is omitted. The PR body notes that runtime behavior depends on `self-evolving/comment-api#37`, while this repo only forwards the fixed contract.\n\n## Review\nAll reviewer outputs agree that the implementation is narrow, consistent with the existing comments configuration pattern, and ship-ready. The only concerns raised are INFO-level observations about lack of committed regression coverage and the upstream runtime dependency.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| No actionable issues | INFO | No blocking or warning findings are supported by the current review artifacts or PR diff. Remaining notes are optional test/merge-order context, not required branch changes. |\n\n## Progress\n- Used all review outputs found under `/Users/shannons/clawd/self-evolving-local-runner/runner-6/_work/_temp/reviews`.\n- Current PR conversation contains an existing rubrics review; no duplicate top-level comment was posted.\n- Current inline review comments and review threads are empty, so no replies, minimizations, resolutions, or new inline comments were needed.\n- The referenced external runtime PR was not visible to this workflow token, so it is treated only as dependency context from the PR body.\n\n## Recommended Next Step\n`NO_AUTOMATED_ACTION`: No unresolved actionable work remains; the INFO notes do not require an automated fix-pr pass.\n\n## Final Verdict\nSHIP\n\n## Action Items\n- [ ] No required branch changes.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-16T16:44:44Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/40#issuecomment-4721140816",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGWgvOw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #40.\n\nno rubric changes\n\nI left `agent-rubrics` unchanged. PR #40 had no human review comments or inline discussion; the only substantive conversation was bot-authored with `author_association: NONE`, so it is advisory only. The implementation themes it mentioned are already covered by existing rubrics such as `keep-consumers-on-fixed-contracts`, `shared-capabilities-in-runtime`, `prefer-explicit-structured-inputs`, `keep-docs-in-sync`, and `validate-preview-contracts`.\n\nThe external `self-evolving/comment-api#37` reference was not accessible to this token, so I treated it only as dependency context from the PR body.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-16T16:55:26Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/40#issuecomment-4721225531",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-16T16:35:26Z",
+  "files": [
+    {
+      "path": "README.md",
+      "additions": 21,
+      "deletions": 18,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 6,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/Comments.tsx",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/scripts/comments.inline.ts",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "issue35/sepo-preview-switcher-optin",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": "2026-06-16T16:53:30Z",
+  "number": 40,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Allow main-site preview switcher opt-in",
+  "updatedAt": "2026-06-16T16:55:27Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/40"
+}
