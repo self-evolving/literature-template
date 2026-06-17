@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "@sepo-agent right now the sepo comment api is only available on the content pages; can you add it to the landing page as well as the other index page (i.e., page ending with /, folder page)",
-  "closedAt": null,
+  "closedAt": "2026-06-17T05:20:49Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABGbBhyA",
@@ -71,8 +71,8 @@
     }
   ],
   "number": 41,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "add sepo on all pages",
-  "updatedAt": "2026-06-17T04:37:59Z",
+  "updatedAt": "2026-06-17T05:20:49Z",
   "url": "https://github.com/self-evolving/literature-template/issues/41"
 }

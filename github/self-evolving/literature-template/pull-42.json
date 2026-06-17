@@ -5,7 +5,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n- Remove the `library-page` condition from the Sepo comments layout so landing and index-style pages emit the Sepo comments config.\n- Update the SPA cleanup comment now that index pages can include comments.\n\n## Tests\n- `SEPO_COMMENTS_REPO=self-evolving/literature-template npm run build`\n- Confirmed `public/index.html`, `public/notes/index.html`, `public/papers/index.html`, and `public/tags/index.html` include `sepo-embed`.\n\nCloses #41\n",
-  "closedAt": null,
+  "closedAt": "2026-06-17T05:20:47Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABGbJUHQ",
@@ -107,6 +107,21 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/42#issuecomment-4726303774",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbYykg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #42.\n\nno rubric changes\n\nI reviewed PR #42, linked issue #41, issue comments, PR comments, reviews, collaborator lookup, diff, and existing rubrics. The only durable candidate was keeping related guidance/docs in sync after behavior changes, but that is already covered by `keep-docs-in-sync`. The substantive feedback was bot-authored, and the human comments were route commands rather than new rubric preferences.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `medium`_",
+      "createdAt": "2026-06-17T05:22:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/42#issuecomment-4726338194",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-17T04:37:56Z",
@@ -139,12 +154,12 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-17T05:20:47Z",
   "number": 42,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Show Sepo comments on all site pages",
-  "updatedAt": "2026-06-17T05:15:21Z",
+  "updatedAt": "2026-06-17T05:22:17Z",
   "url": "https://github.com/self-evolving/literature-template/pull/42"
 }

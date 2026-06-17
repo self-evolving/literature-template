@@ -1,0 +1,455 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n\n- Update installed Sepo agent infrastructure from `@self-evolving/sepo` 0.3.0 to 0.3.1 using `self-evolving/repo@692c1a7711082bd9c00da7d468ac5260a84e21d9`.\n- Sync the latest `.agent/` runtime, docs, tests, bundled model defaults, provider/runtime updates, follow-up intent handling, and dedicated `update-agent` route.\n- Sync source `.github` agent assets that need to stay in lockstep with `.agent/` (actions, prompts, and workflows).\n\n## Audit / preserved customizations\n\n| Area | Outcome |\n| --- | --- |\n| `.agent/` base runtime | Updated to 0.3.1. |\n| Literature extensions in `.agent/` | Preserved target-specific literature update and Sepo site deployment CLIs/tests. |\n| `.github` source agent assets | Updated existing source-owned actions, prompts, and workflows. |\n| Literature-template `.github` assets | Preserved target-only literature workflows/prompts, deployment action, discussion-id resolver, Dependabot config, PR template, and bug/feature templates. |\n| Issue templates | Replaced obsolete source-owned `.github/ISSUE_TEMPLATE/install-sepo.yml` with latest `install-sepo.md`; added `ask-sepo.md`. |\n| Root app/site files | Not changed. |\n\nMemory/rubrics refs were checked before updating: `agent/memory` and `agent/rubrics` both exist, and existing `refs/agent-state/*` refs were left untouched.\n\n## Validation\n\n- `npm --prefix .agent ci` ✅ (completed with existing warnings: `acpx@0.6.1` wants Node >=22.12.0 while local Node is 20.18.1, and npm audit reports 2 high severity vulnerabilities)\n- `npm --prefix .agent run build` ✅\n- `npm --prefix .agent test` ✅ (`test:runtime`, `check:workflow`, `check:docs`, and `check:shell` all passed)\n- `git diff --check` ✅\n- `git diff --cached --check` ✅ before commit\n\n## Post-merge notes\n\n- Future scheduled/manual agent updates should use the dedicated `update-agent` route included here instead of a skill-backed updater.\n- No memory or rubrics reinitialization is needed because the branches already exist.\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbZFxA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-17T05:23:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/43#issuecomment-4726343108",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbajBQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 13 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow/generic | Validate delegated route authorization | pass | 8/8 | Implicit follow-ups are authorized as `answer` before the intent gate runs, and final routing re-applies dispatch policy before emitting `answer`: [agent-router.yml](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/workflows/agent-router.yml#L249-L285), [resolve-dispatch.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/cli/resolve-dispatch.ts#L151-L200). |\n| coding_workflow/generic | Separate decision gates from action authorization | pass | 8/8 | The follow-up intent gate can normalize only `respond` or `ignore`, while route authorization remains separate and can suppress unauthorized answers: [followup-intent.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/followup-intent.ts#L82-L104), [resolve-dispatch-cli.test.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/__tests__/resolve-dispatch-cli.test.ts#L399-L469). |\n| communication/specific | Prefer silence for ambiguous implicit follow-ups | pass | 8/8 | The prompt instructs the intent gate to prefer `ignore`, and docs state ignored implicit follow-ups post nothing: [followup-intent.md](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/prompts/followup-intent.md), [request-lifecycle.md](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/docs/architecture/request-lifecycle.md#L9-L14). |\n| coding_workflow/generic | Keep privileged lifecycle routes out of rubric steering | pass | 8/8 | `install` and `update-agent` are not valid rubric target routes, covered by tests, and `agent-update.yml` disables rubrics for update-agent runs: [rubrics.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/rubrics.ts#L33-L43), [rubrics.test.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/__tests__/rubrics.test.ts#L140-L159), [agent-update.yml](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/workflows/agent-update.yml#L227-L252). |\n| coding_workflow/generic | Keep privileged workflows on trusted runtime code | pass | 8/8 | `agent-update.yml` checks out the default branch for runtime code and uses a separate worktree only for an existing update PR branch: [agent-update.yml](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/workflows/agent-update.yml#L133-L169), [agent-update.yml](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/workflows/agent-update.yml#L273-L277). |\n| coding_workflow/generic | Bounded transient retries | pass | 7/7 | OIDC broker exchange retries only transient 429/5xx or request failures, caps attempts at 3, and tests avoid retrying deterministic HTTP 400: [exchange-oidc.sh](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/actions/resolve-github-auth/exchange-oidc.sh#L42-L80), [resolve-github-auth-oidc-shell.test.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/__tests__/resolve-github-auth-oidc-shell.test.ts#L146-L164). |\n| coding_workflow/generic | Prefer explicit structured inputs | pass | 7/7 | New behavior is controlled by typed/validated fields such as `followup_intent_mode`, `AGENT_MODEL_POLICY`, and provider/model outputs rather than overloaded command text: [followup-intent.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/followup-intent.ts#L17-L27), [resolve-provider.js](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/actions/resolve-agent-provider/resolve-provider.js#L71-L131). |\n| coding_workflow/generic | Minimal defaults, native escape hatches | pass | 8/8 | Model defaults are a small bundled file, with docs pointing advanced customization to `AGENT_MODEL_POLICY` and route/provider overrides: [resolve-provider.js](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/actions/resolve-agent-provider/resolve-provider.js#L9-L13), [configuration-list.md](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/docs/customization/configuration-list.md#L41-L67). |\n| coding_workflow/generic | Reuse existing code | pass | 8/8 | The PR extends existing shared runtime/action surfaces (`resolve-agent-provider`, `run-agent-task`, `resolve-dispatch`) instead of duplicating workflow-local parsers or provider logic: [agent-router.yml](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/workflows/agent-router.yml#L279-L357), [resolve-dispatch.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/cli/resolve-dispatch.ts#L86-L115). |\n| coding_workflow/generic | Keep consumers on fixed contracts | pass | 8/8 | Provider/model derivation stays in the action boundary, and runtime code consumes fixed env fields via `buildSharedEnv`: [resolve-provider.js](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/actions/resolve-agent-provider/resolve-provider.js#L170-L208), [runtime-env.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/runtime-env.ts#L29-L62). |\n| coding_workflow/generic | Separate context from execution dependencies | pass | 7/7 | Closed inferred base PRs are demoted to context and no longer forced as implementation bases, with regression tests: [resolve-dispatch.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/cli/resolve-dispatch.ts#L64-L83), [resolve-dispatch-cli.test.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/__tests__/resolve-dispatch-cli.test.ts#L64-L112). |\n| coding_workflow/generic | Keep docs in sync | pass | 7/7 | Docs were updated for implicit follow-up routing, model defaults, `update-agent`, and setup guidance: [request-lifecycle.md](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/docs/architecture/request-lifecycle.md#L7-L14), [configuration-list.md](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/docs/customization/configuration-list.md#L11-L67). |\n| coding_workflow/generic | Validate preview/contracts | pass | 7/7 | Workflow/action YAML parsing and `GH_TOKEN` contract checks were preserved as runtime tests, so validation remains part of CI rather than a silent no-op: [workflow-action-validation.test.ts](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.agent/src/__tests__/workflow-action-validation.test.ts#L34-L70). |\n\n## Notes\n\n- The strongest score drivers are the explicit implicit-follow-up authorization path, answer-only intent normalization, and focused regression tests for both authorized and unauthorized follow-up outcomes.\n- The update route also matches the privileged-route rubrics: runtime code stays on the default branch, rubric steering is disabled, and install/update-agent are rejected as ordinary rubric targets.\n- Live PR checks show the repository `check` job passing for PR #43.\n\n## Findings\n\n- **INFO:** No rubric-specific findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-17T05:28:02Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/43#issuecomment-4726366981",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbeBhQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 1b2a1bab845c484921b75a726d86ed8abddb1201 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #43 updates the installed Sepo agent infrastructure to `@self-evolving/sepo` 0.3.1.\n- It brings in implicit follow-up intent handling, provider/model default updates, OIDC retry handling, review-context improvements, and a first-class `update-agent` route.\n- The rubrics review passed, and one reviewer found the core authorization and routing design sound.\n- The remaining current PR-diff issue is that the only unconditional `pull_request` workflow no longer validates the root Quartz site.\n\n## Review\nThe agent runtime changes look well covered, but the workflow coverage change should be fixed before merge. The reviewers disagreed on whether removing root site validation is intentional; for this repository, there is no equivalent required PR-time site check left.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Restore PR-time Quartz site validation | BLOCKING | [`.github/workflows/test-scripts.yml`](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/workflows/test-scripts.yml#L17) now only installs/tests `.agent`, removing root `npm ci`, `npm run check`, and `npm run build` from the unconditional PR workflow. `deploy.yml` is manual and site preview is conditional, so root site regressions can bypass required PR coverage. |\n| Confirm model metadata footer default | WARNING | [`display_model`](https://github.com/self-evolving/literature-template/blob/1b2a1bab845c484921b75a726d86ed8abddb1201/.github/actions/run-agent-task/action.yml#L32) now defaults to `true`, changing visible response footers unless repos opt out. This is documented, so it is a maintainer-awareness item rather than required branch work. |\n\n## Progress\n- Rubrics review passed with no rubric-specific findings.\n- Posted one inline comment on `.github/workflows/test-scripts.yml` line 17.\n- No replies added, no comments minimized, and no review threads resolved.\n- Did not carry forward the proposed `quartz.config.yaml` comments-gating blocker: the current GitHub PR file list/diff does not include that path or the related site files.\n\n## Issue Details\n<details>\n<summary>Restore PR-time Quartz site validation</summary>\n\n**Cause:** The PR replaces the root dependency install and Quartz `check`/`build` steps in `test-scripts.yml` with `.agent`-only checks. The remaining root validation workflows are either manual or conditional.\n\n**Candidate solutions:** Restore the previous root `npm ci`, `npm run check`, and `npm run build` steps before the `.agent` checks, or add an equivalent required `pull_request` workflow for the root site.\n\n**Comments:** One reviewer treated this as an intentional reusable-package tradeoff, but this target repository still needs PR-time Quartz validation unless maintainers explicitly move that contract elsewhere.\n\n</details>\n\n<details>\n<summary>Confirm model metadata footer default</summary>\n\n**Cause:** `run-agent-task` now defaults `display_model` to `true`, and docs state `AGENT_DISPLAY_MODEL=false` is the opt-out.\n\n**Candidate solutions:** Keep as-is if the rollout is intentional, or switch the default back to opt-in if response-footer changes should require repository consent.\n\n**Comments:** Not included in automation action items because the PR documents the new behavior.\n\n</details>\n\n## Recommended Next Step\nFIX_PR: Restore equivalent root site validation in a required `pull_request` path; this is a concrete workflow change suitable for an automated fix-pr pass.\n\n## Final Verdict\nNEEDS_REWORK\n\n## Action Items\n- [ ] Restore root Quartz site validation in PR CI, either in `test-scripts.yml` or an equivalent required `pull_request` workflow.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-17T05:38:58Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/43#issuecomment-4726423941",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-17T05:21:16Z",
+  "files": [
+    {
+      "path": ".agent/CHANGELOG.md",
+      "additions": 11,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/architecture/request-lifecycle.md",
+      "additions": 3,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/architecture/rubrics.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/customization/configuration-list.md",
+      "additions": 17,
+      "deletions": 5,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/index.md",
+      "additions": 3,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/overview/quick-start.md",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/setup/install-existing-repository.md",
+      "additions": 5,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/setup/self-hosted-github-action-runner.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/technical-details/key-concepts.md",
+      "additions": 4,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/usage/agent-actions.md",
+      "additions": 14,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/usage/internal-actions.md",
+      "additions": 4,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/docs/usage/supported-workflows.md",
+      "additions": 17,
+      "deletions": 11,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/model-defaults.json",
+      "additions": 14,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/package-lock.json",
+      "additions": 116,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/package.json",
+      "additions": 8,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/acpx-adapter.test.ts",
+      "additions": 219,
+      "deletions": 30,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/docs-validation.test.ts",
+      "additions": 70,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/envelope.test.ts",
+      "additions": 241,
+      "deletions": 36,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/extract-context-cli.test.ts",
+      "additions": 137,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/followup-intent.test.ts",
+      "additions": 115,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/onboarding-check-cli.test.ts",
+      "additions": 6,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/prompt-continuation.test.ts",
+      "additions": 25,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/resolve-agent-provider.test.ts",
+      "additions": 72,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/resolve-dispatch-cli.test.ts",
+      "additions": 152,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/resolve-github-auth-oidc-shell.test.ts",
+      "additions": 165,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/response.test.ts",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/rubrics.test.ts",
+      "additions": 22,
+      "deletions": 27,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/runtime-env.test.ts",
+      "additions": 46,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/workflow-action-validation.test.ts",
+      "additions": 70,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/acpx-adapter.ts",
+      "additions": 133,
+      "deletions": 12,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/answer-review-context.ts",
+      "additions": 37,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/extract-context.ts",
+      "additions": 71,
+      "deletions": 45,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/cli/resolve-dispatch.ts",
+      "additions": 72,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/envelope.ts",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/followup-intent.ts",
+      "additions": 104,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/onboarding.ts",
+      "additions": 8,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/prompt-continuation.ts",
+      "additions": 2,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/rubrics.ts",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/run.ts",
+      "additions": 49,
+      "deletions": 31,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/runtime-env.ts",
+      "additions": 62,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/ask-sepo.md",
+      "additions": 9,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/install-sepo.md",
+      "additions": 15,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/install-sepo.yml",
+      "additions": 0,
+      "deletions": 29,
+      "changeType": "DELETED"
+    },
+    {
+      "path": ".github/actions/resolve-agent-provider/action.yml",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/actions/resolve-agent-provider/resolve-provider.js",
+      "additions": 31,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/actions/resolve-github-auth/exchange-oidc.sh",
+      "additions": 41,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/actions/run-agent-task/action.yml",
+      "additions": 20,
+      "deletions": 5,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/prompts/_base.md",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/prompts/agent-answer.md",
+      "additions": 3,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/prompts/agent-dispatch.md",
+      "additions": 16,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/prompts/agent-update.md",
+      "additions": 201,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/prompts/followup-intent.md",
+      "additions": 37,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/agent-entrypoint.yml",
+      "additions": 29,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-fix-pr.yml",
+      "additions": 3,
+      "deletions": 3,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-review.yml",
+      "additions": 17,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-router.yml",
+      "additions": 149,
+      "deletions": 9,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-update.yml",
+      "additions": 5,
+      "deletions": 4,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/test-scripts.yml",
+      "additions": 15,
+      "deletions": 47,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/update-agent-infra-20260617",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 43,
+  "reviewDecision": "",
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABDPnBPw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-06-17T05:36:56Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "1b2a1bab845c484921b75a726d86ed8abddb1201"
+      }
+    }
+  ],
+  "state": "OPEN",
+  "title": "Update Sepo agent infrastructure to 0.3.1",
+  "updatedAt": "2026-06-17T05:38:58Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/43"
+}
