@@ -1,0 +1,150 @@
+{
+  "author": {
+    "is_bot": true,
+    "login": "app/sepo-agent-app"
+  },
+  "baseRefName": "main",
+  "body": "## Summary\n- Remove the `library-page` condition from the Sepo comments layout so landing and index-style pages emit the Sepo comments config.\n- Update the SPA cleanup comment now that index pages can include comments.\n\n## Tests\n- `SEPO_COMMENTS_REPO=self-evolving/literature-template npm run build`\n- Confirmed `public/index.html`, `public/notes/index.html`, `public/papers/index.html`, and `public/tags/index.html` include `sepo-embed`.\n\nCloses #41\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbJUHQ",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /review ",
+      "createdAt": "2026-06-17T04:48:47Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/42#issuecomment-4726084637",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbLLWg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 5 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | PR changes only `quartz.config.yaml` and `comments.inline.ts`, with a one-line condition removal and one comment update. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Uses the existing `sepo-comments` Quartz layout entry and existing SPA mount/cleanup path; no duplicate comments implementation was added. |\n| coding_workflow / generic | Keep consumers on fixed contracts | pass | 8/8 | The site still consumes the fixed Sepo config contract; the PR only makes the existing layout unconditioned at [`quartz.config.yaml#L265-L269`](https://github.com/self-evolving/literature-template/blob/caaba6cce1d02ff9d1ce8260976d243bf8c2cdfa/quartz.config.yaml#L265-L269). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | Existing README docs already describe comments as enabled by default and limited to fixed `SEPO_COMMENTS_*` inputs, with no content-page-only claim at [`README.md#L142-L157`](https://github.com/self-evolving/literature-template/blob/caaba6cce1d02ff9d1ce8260976d243bf8c2cdfa/README.md#L142-L157). |\n| coding_workflow / generic | Read docs and linked context first | pass | 6/6 | PR closes #41, whose accepted scope was landing plus folder/index pages; the diff matches that by removing the `library-page` gate. |\n\n## Notes\n\n- The implementation matches the linked issue’s acceptance criteria: landing, folder index, papers index, and tags index generated one `.sepo-embed` each after `SEPO_COMMENTS_REPO=self-evolving/literature-template npm run build`.\n- Frontmatter-disabled cleanup remains intact through the existing missing-config branch at [`comments.inline.ts#L66-L76`](https://github.com/self-evolving/literature-template/blob/caaba6cce1d02ff9d1ce8260976d243bf8c2cdfa/quartz/components/scripts/comments.inline.ts#L66-L76).\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** No rubric-specific findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `high`_",
+      "createdAt": "2026-06-17T04:52:13Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/42#issuecomment-4726115162",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbQbDA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: caaba6cce1d02ff9d1ce8260976d243bf8c2cdfa -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #42 addresses #41 by making Sepo comments available beyond content/library pages, including the landing page and folder/index pages. The PR removes the `library-page` condition from the `sepo-comments` layout entry so the existing `.sepo-embed` config can render on all normal site page types. It also updates the SPA cleanup comment because index pages are no longer expected to be commentless by default. The existing frontmatter opt-out and 404 page exclusion remain intact.\n\n## Review\nThe runtime change is minimal and matches the accepted issue scope. Codex and rubrics reviewers found no code issues; Claude flagged one stale internal skill-doc line and noted two non-blocking scope/test-plan observations.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Stale paper-to-site gating guidance | WARNING | [`.skills/paper-to-site/SKILL.md#L198`](https://github.com/self-evolving/literature-template/blob/caaba6cce1d02ff9d1ce8260976d243bf8c2cdfa/.skills/paper-to-site/SKILL.md#L198) still says `library-page` gates comments, but comments are now unconditional at [`quartz.config.yaml#L265-L269`](https://github.com/self-evolving/literature-template/blob/caaba6cce1d02ff9d1ce8260976d243bf8c2cdfa/quartz.config.yaml#L265-L269). This is not a runtime bug, but it can mislead future paper-site adaptation work. |\n| Tag pages are also included | INFO | Removing the condition also enables comments on tag pages, not only landing and folder index pages. This is consistent with the PR title/body framing of “all site pages,” and no reviewer treated it as blocking. |\n\n## Progress\n- PR head `caaba6cce1d02ff9d1ce8260976d243bf8c2cdfa` removes only the Sepo comments layout condition and updates one cleanup comment.\n- Review artifacts report `npm test`, `npm run check`, and `SEPO_COMMENTS_REPO=self-evolving/literature-template npm run build` passed.\n- Generated landing, folder/index, tag index, and content pages were reported to include `.sepo-embed`; `404.html` was reported not to include it.\n- Existing inline review comments and review threads were empty; no new inline comments were posted because the actionable doc issue is outside the PR diff.\n\n## Issue Details\n<details>\n<summary>Stale paper-to-site gating guidance</summary>\n\n**Cause:** PR #42 removes `condition: library-page` from the `sepo-comments` layout entry, but the paper-to-site skill still says `library-page` gates “the explorer sidebar, the paper page header, and comments.”\n\n**Candidate solutions:** Update the skill bullet to remove “and comments,” leaving the explorer sidebar and paper page header as the things still gated by `library-page`.\n\n**Comments:** Reviewers agree the runtime implementation is correct; this is a docs consistency cleanup rather than a behavior blocker.\n\n</details>\n\n## Recommended Next Step\n`FIX_PR`: The only unresolved required branch change is a one-line internal documentation cleanup, and it is safe for an automated fix-pr pass.\n\n## Final Verdict\n`MINOR_ISSUES`\n\n## Action Items\n- [ ] Update [`.skills/paper-to-site/SKILL.md#L198`](https://github.com/self-evolving/literature-template/blob/caaba6cce1d02ff9d1ce8260976d243bf8c2cdfa/.skills/paper-to-site/SKILL.md#L198) so it no longer says `library-page` gates comments.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-17T05:00:36Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/42#issuecomment-4726201100",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbV85Q",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /fix-pr ",
+      "createdAt": "2026-06-17T05:12:49Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        },
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/pull/42#issuecomment-4726291685",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbWsHg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo pushed fixes for this PR.** Branch: `agent/implement-issue-41/codex-27665956149`. Requested by @lolipopshock.\n\n<!-- sepo-agent-fix-pr-status -->\n\n- Updated [`paper-to-site` guidance](https://github.com/self-evolving/literature-template/blob/agent/implement-issue-41/codex-27665956149/.skills/paper-to-site/SKILL.md#L198) so `library-page` no longer claims to gate Sepo comments.\n- Confirmed no remaining `library-page`/comments stale guidance in the checked docs/config paths.\n- Validation: `npm exec --package=prettier@3.8.1 -- prettier .skills/paper-to-site/SKILL.md --check` passed.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-17T05:15:21Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/42#issuecomment-4726303774",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-17T04:37:56Z",
+  "files": [
+    {
+      "path": ".skills/paper-to-site/SKILL.md",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.config.yaml",
+      "additions": 0,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/scripts/comments.inline.ts",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "agent/implement-issue-41/codex-27665956149",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "mergedAt": null,
+  "number": 42,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Show Sepo comments on all site pages",
+  "updatedAt": "2026-06-17T05:15:21Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/42"
+}

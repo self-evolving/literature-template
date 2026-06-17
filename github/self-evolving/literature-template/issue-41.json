@@ -1,0 +1,78 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "@sepo-agent right now the sepo comment api is only available on the content pages; can you add it to the landing page as well as the other index page (i.e., page ending with /, folder page)",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbBhyA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I triaged this as a `implement` request.\n\nI’ll prepare an implementation to expose the Sepo comment API on the landing page and folder index pages.\n\nReply with:\n\n```text\n@sepo-agent /approve req-f2a6d8\n```\n\nto start the implementation workflow.\n\n<!-- sepo-agent-request base64:eyJyb3V0ZSI6ImltcGxlbWVudCIsInNvdXJjZV9raW5kIjoiaXNzdWUiLCJ0YXJnZXRfa2luZCI6Imlzc3VlIiwidGFyZ2V0X251bWJlciI6NDEsInRhcmdldF91cmwiOiJodHRwczovL2dpdGh1Yi5jb20vc2VsZi1ldm9sdmluZy9saXRlcmF0dXJlLXRlbXBsYXRlL2lzc3Vlcy80MSIsIndvcmtmbG93IjoiYWdlbnQtaW1wbGVtZW50LnltbCIsInJlcXVlc3RfaWQiOiJyZXEtZjJhNmQ4IiwicmVxdWVzdF90ZXh0IjoiYWRkIHNlcG8gb24gYWxsIHBhZ2VzXG5cbkBzZXBvLWFnZW50IHJpZ2h0IG5vdyB0aGUgc2VwbyBjb21tZW50IGFwaSBpcyBvbmx5IGF2YWlsYWJsZSBvbiB0aGUgY29udGVudCBwYWdlczsgY2FuIHlvdSBhZGQgaXQgdG8gdGhlIGxhbmRpbmcgcGFnZSBhcyB3ZWxsIGFzIHRoZSBvdGhlciBpbmRleCBwYWdlIChpLmUuLCBwYWdlIGVuZGluZyB3aXRoIC8sIGZvbGRlciBwYWdlKSIsImlzc3VlX3RpdGxlIjoiQWRkIFNlcG8gY29tbWVudHMgdG8gaW5kZXggcGFnZXMiLCJpc3N1ZV9ib2R5IjoiIyMgR29hbFxuQWRkIHRoZSBTZXBvIGNvbW1lbnQgQVBJIHRvIGFsbCBzaXRlIHBhZ2VzLCBub3Qgb25seSBjb250ZW50IHBhZ2VzLlxuXG4jIyBDb250ZXh0XG5Jc3N1ZSAjNDEgcmVxdWVzdHMgbWFraW5nIFNlcG8gY29tbWVudHMgYXZhaWxhYmxlIG9uOlxuLSBUaGUgbGFuZGluZyBwYWdlXG4tIEZvbGRlci9pbmRleCBwYWdlcyB3aG9zZSBVUkwgZW5kcyB3aXRoIGAvYFxuLSBFeGlzdGluZyBjb250ZW50IHBhZ2VzIHNob3VsZCBjb250aW51ZSB3b3JraW5nXG5cbk9yaWdpbmFsIHJlcXVlc3Q6XG4-IHJpZ2h0IG5vdyB0aGUgc2VwbyBjb21tZW50IGFwaSBpcyBvbmx5IGF2YWlsYWJsZSBvbiB0aGUgY29udGVudCBwYWdlczsgY2FuIHlvdSBhZGQgaXQgdG8gdGhlIGxhbmRpbmcgcGFnZSBhcyB3ZWxsIGFzIHRoZSBvdGhlciBpbmRleCBwYWdlIChpLmUuLCBwYWdlIGVuZGluZyB3aXRoIC8sIGZvbGRlciBwYWdlKVxuXG4jIyBBY2NlcHRhbmNlIENyaXRlcmlhXG4tIFNlcG8gY29tbWVudCBBUEkgaXMgYXZhaWxhYmxlIG9uIHRoZSBsYW5kaW5nIHBhZ2UuXG4tIFNlcG8gY29tbWVudCBBUEkgaXMgYXZhaWxhYmxlIG9uIGZvbGRlci9pbmRleCBwYWdlcyBlbmRpbmcgd2l0aCBgL2AuXG4tIEV4aXN0aW5nIGNvbnRlbnQgcGFnZSBiZWhhdmlvciBpcyBwcmVzZXJ2ZWQuXG4tIFJlbGV2YW50IHRlc3RzIG9yIGJ1aWxkIGNoZWNrcyBwYXNzLiJ9 -->\n\n| Approved by | Action | Tracking |\n|---|---|---|\n| @lolipopshock | `implement` via `agent-implement.yml` | [approval run](https://github.com/self-evolving/literature-template/actions/runs/27665946910) |\n\n<!-- sepo-agent-approved -->\n",
+      "createdAt": "2026-06-17T04:29:29Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/41#issuecomment-4725957064",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbCbVg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /approve req-f2a6d8",
+      "createdAt": "2026-06-17T04:32:25Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "THUMBS_UP",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/issues/41#issuecomment-4725971798",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGbEPow",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "**Sepo implementation finished**\n\n- Branch: `agent/implement-issue-41/codex-27665956149`\n- Pull request: https://github.com/self-evolving/literature-template/pull/42\n- Approval: https://github.com/self-evolving/literature-template/issues/41#issuecomment-4725971798\n\nRemoved the `library-page` condition from the Sepo comments layout so the `.sepo-embed` config renders on landing, folder index, tag, and content pages, while keeping frontmatter-disabled cleanup behavior intact. Verified with `SEPO_COMMENTS_REPO=self-evolving/literature-template npm run build` and checked generated index pages for `sepo-embed`.\n\n---\n_Run: `codex` / `gpt-5.5/xhigh` / `xhigh`_",
+      "createdAt": "2026-06-17T04:37:59Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/41#issuecomment-4726001571",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-06-17T04:28:25Z",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 41,
+  "state": "OPEN",
+  "title": "add sepo on all pages",
+  "updatedAt": "2026-06-17T04:37:59Z",
+  "url": "https://github.com/self-evolving/literature-template/issues/41"
+}
