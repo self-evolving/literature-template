@@ -21,3 +21,4 @@
 - Sepo comments: Discussion IDs are optional; when absent, drop discussions from effective tabs and keep Issues/Pulls. [[github/self-evolving/literature-template/pull-38.json]]
 - Sepo comments: main-site branch switcher is opt-in via SEPO_COMMENTS_PREVIEW_SWITCHER=hover; omit to keep disabled. [[github/self-evolving/literature-template/pull-40.json]]
 - Sepo comments layout is unconditioned afterBody; landing, folder, content, and tag pages render the drawer unless disabled. [[github/self-evolving/literature-template/pull-42.json]]
+- Preview policy: private repos preview by default unless AGENT_PREVIEW_POLICY=off; rely on Sepo private-site gate. [[github/self-evolving/literature-template/pull-36.json]]
