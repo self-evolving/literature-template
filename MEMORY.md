@@ -22,3 +22,4 @@
 - Sepo comments: main-site branch switcher is opt-in via SEPO_COMMENTS_PREVIEW_SWITCHER=hover; omit to keep disabled. [[github/self-evolving/literature-template/pull-40.json]]
 - Sepo comments layout is unconditioned afterBody; landing, folder, content, and tag pages render the drawer unless disabled. [[github/self-evolving/literature-template/pull-42.json]]
 - Preview policy: private repos preview by default unless AGENT_PREVIEW_POLICY=off; rely on Sepo private-site gate. [[github/self-evolving/literature-template/pull-36.json]]
+- Agent infrastructure updates should use the dedicated update-agent route, not skill-backed updater runs. [[github/self-evolving/literature-template/pull-43.json]]
