@@ -7,7 +7,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n\n- Update installed Sepo agent infrastructure from `@self-evolving/sepo` 0.3.0 to 0.3.1 using `self-evolving/repo@692c1a7711082bd9c00da7d468ac5260a84e21d9`.\n- Sync the latest `.agent/` runtime, docs, tests, bundled model defaults, provider/runtime updates, follow-up intent handling, and dedicated `update-agent` route.\n- Sync source `.github` agent assets that need to stay in lockstep with `.agent/` (actions, prompts, and workflows).\n\n## Audit / preserved customizations\n\n| Area | Outcome |\n| --- | --- |\n| `.agent/` base runtime | Updated to 0.3.1. |\n| Literature extensions in `.agent/` | Preserved target-specific literature update and Sepo site deployment CLIs/tests. |\n| `.github` source agent assets | Updated existing source-owned actions, prompts, and workflows. |\n| Literature-template `.github` assets | Preserved target-only literature workflows/prompts, deployment action, discussion-id resolver, Dependabot config, PR template, and bug/feature templates. |\n| Issue templates | Replaced obsolete source-owned `.github/ISSUE_TEMPLATE/install-sepo.yml` with latest `install-sepo.md`; added `ask-sepo.md`. |\n| Root app/site files | Not changed. |\n\nMemory/rubrics refs were checked before updating: `agent/memory` and `agent/rubrics` both exist, and existing `refs/agent-state/*` refs were left untouched.\n\n## Validation\n\n- `npm --prefix .agent ci` ✅ (completed with existing warnings: `acpx@0.6.1` wants Node >=22.12.0 while local Node is 20.18.1, and npm audit reports 2 high severity vulnerabilities)\n- `npm --prefix .agent run build` ✅\n- `npm --prefix .agent test` ✅ (`test:runtime`, `check:workflow`, `check:docs`, and `check:shell` all passed)\n- `git diff --check` ✅\n- `git diff --cached --check` ✅ before commit\n\n## Post-merge notes\n\n- Future scheduled/manual agent updates should use the dedicated `update-agent` route included here instead of a skill-backed updater.\n- No memory or rubrics reinitialization is needed because the branches already exist.\n",
-  "closedAt": null,
+  "closedAt": "2026-06-17T19:11:19Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABGbZFxA",
@@ -65,6 +65,21 @@
       "minimizedReason": "",
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/43#issuecomment-4726423941",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABGi9tzg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #43.\n\nno rubric changes\n\nI read PR #43 metadata, issue comments, review comments, reviews, collaborator signals, the diff, and the existing rubric set. The only substantive PR feedback was bot/agent-authored with `author_association: NONE`, and there was no trusted maintainer endorsement or new durable preference to learn. Existing active rubrics already cover the nearby workflow/docs validation themes. Rubrics checkout is unchanged.\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-6`",
+      "createdAt": "2026-06-17T19:12:57Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/43#issuecomment-4734283214",
       "viewerDidAuthor": true
     }
   ],
@@ -414,8 +429,8 @@
     },
     {
       "path": ".github/workflows/test-scripts.yml",
-      "additions": 15,
-      "deletions": 47,
+      "additions": 17,
+      "deletions": 40,
       "changeType": "MODIFIED"
     }
   ],
@@ -428,7 +443,7 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-06-17T19:11:19Z",
   "number": 43,
   "reviewDecision": "",
   "reviews": [
@@ -448,8 +463,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Update Sepo agent infrastructure to 0.3.1",
-  "updatedAt": "2026-06-17T05:38:58Z",
+  "updatedAt": "2026-06-17T19:12:57Z",
   "url": "https://github.com/self-evolving/literature-template/pull/43"
 }
