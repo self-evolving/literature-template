@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
   "thread_key": "self-evolving/literature-template:pull_request:42:review:synthesize",
-  "acpxRecordId": "",
-  "acpxSessionId": "",
+  "acpxRecordId": "019ed3f0-033c-7750-8b56-d77175ebb544",
+  "acpxSessionId": "019ed3f0-1396-7d81-a635-0fd863fa73bc",
   "agentSessionId": "",
   "branch": "",
-  "status": "running",
+  "status": "completed",
   "resume_status": "not_attempted",
   "last_resume_error": "",
   "resumed_from_session_id": "",
@@ -21,5 +21,5 @@
   "last_comment_url": "",
   "attempt_count": 1,
   "created_at": "2026-06-17T04:56:21.220Z",
-  "updated_at": "2026-06-17T04:56:21.220Z"
+  "updated_at": "2026-06-17T05:00:33.178Z"
 }
