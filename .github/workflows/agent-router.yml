@@ -143,7 +143,7 @@ jobs:
       skill: ${{ steps.dispatch.outputs.skill }}
       base_pr: ${{ steps.dispatch.outputs.base_pr }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           token: ${{ github.token }}
@@ -490,7 +490,7 @@ jobs:
       (needs.portal.outputs.route == 'answer' || needs.portal.outputs.route == 'unsupported')
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           token: ${{ github.token }}
@@ -614,7 +614,7 @@ jobs:
       needs.portal.outputs.route == 'skill'
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           token: ${{ github.token }}
@@ -787,7 +787,7 @@ jobs:
     env:
       AGENT_INSTALL_PAT_CONFIGURED: ${{ secrets.AGENT_INSTALL_PAT != '' && 'true' || 'false' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           persist-credentials: false
@@ -921,7 +921,7 @@ jobs:
       needs.portal.outputs.needs_approval == 'true'
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           token: ${{ github.token }}
@@ -978,7 +978,7 @@ jobs:
       needs.portal.outputs.needs_approval == 'false'
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           token: ${{ github.token }}
@@ -1073,7 +1073,7 @@ jobs:
       (needs.portal.outputs.target_kind == 'issue' || needs.portal.outputs.target_kind == 'pull_request')
     runs-on: ${{ fromJson(inputs.runs_on || vars.AGENT_RUNS_ON || '["ubuntu-latest"]') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
           token: ${{ github.token }}
