@@ -23,3 +23,4 @@
 - Sepo comments layout is unconditioned afterBody; landing, folder, content, and tag pages render the drawer unless disabled. [[github/self-evolving/literature-template/pull-42.json]]
 - Preview policy: private repos preview by default unless AGENT_PREVIEW_POLICY=off; rely on Sepo private-site gate. [[github/self-evolving/literature-template/pull-36.json]]
 - Agent infrastructure updates should use the dedicated update-agent route, not skill-backed updater runs. [[github/self-evolving/literature-template/pull-43.json]]
+- Agent infrastructure updates must preserve PR-time root Quartz validation; do not leave CI .agent-only. [[github/self-evolving/literature-template/pull-43.json]]
