@@ -7,12 +7,57 @@
   },
   "body": "1. it will call the add-paper route in the workflow \n2. and then it will create the pr (with the designated goal, etc)  ",
   "closedAt": null,
-  "comments": [],
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABIOueyA",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer wdyt?",
+      "createdAt": "2026-06-30T19:36:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/issues/5#issuecomment-4847279816",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABIOviWQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I think yes, this is a good direction, with one important boundary: the static site should not call the GitHub workflow API directly with any repo credential. The button should either route through an authenticated Sepo/server endpoint, or open a GitHub/manual dispatch surface for users who already have permission.\n\nRepo fit looks good:\n\n- Citation behavior already lives in [`quartz/plugins/local/literature-citations/index.js`](https://github.com/self-evolving/literature-template/blob/main/quartz/plugins/local/literature-citations/index.js#L541-L566).\n- Missing paper notes already render a bibliography popover instead of an internal paper link at [`index.js#L621-L655`](https://github.com/self-evolving/literature-template/blob/main/quartz/plugins/local/literature-citations/index.js#L621-L655).\n- The add-paper workflow already accepts `paper`, `additional_request`, and `base_branch` via `workflow_dispatch` in [`agent-add-paper.yml#L4-L19`](https://github.com/self-evolving/literature-template/blob/main/.github/workflows/agent-add-paper.yml#L4-L19), then creates a PR at [`agent-add-paper.yml#L225-L237`](https://github.com/self-evolving/literature-template/blob/main/.github/workflows/agent-add-paper.yml#L225-L237).\n\nSuggested implementation shape:\n\n1. Add the button only in the missing-paper citation popover, where we have a BibTeX entry but no matching `content/papers/<citekey>.md`.\n2. Pass a high-quality payload: preferably the BibTeX entry, plus `additional_request` like `Add paper note for @citekey cited from <current page>`.\n3. Dispatch through a backend/authenticated route, not from browser JS with a token.\n4. Show a clear pending/submitted state and avoid duplicate clicks for the same citekey.\n5. After dispatch, rely on `agent-add-paper.yml` to create the branch, validate, and open the PR.\n\nSo: yes on the UX and workflow model. The main design decision is the auth boundary for dispatching the workflow.\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-1`",
+      "createdAt": "2026-06-30T19:38:46Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/5#issuecomment-4847297113",
+      "viewerDidAuthor": true
+    }
+  ],
   "createdAt": "2026-06-02T20:42:57Z",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "number": 5,
   "state": "OPEN",
   "title": "Add an `add paper` button for the citation popover ->",
-  "updatedAt": "2026-06-17T19:43:46Z",
+  "updatedAt": "2026-06-30T19:38:46Z",
   "url": "https://github.com/self-evolving/literature-template/issues/5"
 }
