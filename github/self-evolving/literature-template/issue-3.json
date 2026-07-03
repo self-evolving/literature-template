@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "1. we can build it based on https://github.com/collaborative-deep-research/agent-papers-cli/tree/main/.claude/skills/deep-research \n2. but, slightly differently, the goal is to bootstrap an initial search and populate an initial version of the documentation site? \n\nAlso feel free to look for other similar deep research skills and try to be a bit more comprehensive?\n\n@sepo-agent /answer ",
-  "closedAt": null,
+  "closedAt": "2026-07-03T11:30:32Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABEpaVeg",
@@ -22,6 +22,21 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/issues/3#issuecomment-4606825850",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABIp0cEQ",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Closing because this agent issue has had no activity for 30 days.",
+      "createdAt": "2026-07-03T11:30:31Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/3#issuecomment-4875688977",
+      "viewerDidAuthor": false
     }
   ],
   "createdAt": "2026-06-02T20:36:01Z",
@@ -34,8 +49,8 @@
     }
   ],
   "number": 3,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Also we should consider a new skill (or route) called deep research",
-  "updatedAt": "2026-06-02T20:39:19Z",
+  "updatedAt": "2026-07-03T11:30:32Z",
   "url": "https://github.com/self-evolving/literature-template/issues/3"
 }
