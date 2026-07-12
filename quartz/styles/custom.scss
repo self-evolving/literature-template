@@ -801,94 +801,27 @@ footer {
   }
 }
 
-// Index page: use single-column layout on tablet/smaller screens
-body[data-slug="index"] {
-  // Reduce title margin on index page
-  .article-title {
-    margin-bottom: 0.25rem;
+// Landing page: no right rail (graph/backlinks are library-page only), so
+// collapse the third grid column and let the content card use the full
+// remaining width, top-aligned with the left sidebar like every other page.
+body[data-slug="index"] .page > #quartz-body {
+  @media all and ($desktop) {
+    // Cap the content column and keep a flexible spacer on the right so the
+    // card never runs to the viewport edge.
+    grid-template-columns: #{$sidePanelWidth} minmax(0, 70rem) minmax(3.5rem, 1fr);
+    grid-template-areas:
+      "grid-sidebar-left grid-header ."
+      "grid-sidebar-left grid-center ."
+      "grid-sidebar-left grid-footer .";
   }
 
-  .page > #quartz-body {
-    // Tablet: single column, hide sidebars
-    @media all and ($tablet) {
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "grid-header"
-        "grid-center"
-        "grid-footer";
-      padding: 0 1rem;
-    }
-
-    // Mobile: tighter padding
-    @media all and ($mobile) {
-      grid-template-columns: 1fr;
-      padding: 0 0.75rem;
-    }
-
-    .sidebar.left {
-      @media all and ($tablet) {
-        display: none;
-      }
-      @media all and ($mobile) {
-        display: none;
-      }
-    }
-
-    .sidebar.right {
-      @media all and ($tablet) {
-        display: none;
-      }
-      @media all and ($mobile) {
-        display: none;
-      }
-    }
-
-    // adjust top
-    @media all and ($mobile) {
-      .page-header {
-        margin-top: 2rem;
-      }
-    }
-
-    // Center content on index page
-    .center,
-    footer {
-      width: 85%;
-      max-width: 85%;
-      min-width: 0 !important;
-      margin-left: auto;
-      margin-right: auto;
-      box-sizing: border-box;
-
-      @media all and ($mobile) {
-        width: 100%;
-        max-width: 100%;
-        margin-left: 0;
-        margin-right: 0;
-      }
-    }
-
-    .center {
-      padding-top: 0rem;
-      margin-top: 2rem;
-      margin-bottom: 3rem;
-
-      @media all and ($tablet) {
-        margin-top: 1rem;
-        margin-bottom: 3rem;
-      }
-
-      @media all and ($mobile) {
-        padding: 1.25rem;
-        margin-top: 0.5rem;
-        margin-bottom: 2rem;
-      }
-    }
+  .sidebar.right {
+    display: none;
   }
 }
 
-// Non-index (article) pages: align center content with other boxes
-body:not([data-slug="index"]) {
+// Content pages (including the landing page): align center content with other boxes
+body[data-slug] {
   .page > #quartz-body {
     .center {
       margin-top: 1.5rem;
@@ -1216,7 +1149,7 @@ ul.toc-content.overflow {
 
 // Library pages use a card header: breadcrumb context + title in a full-width
 // strip with a bottom underline.
-body:not([data-slug="index"]) .page > #quartz-body .center {
+body[data-slug] .page > #quartz-body .center {
   // Keep popovers/tooltips from being clipped by the rounded content card.
   overflow: visible;
 
