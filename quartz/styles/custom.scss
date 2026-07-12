@@ -137,7 +137,8 @@ body {
     }
 
     // Search on its own row - override default search styles
-    .search.mobile-only {
+    .search.mobile-only,
+    .mobile-only > .search {
       flex-basis: 100% !important;
       max-width: 100% !important;
       width: 100% !important;
