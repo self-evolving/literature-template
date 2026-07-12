@@ -1,0 +1,61 @@
+{
+  "author": {
+    "id": "U_kgDOD1qeYw",
+    "is_bot": false,
+    "login": "shannonshen49",
+    "name": "Shannon's Claude"
+  },
+  "baseRefName": "stack/agent-runtime-0.4.0",
+  "body": "Ports lean-workspace-template `222bbea` + `947504b`. On a non-draft, non-`agent/*` PR, waits `AGENT_REVIEW_NUDGE_DELAY_SECONDS` (default 180s, cap 300s) and posts a one-time nudge offering a Sepo review (`agent/review` label / `@sepo-agent /review`) and a preview deploy (`sepo-preview` label); skips when a review was already requested or a synthesis exists for the current head.\n\nShips the workflow, the `post-review-nudge` CLI + `review-nudge.ts` module, their tests, and the supported-workflows docs entry. The source commit's AGENT.md hunk was dropped here — its content lands in the AGENTS.md PR next in the stack.\n\n**Stack 2/5** — depends on #45 (the nudge CLI ships with runtime 0.4.0).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
+  "closedAt": null,
+  "comments": [],
+  "createdAt": "2026-07-12T08:09:54Z",
+  "files": [
+    {
+      "path": ".agent/docs/usage/supported-workflows.md",
+      "additions": 14,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".agent/src/__tests__/post-review-nudge-cli.test.ts",
+      "additions": 85,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/__tests__/review-nudge.test.ts",
+      "additions": 150,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/cli/post-review-nudge.ts",
+      "additions": 160,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".agent/src/review-nudge.ts",
+      "additions": 157,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/workflows/agent-review-nudge.yml",
+      "additions": 64,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "stack/review-nudge",
+  "labels": [],
+  "mergedAt": null,
+  "number": 46,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Add review-nudge workflow for user PRs",
+  "updatedAt": "2026-07-12T08:09:54Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/46"
+}

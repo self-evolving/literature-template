@@ -1,0 +1,55 @@
+{
+  "author": {
+    "id": "U_kgDOD1qeYw",
+    "is_bot": false,
+    "login": "shannonshen49",
+    "name": "Shannon's Claude"
+  },
+  "baseRefName": "stack/agents-md",
+  "body": "Follows lean-workspace-template's prefilled-markdown convention (`503ef262`, `1c2e790d`): first line is the `@sepo-agent` dispatch, guidance lives in HTML comments, one editable body.\n\n- Adds `add-paper.md` and `survey-topic.md` (both routed via `/implement`, each with a swap-to-`/answer` hint and a definition of done)\n- Adds `config.yml` (blank issues enabled + docs contact link)\n- Deletes the generic `bug_report.md`/`feature_request.md` inherited from Quartz (lean's issue #64 flagged those as inappropriate for template repos)\n- Keeps `ask-sepo.md` / `install-sepo.md` unchanged\n\n**Stack 4/5.**\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
+  "closedAt": null,
+  "comments": [],
+  "createdAt": "2026-07-12T08:10:17Z",
+  "files": [
+    {
+      "path": ".github/ISSUE_TEMPLATE/add-paper.md",
+      "additions": 23,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+      "additions": 0,
+      "deletions": 40,
+      "changeType": "DELETED"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/config.yml",
+      "additions": 5,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+      "additions": 0,
+      "deletions": 19,
+      "changeType": "DELETED"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/survey-topic.md",
+      "additions": 23,
+      "deletions": 0,
+      "changeType": "ADDED"
+    }
+  ],
+  "headRefName": "stack/issue-templates",
+  "labels": [],
+  "mergedAt": null,
+  "number": 48,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Issue templates: literature dispatch forms, drop inherited Quartz templates",
+  "updatedAt": "2026-07-12T08:10:17Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/48"
+}
