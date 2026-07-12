@@ -25,3 +25,4 @@
 - Agent infrastructure updates should use the dedicated update-agent route, not skill-backed updater runs. [[github/self-evolving/literature-template/pull-43.json]]
 - Agent infrastructure updates must preserve PR-time root Quartz validation; do not leave CI .agent-only. [[github/self-evolving/literature-template/pull-43.json]]
 - Add-paper citation buttons must not call GitHub workflow APIs with browser-held repo credentials; use Sepo/auth backend or manual dispatch. [[github/self-evolving/literature-template/issue-5.json]]
+- Review-nudge workflow was dropped from the runtime stack; do not reintroduce automated PR nudges without fresh direction. [[github/self-evolving/literature-template/pull-46.json]]
