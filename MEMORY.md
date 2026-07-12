@@ -24,3 +24,4 @@
 - Preview policy: private repos preview by default unless AGENT_PREVIEW_POLICY=off; rely on Sepo private-site gate. [[github/self-evolving/literature-template/pull-36.json]]
 - Agent infrastructure updates should use the dedicated update-agent route, not skill-backed updater runs. [[github/self-evolving/literature-template/pull-43.json]]
 - Agent infrastructure updates must preserve PR-time root Quartz validation; do not leave CI .agent-only. [[github/self-evolving/literature-template/pull-43.json]]
+- Add-paper citation buttons must not call GitHub workflow APIs with browser-held repo credentials; use Sepo/auth backend or manual dispatch. [[github/self-evolving/literature-template/issue-5.json]]
