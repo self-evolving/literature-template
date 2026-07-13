@@ -7,8 +7,24 @@
   },
   "baseRefName": "stack/agent-runtime-0.4.0",
   "body": "Ports lean-workspace-template `222bbea` + `947504b`. On a non-draft, non-`agent/*` PR, waits `AGENT_REVIEW_NUDGE_DELAY_SECONDS` (default 180s, cap 300s) and posts a one-time nudge offering a Sepo review (`agent/review` label / `@sepo-agent /review`) and a preview deploy (`sepo-preview` label); skips when a review was already requested or a synthesis exists for the current head.\n\nShips the workflow, the `post-review-nudge` CLI + `review-nudge.ts` module, their tests, and the supported-workflows docs entry. The source commit's AGENT.md hunk was dropped here — its content lands in the AGENTS.md PR next in the stack.\n\n**Stack 2/5** — depends on #45 (the nudge CLI ships with runtime 0.4.0).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
-  "closedAt": null,
-  "comments": [],
+  "closedAt": "2026-07-12T19:34:13Z",
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABJzDrew",
+      "author": {
+        "login": "shannonshen49"
+      },
+      "authorAssociation": "COLLABORATOR",
+      "body": "Dropping this from the stack per review — the review-nudge workflow won't ship for now. The stack has been rebased without it (#47 now targets stack/agent-runtime-0.4.0 directly).",
+      "createdAt": "2026-07-12T19:34:12Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/46#issuecomment-4952484731",
+      "viewerDidAuthor": false
+    }
+  ],
   "createdAt": "2026-07-12T08:09:54Z",
   "files": [
     {
@@ -54,8 +70,8 @@
   "number": 46,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Add review-nudge workflow for user PRs",
-  "updatedAt": "2026-07-12T08:09:54Z",
+  "updatedAt": "2026-07-12T19:34:14Z",
   "url": "https://github.com/self-evolving/literature-template/pull/46"
 }

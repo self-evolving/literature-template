@@ -6,7 +6,7 @@
     "name": "Shannon's Claude"
   },
   "baseRefName": "stack/issue-templates",
-  "body": "Three self-contained ports from lean-workspace-template:\n\n- **popover.inline.ts** (`4fb49d25`, `660add27`): cache popovers by the hashless/searchless fetch URL instead of `link.pathname` — fixes stale/wrong previews when two links share a pathname but differ by hash or query (common on citation-heavy pages) — plus in-flight fetch race guards, null-safe `Content-Type`, and deduped mouseenter bindings. Canvas-specific styling from the source commits deliberately not ported.\n- **config-loader** (`5ca879f7`, `b28ad09f`): a plugin's `layout` may now be an array, so one component can render in multiple responsive placements (search: standalone mobile row + grouped desktop slot). Includes the regression test wired into `test-scripts.yml`, static imports replacing inline `require()`s, the `layoutDeclaration` schema `$defs`, and the matching mobile-search selector in `custom.scss`.\n- **.gitignore** (`94525b72`): ignore `.env`/`.env.*` (keep `!.env.example`) — local secrets were previously committable. Plus `checkout@v5`/`setup-node@v5`.\n\nVerified locally: `npm run check`, the new loader test, and a full site build all pass.\n\n**Stack 5/5.**\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
+  "body": "Three self-contained ports from lean-workspace-template:\n\n- **popover.inline.ts** (`4fb49d25`, `660add27`): cache popovers by the hashless/searchless fetch URL instead of `link.pathname` — fixes stale/wrong previews when two links share a pathname but differ by hash or query (common on citation-heavy pages) — plus in-flight fetch race guards, null-safe `Content-Type`, and deduped mouseenter bindings. Canvas-specific styling from the source commits deliberately not ported.\n- **config-loader** (`5ca879f7`, `b28ad09f`): a plugin's `layout` may now be an array, so one component can render in multiple responsive placements (search: standalone mobile row + grouped desktop slot). Includes the regression test wired into `test-scripts.yml`, static imports replacing inline `require()`s, the `layoutDeclaration` schema `$defs`, and the matching mobile-search selector in `custom.scss`.\n- **.gitignore** (`94525b72`): ignore `.env`/`.env.*` (keep `!.env.example`) — local secrets were previously committable. Plus `checkout@v5`/`setup-node@v5`.\n\n- **Landing page + mobile nav bar** (second commit; lean `bfbac6b5`, `260ea2b1`, and the config half of `5ca879f7`): the landing card now shares every other page's width and top alignment — capped content column with a flexible right spacer replaces the index-only 85%-centered layout — and search/darkmode declare array-form placements, activating the loader mechanism above so the mobile nav renders search on its own row and the theme toggle standalone.\n\nVerified locally: `npm run check`, the new loader test, and a full site build all pass.\n\n**Stack 5/5.**\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV\n",
   "closedAt": null,
   "comments": [],
   "createdAt": "2026-07-12T08:10:21Z",
@@ -21,6 +21,12 @@
       "path": ".gitignore",
       "additions": 5,
       "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.config.yaml",
+      "additions": 20,
+      "deletions": 10,
       "changeType": "MODIFIED"
     },
     {
@@ -55,8 +61,8 @@
     },
     {
       "path": "quartz/styles/custom.scss",
-      "additions": 2,
-      "deletions": 1,
+      "additions": 19,
+      "deletions": 85,
       "changeType": "MODIFIED"
     }
   ],
@@ -68,6 +74,6 @@
   "reviews": [],
   "state": "OPEN",
   "title": "Quartz fixes: popover cache correctness, array-form layouts, .env guard",
-  "updatedAt": "2026-07-12T08:10:21Z",
+  "updatedAt": "2026-07-12T19:39:49Z",
   "url": "https://github.com/self-evolving/literature-template/pull/49"
 }

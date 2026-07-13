@@ -5,7 +5,7 @@
     "login": "shannonshen49",
     "name": "Shannon's Claude"
   },
-  "baseRefName": "stack/review-nudge",
+  "baseRefName": "stack/agent-runtime-0.4.0",
   "body": "Mirrors lean-workspace-template's instruction-file pattern (`2cd80ae9`, `b53bbea6`): `AGENTS.md` is discovered natively by Codex; the one-line `CLAUDE.md` (`@AGENTS.md`) makes Claude Code follow the same file. This repo previously had no agent-instruction file at all.\n\nContent adapted for the literature workflow:\n- Template-adaptation rule (remove placeholder notes when instantiating a real project; keep `bibliography.bib`, `content/papers/`, `content/notes/`, `_meta.json` in sync)\n- Working-locally notes (citekey/bibliography/filename must match; `_meta.json` ordering)\n- PR protocol: `agent/review` label / `@sepo-agent /review`, `sepo-preview` label\n- Skill routing: `paper-to-site` / `literature-review` / `deep-research`, and discuss-vs-dispatch (`/answer` first, `/implement` to ship)\n\n**Stack 3/5.**\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
   "closedAt": null,
   "comments": [],
@@ -32,6 +32,6 @@
   "reviews": [],
   "state": "OPEN",
   "title": "Add AGENTS.md as the canonical agent instruction file with a CLAUDE.md adapter",
-  "updatedAt": "2026-07-12T08:10:02Z",
+  "updatedAt": "2026-07-12T19:34:13Z",
   "url": "https://github.com/self-evolving/literature-template/pull/47"
 }
