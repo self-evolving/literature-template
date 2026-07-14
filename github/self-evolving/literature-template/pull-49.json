@@ -8,7 +8,38 @@
   "baseRefName": "stack/issue-templates",
   "body": "Three self-contained ports from lean-workspace-template:\n\n- **popover.inline.ts** (`4fb49d25`, `660add27`): cache popovers by the hashless/searchless fetch URL instead of `link.pathname` — fixes stale/wrong previews when two links share a pathname but differ by hash or query (common on citation-heavy pages) — plus in-flight fetch race guards, null-safe `Content-Type`, and deduped mouseenter bindings. Canvas-specific styling from the source commits deliberately not ported.\n- **config-loader** (`5ca879f7`, `b28ad09f`): a plugin's `layout` may now be an array, so one component can render in multiple responsive placements (search: standalone mobile row + grouped desktop slot). Includes the regression test wired into `test-scripts.yml`, static imports replacing inline `require()`s, the `layoutDeclaration` schema `$defs`, and the matching mobile-search selector in `custom.scss`.\n- **.gitignore** (`94525b72`): ignore `.env`/`.env.*` (keep `!.env.example`) — local secrets were previously committable. Plus `checkout@v5`/`setup-node@v5`.\n\n- **Landing page + mobile nav bar** (second commit; lean `bfbac6b5`, `260ea2b1`, and the config half of `5ca879f7`): the landing card now shares every other page's width and top alignment — capped content column with a flexible right spacer replaces the index-only 85%-centered layout — and search/darkmode declare array-form placements, activating the loader mechanism above so the mobile nav renders search on its own row and the theme toggle standalone.\n\nVerified locally: `npm run check`, the new loader test, and a full site build all pass.\n\n**Stack 5/5.**\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV\n",
   "closedAt": null,
-  "comments": [],
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABJ93I1A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 7 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Diff is scoped to the requested Quartz popover, loader layout contract, local config/styles, `.gitignore`, and the test workflow; no unrelated route/runtime refactor is included. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Loader reuses existing `componentRegistry`, `Flex`, `MobileOnly`, `DesktopOnly`, `ConditionalRender`, and `getCondition` instead of adding a parallel layout system: [`config-loader.ts`](https://github.com/self-evolving/literature-template/blob/973e1cc18103f620c7e03c4c02af6e2d23280d41/quartz/plugins/loader/config-loader.ts#L1-L10). |\n| coding_style / generic | Prefer simple implementations | pass | 7/7 | Array support is a small normalization helper plus existing wrapper application, with grouping logic preserved: [`config-loader.ts`](https://github.com/self-evolving/literature-template/blob/973e1cc18103f620c7e03c4c02af6e2d23280d41/quartz/plugins/loader/config-loader.ts#L827-L855). |\n| coding_workflow / generic | Prefer explicit structured inputs | pass | 7/7 | `layout` is now explicitly typed as `PluginLayoutDeclaration | PluginLayoutDeclaration[]`, and the JSON schema uses `anyOf` with a reusable `layoutDeclaration` definition: [`types.ts`](https://github.com/self-evolving/literature-template/blob/973e1cc18103f620c7e03c4c02af6e2d23280d41/quartz/plugins/loader/types.ts#L142-L149), [`schema`](https://github.com/self-evolving/literature-template/blob/973e1cc18103f620c7e03c4c02af6e2d23280d41/quartz/plugins/quartz-plugins.schema.json#L271-L284). |\n| coding_workflow / generic | Keep consumers on fixed contracts | pass | 8/8 | Runtime consumption stays on the fixed Quartz config/schema contract; provider/env concerns are not moved into app code, and local secrets are guarded in `.gitignore`: [`.gitignore`](https://github.com/self-evolving/literature-template/blob/973e1cc18103f620c7e03c4c02af6e2d23280d41/.gitignore#L17-L20). |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | The customization surface remains the existing `layout` primitive, extended only to allow multiple declarations; search/darkmode use that native shape for responsive placements: [`quartz.config.yaml`](https://github.com/self-evolving/literature-template/blob/973e1cc18103f620c7e03c4c02af6e2d23280d41/quartz.config.yaml#L183-L196). |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | The relevant machine-readable contract and regression coverage were updated with the behavior: schema `$defs`, type update, and CI-wired loader test: [`test-scripts.yml`](https://github.com/self-evolving/literature-template/blob/973e1cc18103f620c7e03c4c02af6e2d23280d41/.github/workflows/test-scripts.yml#L20-L27). |\n\n## Notes\n\n- The strongest rubric fit is the loader change: it extends the existing config contract without inventing another mechanism, keeps wrappers centralized, and adds a focused regression test for grouped desktop plus standalone mobile placements.\n- The popover changes are also scoped and use existing fetch/URL normalization helpers while adding race guards and deduped bindings: [`popover.inline.ts`](https://github.com/self-evolving/literature-template/blob/973e1cc18103f620c7e03c4c02af6e2d23280d41/quartz/components/scripts/popover.inline.ts#L29-L42), [`popover.inline.ts`](https://github.com/self-evolving/literature-template/blob/973e1cc18103f620c7e03c4c02af6e2d23280d41/quartz/components/scripts/popover.inline.ts#L179-L190).\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- No rubric-specific findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-3`",
+      "createdAt": "2026-07-13T23:27:33Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/49#issuecomment-4963813588",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABJ9-TBw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 973e1cc18103f620c7e03c4c02af6e2d23280d41 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #49 ports several Quartz fixes from `lean-workspace-template`: popover cache-key/race handling, array-form plugin layouts, and `.env` ignore hardening. It updates the loader type/schema/test coverage so a component can render in multiple responsive placements. It also changes the landing page/mobile nav layout so search and darkmode can appear differently on mobile and desktop. The PR body reports `npm run check`, the new loader test, and a full build passing; no parent or tracking issue was referenced.\n\n## Review\nOverall, reviewers found the implementation scoped and consistent with existing Quartz extension points, with no blocking defects. The only unresolved concerns are verification/coverage notes, not confirmed code defects.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Responsive duplicate search/darkmode placements need runtime verification | WARNING | `search` and `darkmode` now render in separate mobile and desktop placements, so both DOM instances can coexist while CSS hides one. One reviewer flagged singleton DOM wiring risk; another found no blocker and reported check/build/focused test passing. |\n| Quartz CI coverage remains narrower than existing tests | INFO | The new workflow step runs only `quartz/plugins/loader/config-loader.test.mjs`, leaving four existing Quartz tests outside this workflow. This is a coverage improvement opportunity, not a merge blocker. |\n\n## Progress\n- Rubrics review passed 100/100 with no rubric-specific findings.\n- Codex review reported `npm run check`, `npm run build`, and the focused loader test passing on head `973e1cc18103f620c7e03c4c02af6e2d23280d41`.\n- Existing inline comments and review threads were empty before inline cleanup.\n- Posted one inline comment on `quartz.config.yaml` line 195 for the responsive duplicate-instance verification concern: https://github.com/self-evolving/literature-template/pull/49#discussion_r3575059349\n- No comments were minimized, replied to, or resolved.\n\n## Issue Details\n<details>\n<summary>Responsive duplicate search/darkmode placements need runtime verification</summary>\n\n**Cause:** The new array-form layout declares separate mobile and desktop placements for the same search and darkmode plugins, producing duplicate live DOM instances gated by responsive display classes.\n\n**Candidate solutions:** Verify both mobile and desktop search open/close, keyboard navigation, dismissal, and darkmode toggling at runtime. If duplicated instances conflict, adjust the component wiring for multiple instances or avoid duplicate DOM for singleton-style components.\n\n**Comments:** This is a runtime confidence issue rather than a proven defect; reviewers disagreed on severity because static checks and focused tests passed.\n\n</details>\n\n<details>\n<summary>Quartz CI coverage remains narrower than existing tests</summary>\n\n**Cause:** The PR adds a Quartz test step but targets only the new loader test, while existing Quartz tests for search, file trie, path, and Sepo comments remain unwired.\n\n**Candidate solutions:** Keep the focused test if intentionally scoped, or broaden the workflow with an explicit Quartz-only test list after confirming those tests pass in CI.\n\n**Comments:** This is optional coverage hardening; no reviewer identified a current failing behavior.\n\n</details>\n\n## Recommended Next Step\nHUMAN_DECISION: Remaining concerns are runtime verification and optional CI-scope judgment rather than required automated branch changes.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] No required branch-change work identified.\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-2`",
+      "createdAt": "2026-07-13T23:46:02Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/49#issuecomment-4963930887",
+      "viewerDidAuthor": true
+    }
+  ],
   "createdAt": "2026-07-12T08:10:21Z",
   "files": [
     {
@@ -67,13 +98,36 @@
     }
   ],
   "headRefName": "stack/quartz-fixes",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "mergedAt": null,
   "number": 49,
   "reviewDecision": "",
-  "reviews": [],
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABF4gieA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-07-13T23:44:47Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "973e1cc18103f620c7e03c4c02af6e2d23280d41"
+      }
+    }
+  ],
   "state": "OPEN",
   "title": "Quartz fixes: popover cache correctness, array-form layouts, .env guard",
-  "updatedAt": "2026-07-12T19:39:49Z",
+  "updatedAt": "2026-07-13T23:46:20Z",
   "url": "https://github.com/self-evolving/literature-template/pull/49"
 }

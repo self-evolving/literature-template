@@ -8,7 +8,38 @@
   "baseRefName": "stack/agent-runtime-0.4.0",
   "body": "Mirrors lean-workspace-template's instruction-file pattern (`2cd80ae9`, `b53bbea6`): `AGENTS.md` is discovered natively by Codex; the one-line `CLAUDE.md` (`@AGENTS.md`) makes Claude Code follow the same file. This repo previously had no agent-instruction file at all.\n\nContent adapted for the literature workflow:\n- Template-adaptation rule (remove placeholder notes when instantiating a real project; keep `bibliography.bib`, `content/papers/`, `content/notes/`, `_meta.json` in sync)\n- Working-locally notes (citekey/bibliography/filename must match; `_meta.json` ordering)\n- PR protocol: `agent/review` label / `@sepo-agent /review`, `sepo-preview` label\n- Skill routing: `paper-to-site` / `literature-review` / `deep-research`, and discuss-vs-dispatch (`/answer` first, `/implement` to ship)\n\n**Stack 3/5.**\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
   "closedAt": null,
-  "comments": [],
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABJ92lgA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 9 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Diff adds only `AGENTS.md` and one-line `CLAUDE.md`; no unrelated files changed. |\n| coding_style / generic | Prefer simple implementations | pass | 7/7 | Uses native `AGENTS.md` plus `CLAUDE.md` adapter `@AGENTS.md`, with no custom machinery. |\n| communication / generic | Write audience-first documentation | pass | 7/7 | `AGENTS.md` starts with the agent’s immediate repository context and concrete operating rules before deeper workflow routing. |\n| coding_workflow / generic | Keep docs in sync | pass | 7/7 | Instructions reflect existing repo surfaces: literature content paths, `_meta.json`, `.skills/`, add-paper/daily workflows, review and preview controls. |\n| coding_workflow / generic | Reuse existing code | pass | 8/8 | Routes work to existing `.skills/paper-to-site`, `.skills/literature-review`, `.skills/deep-research`, and existing Sepo workflows instead of adding new behavior. |\n| communication / generic | Make setup guidance actionable | pass | 7/7 | PR guidance names exact triggers: `agent/review`, `@sepo-agent /review`, and `sepo-preview`. |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | Keeps the integration to the minimal native instruction-file pattern: canonical `AGENTS.md`, Claude adapter only. |\n| communication / generic | Keep temporary migration notes out of durable docs | pass | 6/6 | Durable docs do not include one-time migration caveats; “previously had no agent-instruction file” stays in the PR body only. |\n| coding_workflow / generic | No per-file inventory tables in docs | pass | 6/6 | The new instructions describe structural sync points and routing rules, not a stale-prone per-file inventory table. |\n\n## Notes\n\n- Main score driver: the implementation is intentionally narrow and matches the requested cross-agent instruction-file pattern.\n- The live PR body and comments do not reference a parent issue or broader plan; local repo docs and files confirm the named workflows, labels, skills, and literature content conventions exist.\n- Route/process rubrics about authorization delegation, retry behavior, preview contract validation, merge strategy, and runtime config were not scored because this PR only adds documentation/instruction files.\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** No rubric-specific findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-5`",
+      "createdAt": "2026-07-13T23:26:17Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/47#issuecomment-4963804544",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABJ96ZsA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: 687cc45006d1c75a12af0da897ccb1ef3fb20d00 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #47 adds `AGENTS.md` as the canonical repository instruction file for agents. It also adds `CLAUDE.md` as a one-line adapter pointing Claude Code at the same instructions. The intent is to document literature-template operating rules, local workflow expectations, PR review/preview triggers, and existing skill routing without adding new runtime behavior. The PR body and current conversation do not reference a parent issue or broader tracking plan.\n\n## Review\nThe reviewers agree this is a minimal, accurate docs-only change. The only noted concerns are optional INFO-level wording polish, and none requires branch changes.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| No actionable issues | INFO | Current review artifacts support shipping: Codex says SHIP, Claude says SHIP with optional polish only, and the rubrics review passes. |\n\n## Progress\n- Current PR state was checked via `gh pr view`, `gh pr diff`, inline comments, and review threads.\n- Existing inline review comments and review threads are empty; no inline comments were posted, minimized, replied to, or resolved.\n- A rubrics review is already posted in the PR conversation and reports PASS.\n- Optional notes about citekey wording, fork preview constraints, and README overlap are advisory only and intentionally left out of automation action items.\n\n## Recommended Next Step\n`NO_AUTOMATED_ACTION`: no unresolved actionable branch work remains.\n\n## Final Verdict\nSHIP\n\n## Action Items\n- [ ] No required branch-change work remains.\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-6`",
+      "createdAt": "2026-07-13T23:35:57Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/47#issuecomment-4963867056",
+      "viewerDidAuthor": true
+    }
+  ],
   "createdAt": "2026-07-12T08:10:02Z",
   "files": [
     {
@@ -25,13 +56,20 @@
     }
   ],
   "headRefName": "stack/agents-md",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "mergedAt": null,
   "number": 47,
   "reviewDecision": "",
   "reviews": [],
   "state": "OPEN",
   "title": "Add AGENTS.md as the canonical agent instruction file with a CLAUDE.md adapter",
-  "updatedAt": "2026-07-12T19:34:13Z",
+  "updatedAt": "2026-07-13T23:37:35Z",
   "url": "https://github.com/self-evolving/literature-template/pull/47"
 }

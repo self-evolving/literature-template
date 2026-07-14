@@ -8,7 +8,38 @@
   "baseRefName": "stack/agents-md",
   "body": "Follows lean-workspace-template's prefilled-markdown convention (`503ef262`, `1c2e790d`): first line is the `@sepo-agent` dispatch, guidance lives in HTML comments, one editable body.\n\n- Adds `add-paper.md` and `survey-topic.md` (both routed via `/implement`, each with a swap-to-`/answer` hint and a definition of done)\n- Adds `config.yml` (blank issues enabled + docs contact link)\n- Deletes the generic `bug_report.md`/`feature_request.md` inherited from Quartz (lean's issue #64 flagged those as inappropriate for template repos)\n- Keeps `ask-sepo.md` / `install-sepo.md` unchanged\n\n**Stack 4/5.**\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
   "closedAt": null,
-  "comments": [],
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABJ92qxg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 95 | PASS | 6 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow / generic | Make surgical changes | pass | 8/8 | Diff only touches `.github/ISSUE_TEMPLATE/*`: adds two literature templates plus `config.yml`, deletes inherited Quartz bug/feature templates. |\n| coding_style / generic | Prefer simple implementations | pass | 7/7 | Uses plain GitHub Markdown issue templates and one small `config.yml`; no new automation, parsing, or runtime code. |\n| communication / generic | Write audience-first documentation | pass | 7/7 | Templates lead with the user task and keep guidance in HTML comments, e.g. `add-paper.md` and `survey-topic.md`. |\n| communication / generic | Make setup guidance actionable | partial | 5/7 | `add-paper.md` includes concrete done criteria and `npm run check:site`; `config.yml` links directly to README. `survey-topic.md` omits `_meta.json` updates even though README says content folders should maintain manifests. |\n| coding_workflow / generic | Minimal defaults, native escape hatches | pass | 8/8 | Keeps the issue-template surface minimal while enabling blank issues and a docs contact link in `config.yml`. |\n| coding_workflow / generic | Prefer permissive command route parsing | pass | 7/7 | The templates seed `@sepo-agent /implement` but preserve a full editable Markdown request body and include `/answer` swap hints. |\n\n## Notes\n\n- The implementation fits the requested prefilled-Markdown convention and avoids expanding the issue UX into heavier issue forms or automation.\n- The only rubric-specific follow-up is to make `survey-topic.md`’s definition of done mention updating `content/papers/_meta.json` and `content/notes/_meta.json`, matching the README navigation-manifest guidance.\n\n## Findings\n\n- **WARNING:** `survey-topic.md` asks for new paper notes and a synthesis note, but does not mention adding those slugs to the relevant `_meta.json` manifests. The README states that folders under `content/` with Markdown should have `_meta.json` manifests and gives examples for both `content/papers/_meta.json` and `content/notes/_meta.json`.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-2`",
+      "createdAt": "2026-07-13T23:26:28Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/48#issuecomment-4963805894",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABJ97E4Q",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: e2a4ab7fec62e782cd555f29ccbd218a431cf46d -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\nPR #48 replaces inherited Quartz bug/feature templates with literature-specific GitHub issue templates. It adds prefilled Markdown dispatch templates for adding a paper and surveying a topic, plus `config.yml` with blank issues enabled and a README contact link. The PR follows the lean prefilled-Markdown convention described in the PR body: command first, guidance in comments, editable request body. The remaining concern is that the survey template’s definition of done is less complete than the add-paper template and the README navigation guidance.\n\n## Review\nThe PR is well scoped and the reviewers agree on one non-blocking but actionable documentation gap. No meaningful reviewer disagreement was found.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Complete survey template definition of done | WARNING | [`.github/ISSUE_TEMPLATE/survey-topic.md`](https://github.com/self-evolving/literature-template/blob/e2a4ab7fec62e782cd555f29ccbd218a431cf46d/.github/ISSUE_TEMPLATE/survey-topic.md#L10-L13) omits `_meta.json` manifest updates and `npm run check:site`, even though surveys add content under both `content/papers/` and `content/notes/`. |\n\n## Progress\n- Rubrics review passed overall and already identified the same survey-template manifest gap.\n- Existing inline comments and review threads were fetched; none existed before this synthesis comment pass.\n- Posted one inline comment on `.github/ISSUE_TEMPLATE/survey-topic.md` line 13.\n- No replies were added, no comments were minimized, and no review threads were resolved.\n\n## Issue Details\n<details>\n<summary>Complete survey template definition of done</summary>\n\n**Cause:** The survey template stops at adding bibliography entries, paper notes, and a synthesis note. The README says content folders with Markdown should maintain `_meta.json` manifests, and this repo has both [`content/papers/_meta.json`](https://github.com/self-evolving/literature-template/blob/e2a4ab7fec62e782cd555f29ccbd218a431cf46d/content/papers/_meta.json) and [`content/notes/_meta.json`](https://github.com/self-evolving/literature-template/blob/e2a4ab7fec62e782cd555f29ccbd218a431cf46d/content/notes/_meta.json).\n\n**Candidate solutions:** Extend the survey DoD to require new paper slugs in `content/papers/_meta.json`, the synthesis note slug in `content/notes/_meta.json`, and `npm run check:site` passing.\n\n**Comments:** This mirrors the stronger DoD already used in `add-paper.md` and keeps generated survey PRs aligned with the README’s navigation-manifest contract.\n\n</details>\n\n## Recommended Next Step\nFIX_PR: The remaining issue is a small, deterministic template edit that is safe for an automated fix-pr pass.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] Update `.github/ISSUE_TEMPLATE/survey-topic.md` so its DoD requires `content/papers/_meta.json`, `content/notes/_meta.json`, and `npm run check:site`.\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-4`",
+      "createdAt": "2026-07-13T23:37:40Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/48#issuecomment-4963878113",
+      "viewerDidAuthor": true
+    }
+  ],
   "createdAt": "2026-07-12T08:10:17Z",
   "files": [
     {
@@ -43,13 +74,36 @@
     }
   ],
   "headRefName": "stack/issue-templates",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "mergedAt": null,
   "number": 48,
   "reviewDecision": "",
-  "reviews": [],
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABF4eADw",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-07-13T23:36:51Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "e2a4ab7fec62e782cd555f29ccbd218a431cf46d"
+      }
+    }
+  ],
   "state": "OPEN",
   "title": "Issue templates: literature dispatch forms, drop inherited Quartz templates",
-  "updatedAt": "2026-07-12T19:34:13Z",
+  "updatedAt": "2026-07-13T23:38:11Z",
   "url": "https://github.com/self-evolving/literature-template/pull/48"
 }

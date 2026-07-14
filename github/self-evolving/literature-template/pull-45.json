@@ -8,7 +8,38 @@
   "baseRefName": "main",
   "body": "Applies the upstream Sepo agent-infrastructure update (the same sync lean-workspace-template took in `acbeec9`, plus the follow-up `/chat` alias fix `4508c51`). Cherry-picked cleanly — the pre-update baseline here was byte-identical to lean's.\n\nBrings:\n- Live progress comments with thumbs-down cancellation (`AGENT_PROGRESS_POLICY`, route-aware policies, merge-mode final comment)\n- `/add-rubrics` route + prompt\n- `download-github-attachment` CLI (private user attachments with token lookup, timeouts, size caps)\n- `deployments`/`actor-association`/`env` module refactors, expanded reactions API\n- `/chat` as an alias for `/answer`\n- Claude date-pinned model fix (`ANTHROPIC_MODEL`)\n- ~2.4k lines of new runtime tests\n\nVerified locally: all `.agent` test lanes pass (`test:ci` — runtime 741/741, workflow/docs/shell checks green).\n\n**Stack 1/5** — merge order: this → review-nudge → agents-md → issue-templates → quartz-fixes.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
   "closedAt": null,
-  "comments": [],
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABJ934DQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Review\n\n| Total Score | Verdict | Rubrics Scored |\n| -- | -- | -- |\n| 100 | PASS | 20 |\n\n| Dimension | Rubric | Result | Score | Evidence |\n| -- | -- | -- | -- | -- |\n| coding_workflow/generic | Put shared capabilities in runtime | pass | 7/7 | Progress, attachment download, deployments, reactions, env, and actor association live under shared `.agent/src` runtime modules/CLIs, with workflows acting as callers. See [`run-agent-task`](https://github.com/self-evolving/literature-template/blob/fd680d6a19adba014f26b419e3de48d8c06a0312/.github/actions/run-agent-task/action.yml) and [`download-github-attachment`](https://github.com/self-evolving/literature-template/blob/fd680d6a19adba014f26b419e3de48d8c06a0312/.agent/src/github-attachment-download.ts). |\n| coding_workflow/generic | Keep consumers on fixed contracts | pass | 8/8 | New inputs are fixed action/env contracts: `progress_policy`, `orchestration_enabled`, `response_kind`, and token lookup for attachments uses a small env priority. |\n| coding_workflow/generic | Separate decision gates from action authorization | pass | 8/8 | Progress cancellation is gated by requester/trusted collaborator reaction checks before `gh run cancel`; route dispatch still applies access policy for explicit routes. See [`reactions.ts`](https://github.com/self-evolving/literature-template/blob/fd680d6a19adba014f26b419e3de48d8c06a0312/.agent/src/reactions.ts) and [`resolve-dispatch.ts`](https://github.com/self-evolving/literature-template/blob/fd680d6a19adba014f26b419e3de48d8c06a0312/.agent/src/cli/resolve-dispatch.ts). |\n| coding_workflow/generic | Keep privileged lifecycle routes out of rubric steering | pass | 8/8 | `agent-update` and `install` keep `rubrics_mode_override: disabled`; `/add-rubrics` is proposal-oriented and read-only against existing rubrics during generation. |\n| coding_workflow/generic | Make user-facing automation idempotent | pass | 7/7 | Progress creates one comment, records its id, patches that comment, and final responses merge into it. Tests cover one-comment behavior and non-duplicated activity. |\n| coding_workflow/generic | Minimal defaults, native escape hatches | pass | 8/8 | `AGENT_PROGRESS_POLICY` has three modes plus route/orchestration overrides; docs preserve YAML/workflow customization as the escape hatch. |\n| coding_workflow/generic | Validate delegated route authorization | pass | 8/8 | `/add-rubrics` delegates through `agent-implement.yml` only after router policy resolution, preserving requested route/requester context and using `agent/rubrics` as the base. |\n| coding_workflow/generic | Keep privileged workflows on trusted runtime code | pass | 8/8 | `agent-implement.yml` checks out the default branch for runtime, then creates a separate `agent/rubrics` worktree for `/add-rubrics`. |\n| communication/generic | Write audience-first documentation | pass | 7/7 | Setup docs explain what users need to configure for progress/cancellation before internal mechanics. |\n| coding_workflow/generic | Prefer agent-derived decisions | pass | 7/7 | Route-aware defaults are encoded in runtime policy; the repo variable is only an override surface. |\n| coding_workflow/generic | Prefer explicit structured inputs | pass | 7/7 | Progress policy is structured JSON with validation; workflow/action additions use separate typed inputs instead of overloading command text. |\n| coding_workflow/generic | Prefer permissive command route parsing | pass | 7/7 | `/chat` aliases to `/answer`, `/add-rubrics` detection passes through the full request text, and tests cover command parsing. |\n| communication/generic | Keep status comments compact | pass | 6/6 | Progress rendering uses one compact running/final comment with collapsed activity, and final merge tests prevent duplicated activity. |\n| coding_workflow/generic | Make surgical changes | pass | 8/8 | The PR is scoped to the vendored `.agent` runtime, agent workflows/prompts/actions, and matching docs/tests for the 0.4.0 bump. |\n| coding_workflow/generic | Reuse existing code | pass | 8/8 | New routes reuse `agent-implement.yml`, `run-agent-task`, `post-comment`, `create-pr`, `verify`, and existing policy helpers rather than adding parallel workflow paths. |\n| coding_workflow/generic | Surface stateful failures | pass | 7/7 | Progress cancellation writes a marker before cancellation and downgrades it to `failed:` if `gh run cancel` fails; memory/rubrics commit failures emit warnings. |\n| communication/generic | Make setup guidance actionable | pass | 7/7 | Setup guide documents default progress behavior, cancellation permissions, and the exact `AGENT_PROGRESS_POLICY` override path. |\n| coding_workflow/generic | Keep docs in sync | pass | 7/7 | Changelog, setup, configuration, request lifecycle, rubrics, quick-start, and usage docs were updated with the runtime behavior. |\n| coding_workflow/generic | Name config by capability | pass | 6/6 | `AGENT_PROGRESS_POLICY` names the general progress/cancellation capability, not a single route or first use case. |\n| coding_style/generic | Prefer simple implementations | pass | 7/7 | The implementation uses small runtime modules and existing workflow composition; customization stays in one policy parser and shared action inputs. |\n\n## Notes\n\n- The strongest score drivers are the trusted-runtime `/add-rubrics` design, the fixed progress policy contract, and the focused regression coverage for progress, cancellation, route parsing, attachment download, and verification.\n- No rubric-specific follow-up needed.\n\n## Findings\n\n- **INFO:** No rubric-specific findings.\n\n## Final Rubric Verdict\n\nPASS\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-6`",
+      "createdAt": "2026-07-13T23:29:29Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/45#issuecomment-4963825677",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABJ98X_A",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## AI Review Synthesis\n\n<!-- sepo-agent-review-synthesis -->\n<!-- sepo-agent-review-synthesis-head: fd680d6a19adba014f26b419e3de48d8c06a0312 -->\n\n> Dual-agent review by **Claude** and **Codex**.\n> Requested by @lolipopshock.\n\n## Summary of PR/Issue\n- PR #45 bumps the vendored Sepo agent runtime to 0.4.0 on `stack/agent-runtime-0.4.0`.\n- It brings live progress comments with cancellation, `/add-rubrics`, private GitHub attachment download support, deployment/env/refactor work, `/chat` aliasing, the Claude model fix, and expanded runtime tests.\n- The PR is scoped to `.agent/` and `.github/` agent infrastructure, with no Quartz or literature-content changes.\n- The PR body does not reference a parent issue; it does identify this as stack 1/5.\n\n## Review\nOverall, the PR looks shippable after one small workflow-state fix. Claude and the rubrics review found no blocking issues, while Codex identified one current, line-specific progress-state leak that is supported by the PR head.\n\n| Issue | Severity | Description |\n| -- | -- | -- |\n| Progress reporter state can leak across same-job invocations | WARNING | `run-agent-task` truncates only the progress stream file, while comment-id and cancel-marker files are reused by `github.run_id`; a later invocation in the same job can inherit stale progress state. |\n| `/add-rubrics` link-back copy is implementation-specific | INFO | PR/discussion `/add-rubrics` requests can receive “Implementing this request” copy even though the route proposes rubric changes. |\n\n## Progress\n- Rubrics review passed all selected rubrics with no rubric-specific follow-up.\n- Claude reported build, runtime, workflow, docs, and version checks passing at `fd680d6`.\n- Codex reported build, runtime, workflow, docs, shell checks, and `git diff --check` passing at `fd680d6`.\n- Existing inline comments and review threads were re-fetched before mutation; none existed.\n- Posted one new inline comment on `.github/actions/run-agent-task/action.yml:438` for the stale progress-state issue.\n\n## Issue Details\n\n<details>\n<summary>Progress reporter state can leak across same-job invocations</summary>\n\n**Cause:** `AGENT_PROGRESS_COMMENT_ID_FILE` and `AGENT_PROGRESS_CANCEL_MARKER_FILE` are keyed only by `github.run_id`, and startup clears only `AGENT_PROGRESS_STREAM_FILE`.\n\n**Candidate solutions:** Clear the comment-id and cancel-marker files before starting `progress-report.js`, or include an action-invocation-specific discriminator in those file names.\n\n**Comments:** This is not blocking for current single-invocation jobs, but it is a real shared-action bug and is safe for an automated fix-pr pass.\n\n</details>\n\n<details>\n<summary>`/add-rubrics` link-back copy is implementation-specific</summary>\n\n**Cause:** `agent-router.yml` uses the fixed text “Implementing this request” for all implement-dispatch routes, including `add-rubrics`.\n\n**Candidate solutions:** Use route-neutral copy such as `Tracking this request in ${ISSUE_URL}.`\n\n**Comments:** This is user-facing polish only and should not block automation or merge.\n\n</details>\n\n## Recommended Next Step\n`FIX_PR`: clear or uniquify progress reporter state files in `run-agent-task`; the remaining required change is concrete, isolated, and safe for automation.\n\n## Final Verdict\nMINOR_ISSUES\n\n## Action Items\n- [ ] Clear or uniquify the progress comment-id and cancel-marker files before each `run-agent-task` progress reporter starts.\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-1`",
+      "createdAt": "2026-07-13T23:41:04Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/45#issuecomment-4963899388",
+      "viewerDidAuthor": true
+    }
+  ],
   "createdAt": "2026-07-12T08:09:40Z",
   "files": [
     {
@@ -607,13 +638,36 @@
     }
   ],
   "headRefName": "stack/agent-runtime-0.4.0",
-  "labels": [],
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
   "mergedAt": null,
   "number": 45,
   "reviewDecision": "",
-  "reviews": [],
+  "reviews": [
+    {
+      "id": "PRR_kwDOSvUJfs8AAAABF4fGtg",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "",
+      "submittedAt": "2026-07-13T23:40:14Z",
+      "includesCreatedEdit": false,
+      "reactionGroups": [],
+      "state": "COMMENTED",
+      "commit": {
+        "oid": "fd680d6a19adba014f26b419e3de48d8c06a0312"
+      }
+    }
+  ],
   "state": "OPEN",
   "title": "Bump vendored Sepo agent runtime to 0.4.0",
-  "updatedAt": "2026-07-12T08:09:40Z",
+  "updatedAt": "2026-07-13T23:42:10Z",
   "url": "https://github.com/self-evolving/literature-template/pull/45"
 }
