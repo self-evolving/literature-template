@@ -43,6 +43,24 @@
   "createdAt": "2026-07-12T08:10:21Z",
   "files": [
     {
+      "path": ".github/workflows/agent-deploy-site-main.yml",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-site-preview.yml",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/deploy.yml",
+      "additions": 2,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
       "path": ".github/workflows/test-scripts.yml",
       "additions": 5,
       "deletions": 2,
@@ -128,6 +146,6 @@
   ],
   "state": "OPEN",
   "title": "Quartz fixes: popover cache correctness, array-form layouts, .env guard",
-  "updatedAt": "2026-07-13T23:46:20Z",
+  "updatedAt": "2026-07-15T19:21:17Z",
   "url": "https://github.com/self-evolving/literature-template/pull/49"
 }
