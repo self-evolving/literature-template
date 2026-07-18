@@ -31,3 +31,4 @@
 - Landing/sidebar chrome uses site-page for index and library pages while excluding tags. [[github/self-evolving/literature-template/pull-51.json]]
 - Issue templates: literature dispatch uses prefilled Markdown with command first and guidance in HTML comments. [[github/self-evolving/literature-template/pull-48.json]]
 - Quartz plugin layout may be an array for responsive placements; keep type, schema, config, and loader tests aligned. [[github/self-evolving/literature-template/pull-49.json]]
+- Canonical base URL is literature.sepo.site; keep Quartz config and quartz.ts fallback aligned for absolute URLs. [[github/self-evolving/literature-template/pull-53.json]]
