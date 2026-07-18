@@ -4,6 +4,11 @@ import { classNames } from "../util/lang"
 
 const siteTitle = "Literature Notes"
 
+// The template stays repo-agnostic: the GitHub link renders only when the
+// build knows which repository it came from (set automatically in Actions).
+const repositorySlug = process.env.GITHUB_REPOSITORY?.trim()
+const repositoryUrl = repositorySlug ? `https://github.com/${repositorySlug}` : undefined
+
 const PageTitle: QuartzComponent = ({ fileData, displayClass }: QuartzComponentProps) => {
   const home = resolveRelative(fileData.slug!, "index" as FullSlug)
   return (
@@ -18,6 +23,25 @@ const PageTitle: QuartzComponent = ({ fileData, displayClass }: QuartzComponentP
           <span class="site-title-variant site-title-variant-code">{siteTitle}</span>
         </span>
       </a>
+      {repositoryUrl && (
+        <a
+          class="page-title-github"
+          href={repositoryUrl}
+          aria-label={`View the ${repositorySlug} repository on GitHub`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg
+            class="page-title-github-icon"
+            viewBox="0 0 16 16"
+            width="16"
+            height="16"
+            aria-hidden="true"
+          >
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82A7.65 7.65 0 0 1 8 4.58c.68 0 1.36.09 2 .24 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
+          </svg>
+        </a>
+      )}
     </h2>
   )
 }
@@ -47,6 +71,39 @@ PageTitle.css = `
   outline: 2px solid color-mix(in srgb, var(--secondary) 35%, transparent);
   outline-offset: 4px;
   border-radius: 8px;
+}
+
+.page-title-github {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--darkgray);
+  text-decoration: none;
+  border-radius: 999px;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.page-title-github:hover,
+.page-title-github:focus-visible {
+  color: var(--secondary);
+  background: color-mix(in srgb, var(--secondary) 10%, transparent);
+}
+
+.page-title-github:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+  outline-offset: 3px;
+}
+
+.page-title-github-icon {
+  display: block;
+  width: 1.08rem;
+  height: 1.08rem;
+  fill: currentColor;
 }
 
 .site-title-main {
