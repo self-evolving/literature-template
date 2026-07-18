@@ -29,3 +29,5 @@
 - Sepo deploy action: bounded transient OIDC/deploy retries; output only single-line http(s) URLs. [[github/self-evolving/literature-template/pull-37.json]]
 - Agent instructions: AGENTS.md is canonical; CLAUDE.md should remain a one-line @AGENTS.md adapter. [[github/self-evolving/literature-template/pull-47.json]]
 - Landing/sidebar chrome uses site-page for index and library pages while excluding tags. [[github/self-evolving/literature-template/pull-51.json]]
+- Issue templates: literature dispatch uses prefilled Markdown with command first and guidance in HTML comments. [[github/self-evolving/literature-template/pull-48.json]]
+- Quartz plugin layout may be an array for responsive placements; keep type, schema, config, and loader tests aligned. [[github/self-evolving/literature-template/pull-49.json]]
