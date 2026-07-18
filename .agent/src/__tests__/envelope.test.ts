@@ -1764,7 +1764,7 @@ test("add-rubrics reuses implement workflow with a separate rubrics worktree", (
   const prompt = readRepoFile(".github/prompts/agent-add-rubrics.md");
 
   assert.match(implementWorkflow, /- name: Create add-rubrics worktree/);
-  assert.match(implementWorkflow, /BASE_BRANCH:\s*\$\{\{\s*inputs\.base_branch \|\| \(env\.IMPLEMENTATION_ROUTE == 'add-rubrics' && \(vars\.AGENT_RUBRICS_REF \|\| 'agent\/rubrics'\) \|\| ''\)\s*\}\}/);
+  assert.match(implementWorkflow, /BASE_BRANCH:\s*\$\{\{\s*inputs\.base_branch \|\| \(env\.IMPLEMENTATION_ROUTE == 'add-rubrics' && \(vars\.AGENT_RUBRICS_REF \|\| 'agent\/rubrics'\) \|\| vars\.SEPO_SITE_BRANCH \|\| ''\)\s*\}\}/);
   assert.match(implementWorkflow, /if:\s*env\.IMPLEMENTATION_ROUTE == 'add-rubrics'/);
   assert.match(implementWorkflow, /git worktree add -b "\$\{BRANCH\}" "\$\{worktree\}" FETCH_HEAD/);
   assert.match(implementWorkflow, /agent_cwd:\s*\$\{\{\s*env\.AGENT_WORKTREE\s*\}\}/);
