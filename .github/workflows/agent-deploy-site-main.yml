@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: vars.AGENT_ENABLED != 'false'
+    if: vars.AGENT_ENABLED != 'false' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout site

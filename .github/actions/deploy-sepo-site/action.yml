@@ -32,17 +32,64 @@ runs:
         SERVER_URL: ${{ inputs.server_url }}
       run: |
         set -euo pipefail
-        TOK=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview" | jq -r '.value')
-        [[ "$TOK" != "null" && -n "$TOK" ]] || { echo "::error::OIDC token fetch failed"; exit 1; }
+
+        retry_sleep() {
+          sleep "$1"
+        }
+
+        should_retry_http() {
+          [[ "$1" =~ ^(000|408|409|425|429|5[0-9][0-9])$ ]]
+        }
+
+        OIDC_BODY_FILE=$(mktemp)
+        BODY_FILE=$(mktemp)
+        trap 'rm -f "$OIDC_BODY_FILE" "$BODY_FILE"' EXIT
+
+        TOK=""
+        for attempt in 1 2 3; do
+          : > "$OIDC_BODY_FILE"
+          OIDC_CODE=$(curl --silent --show-error --max-time 30 -o "$OIDC_BODY_FILE" -w '%{http_code}' \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sepo-preview") || OIDC_CODE="000"
+          if [[ "$OIDC_CODE" == 200 ]]; then
+            TOK=$(jq -r '.value // empty' "$OIDC_BODY_FILE" 2>/dev/null || true)
+            [[ -n "$TOK" ]] || { echo "::error::OIDC token response did not include a token"; exit 1; }
+            break
+          fi
+          if [[ "$attempt" == 3 ]] || ! should_retry_http "$OIDC_CODE"; then
+            cat "$OIDC_BODY_FILE" || true
+            echo "::error::OIDC token fetch failed ($OIDC_CODE)"
+            exit 1
+          fi
+          echo "::warning::OIDC token fetch attempt $attempt failed with HTTP $OIDC_CODE; retrying"
+          retry_sleep "$attempt"
+        done
         echo "::add-mask::$TOK"
-        RESP=$(curl -sS -X POST "$SERVER_URL/api/deploy/preview" -H 'Content-Type: application/json' \
-               --data "$(jq -nc --arg t "$TOK" --argjson a "$ARTIFACT_ID" --arg canonical "$CANONICAL" \
-                 '{oidc_token:$t,artifact_id:$a} + (if $canonical == "true" then {canonical:true} else {} end)')" \
-               -w '\n%{http_code}')
-        CODE=$(tail -n1 <<<"$RESP"); BODY=$(sed '$d' <<<"$RESP"); echo "$BODY"
-        [[ "$CODE" == 200 ]] || { echo "::error::deploy failed ($CODE)"; exit 1; }
-        URL=$(jq -r .url <<<"$BODY")
+
+        PAYLOAD=$(jq -nc --arg t "$TOK" --argjson a "$ARTIFACT_ID" --arg canonical "$CANONICAL" \
+          '{oidc_token:$t,artifact_id:$a} + (if $canonical == "true" then {canonical:true} else {} end)')
+        for attempt in 1 2 3; do
+          : > "$BODY_FILE"
+          CODE=$(curl --silent --show-error --max-time 30 -o "$BODY_FILE" -w '%{http_code}' \
+            -X POST "$SERVER_URL/api/deploy/preview" \
+            -H 'Content-Type: application/json' \
+            --data "$PAYLOAD") || CODE="000"
+          [[ "$CODE" == 200 ]] && break
+          if [[ "$attempt" == 3 ]] || ! should_retry_http "$CODE"; then
+            cat "$BODY_FILE" || true
+            echo "::error::deploy failed ($CODE)"
+            exit 1
+          fi
+          echo "::warning::deploy attempt $attempt failed with HTTP $CODE; retrying"
+          retry_sleep "$attempt"
+        done
+
+        BODY=$(cat "$BODY_FILE")
+        echo "$BODY"
+        if ! URL=$(jq -er '.url | select(type == "string" and test("\\Ahttps?://[^[:space:][:cntrl:]]+\\z"))' <<<"$BODY"); then
+          echo "::error::deploy response did not include a valid single-line http(s) url"
+          exit 1
+        fi
         echo "url=$URL" >> "$GITHUB_OUTPUT"
         if [[ "$CANONICAL" == "true" ]]; then
           echo "### Canonical site: $URL" >> "$GITHUB_STEP_SUMMARY"
