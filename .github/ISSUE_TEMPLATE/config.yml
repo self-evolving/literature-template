@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Quick start and docs
+    url: https://github.com/self-evolving/literature-template#readme
+    about: Setup, the content model, comments configuration, and deployments.
