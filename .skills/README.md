@@ -5,6 +5,7 @@ This repository includes skills for Sepo skill runs and literature-template main
 - `deep-research`: broad investigations that combine academic search, web browsing, repositories, docs/releases, datasets, benchmarks, and optional social discovery signals.
 - `literature-review`: systematic topic reviews with explicit scope, deduplication, triage, and theme-based synthesis.
 - `paper-to-site`: builds a clean hosted Quartz/Sepo literature-template site from a paper source, with the paper as `/`, section pages, citations, figures, graph/backlink hygiene, and standalone-repository guidance.
+- `site-branch-install`: installs the literature site as an orphan branch inside an existing repository — host tree untouched, site workflows scoped to the branch, Sepo routing pointed at it via the `SEPO_SITE_BRANCH` repository variable.
 
 The research skills install the pinned research tooling version:
 

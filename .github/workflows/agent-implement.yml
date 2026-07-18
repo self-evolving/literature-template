@@ -174,7 +174,7 @@ jobs:
       - name: Resolve implementation base
         id: implementation_base
         env:
-          BASE_BRANCH: ${{ inputs.base_branch || (env.IMPLEMENTATION_ROUTE == 'add-rubrics' && (vars.AGENT_RUBRICS_REF || 'agent/rubrics') || '') }}
+          BASE_BRANCH: ${{ inputs.base_branch || (env.IMPLEMENTATION_ROUTE == 'add-rubrics' && (vars.AGENT_RUBRICS_REF || 'agent/rubrics') || vars.SEPO_SITE_BRANCH || '') }}
           BASE_PR: ${{ inputs.base_pr }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           GH_TOKEN: ${{ steps.auth.outputs.token }}

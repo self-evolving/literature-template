@@ -268,6 +268,22 @@ Sepo runtime capability rather than as a site build setting.
 
 This is separate from the future transient-review surface described in issue #65, which should render GitHub content directly rather than committing transient Markdown files.
 
+## Installing into an existing repository
+
+The site can also live **inside an existing repository** instead of a
+standalone one: the host project keeps its default branch, and the
+literature site lives on a dedicated orphan branch (for example
+`literature`) with its own validate/preview/deploy workflows scoped to
+that branch. Sepo requests then land as PRs into the site branch because
+the `SEPO_SITE_BRANCH` repository variable steers
+`resolve-implementation-base`.
+
+To install: make sure the Sepo agent layer is on the host's default branch
+(`@sepo-agent /install`), then open an issue there asking
+`@sepo-agent /implement` to follow
+[`.skills/site-branch-install/SKILL.md`](.skills/site-branch-install/SKILL.md)
+from this repository.
+
 ## Literature workflows
 
 This template includes two opt-in Sepo literature workflows adapted from `self-evolving/literature`:
