@@ -1,0 +1,61 @@
+{
+  "author": {
+    "id": "U_kgDOD1qeYw",
+    "is_bot": false,
+    "login": "shannonshen49",
+    "name": "Shannon's Claude"
+  },
+  "baseRefName": "main",
+  "body": "**Do not merge yet — for review.** Live demo: `self-evolving/sepo-site-branch-demo` (being set up; see the session summary).\n\nLets the literature site live **inside an existing repository** as an orphan branch:\n\n- `agent-implement.yml` / `agent-add-paper.yml`: `resolve-implementation-base` falls back to the `SEPO_SITE_BRANCH` repository variable (explicit `base_branch` input and the add-rubrics ref still take precedence) — so mention-driven literature work branches from and PRs into the site branch, while the agent trigger surface stays on the default branch (GitHub only fires `issue_comment`/`issues` workflows from there).\n- `.skills/site-branch-install/SKILL.md`: the install procedure — orphan branch carrying the full site tree minus agent-routing workflows/prompts/issue templates (`.agent/` and `.github/actions/` stay: the branch's preview/deploy workflows run the runtime CLIs from the checked-out tree), canonical-deploy workflow rescoped to the branch, validation, `SEPO_SITE_BRANCH` wiring, dependabot `target-branch` note.\n- README + skills README document the flow.\n\nKnown v1 simplification (stated in the skill): with the variable set, all `/implement` dispatches default to the site branch; host-project work needs an explicit `base_branch`. Label-based routing is the refinement path.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV\n\n---\n\n**Findings from the live demo** (`self-evolving/sepo-site-branch-demo`):\n\n- End-to-end verified: agent layer on a Node-free Python host's `main`, orphan `literature` branch self-deploys via its own rescoped workflow → https://self-evolving-sepo-site-bran-literature-78f3ef.sepo.site — and `resolve-implementation-base` resolves `SEPO_SITE_BRANCH=literature` correctly (verified against the live repo).\n- **Server-side follow-up:** the preview API rejects `canonical: true` when the OIDC ref isn't the default branch (403, `claim_ref: refs/heads/literature`). Branch sites currently publish as stable branch deployments; making a branch-installed site *canonical* needs a server-side allowance (e.g., a registered site branch per repo). The skill documents this.\n- The demo's full mention→PR run needs provider secrets in the demo repo (org secrets don't propagate there); the routing chain is otherwise proven.\n",
+  "closedAt": null,
+  "comments": [],
+  "createdAt": "2026-07-18T18:34:52Z",
+  "files": [
+    {
+      "path": ".agent/src/__tests__/envelope.test.ts",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-add-paper.yml",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".github/workflows/agent-implement.yml",
+      "additions": 1,
+      "deletions": 1,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".skills/README.md",
+      "additions": 1,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": ".skills/site-branch-install/SKILL.md",
+      "additions": 90,
+      "deletions": 0,
+      "changeType": "ADDED"
+    },
+    {
+      "path": "README.md",
+      "additions": 16,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "feat/site-branch-install",
+  "labels": [],
+  "mergedAt": null,
+  "number": 52,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "OPEN",
+  "title": "Site-branch install: SEPO_SITE_BRANCH routing + install skill",
+  "updatedAt": "2026-07-18T18:46:58Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/52"
+}
