@@ -1,0 +1,43 @@
+{
+  "author": {
+    "id": "U_kgDOD1qeYw",
+    "is_bot": false,
+    "login": "shannonshen49",
+    "name": "Shannon's Claude"
+  },
+  "baseRefName": "main",
+  "body": "Three fixes for the reported landing/deployment issues:\n\n- **Left sidebar on the landing page**: registers lean's `site-page` condition and drops the `not-index` conditions on the left-column components (page-title, search, darkmode, reader-mode, spacer); `docs-explorer` moves `library-page` → `site-page`. Tag pages keep exactly the components they had before (`not-index` included them), which is why those become unconditional rather than `site-page`.\n- **GitHub logo above the search bar**: ports lean's `page-title-github` icon link (`357076d6`), parameterized via `GITHUB_REPOSITORY` (automatic in Actions builds; hidden locally) so the template stays repo-agnostic.\n- **Branch switcher on the main deployment**: no code needed — the existing `SEPO_COMMENTS_PREVIEW_SWITCHER=hover` knob (`47f76308`) is forwarded from repo variables by the deploy workflow; verified `data-preview-switcher=\"hover\"` renders when set. The repo variable is being set alongside this PR.\n\nVerified locally: landing shows the full sidebar with the GitHub icon, tag pages unchanged, `npm run check` + builds pass.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
+  "closedAt": "2026-07-18T07:07:47Z",
+  "comments": [],
+  "createdAt": "2026-07-18T07:03:35Z",
+  "files": [
+    {
+      "path": "quartz.config.yaml",
+      "additions": 1,
+      "deletions": 8,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz.ts",
+      "additions": 3,
+      "deletions": 2,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "quartz/components/SepoPageTitle.tsx",
+      "additions": 57,
+      "deletions": 0,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefName": "fix/landing-sidebar-github",
+  "labels": [],
+  "mergedAt": "2026-07-18T07:07:47Z",
+  "number": 51,
+  "reviewDecision": "",
+  "reviews": [],
+  "state": "MERGED",
+  "title": "Landing left sidebar, GitHub repo link, switcher-ready config",
+  "updatedAt": "2026-07-18T07:07:48Z",
+  "url": "https://github.com/self-evolving/literature-template/pull/51"
+}

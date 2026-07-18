@@ -5,9 +5,9 @@
     "login": "shannonshen49",
     "name": "Shannon's Claude"
   },
-  "baseRefName": "stack/agents-md",
+  "baseRefName": "main",
   "body": "Follows lean-workspace-template's prefilled-markdown convention (`503ef262`, `1c2e790d`): first line is the `@sepo-agent` dispatch, guidance lives in HTML comments, one editable body.\n\n- Adds `add-paper.md` and `survey-topic.md` (both routed via `/implement`, each with a swap-to-`/answer` hint and a definition of done)\n- Adds `config.yml` (blank issues enabled + docs contact link)\n- Deletes the generic `bug_report.md`/`feature_request.md` inherited from Quartz (lean's issue #64 flagged those as inappropriate for template repos)\n- Keeps `ask-sepo.md` / `install-sepo.md` unchanged\n\n**Stack 4/5.**\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_01KSJ1viQV4pp3hcWo9u5oPV",
-  "closedAt": null,
+  "closedAt": "2026-07-18T06:53:52Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABJ92qxg",
@@ -37,6 +37,21 @@
       "minimizedReason": "",
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/48#issuecomment-4963878113",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABKqNLxQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #48.\n\nno rubric changes\n\nI inspected PR #48’s body, comments, review comments, reviews, diff, repository owner data, and existing rubrics. The only non-bot trusted source was the requester’s PR body, and its reusable convention is already covered by existing active rubrics around permissive command routing, audience-first documentation, and minimal defaults. The review feedback was agent-authored only, so it is advisory and not a basis for new user/team rubrics.\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-4`",
+      "createdAt": "2026-07-18T06:55:20Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/48#issuecomment-5010312133",
       "viewerDidAuthor": true
     }
   ],
@@ -82,7 +97,7 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-07-18T06:53:52Z",
   "number": 48,
   "reviewDecision": "",
   "reviews": [
@@ -102,8 +117,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Issue templates: literature dispatch forms, drop inherited Quartz templates",
-  "updatedAt": "2026-07-13T23:38:11Z",
+  "updatedAt": "2026-07-18T06:55:20Z",
   "url": "https://github.com/self-evolving/literature-template/pull/48"
 }

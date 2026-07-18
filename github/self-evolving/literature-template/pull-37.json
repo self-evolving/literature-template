@@ -7,7 +7,7 @@
   },
   "baseRefName": "main",
   "body": "## Summary\n- add bounded retry/backoff around Sepo site deploy OIDC token fetches and deploy API POSTs\n- validate that the Sepo deploy response includes a non-empty http(s) URL before publishing outputs\n- restrict manual canonical site deploy workflow runs to the main branch while preserving AGENT_ENABLED gating\n\n## Validation\n- actionlint .github/workflows/agent-deploy-site-main.yml .github/workflows/agent-site-preview.yml\n- ruby -e 'require \"yaml\"; ARGV.each { |f| YAML.load_file(f); puts \"ok #{f}\" }' .github/actions/deploy-sepo-site/action.yml .github/workflows/agent-deploy-site-main.yml .github/workflows/agent-site-preview.yml\n- npx prettier .github/actions/deploy-sepo-site/action.yml .github/workflows/agent-deploy-site-main.yml --check\n- cd .agent && npm ci && npm test",
-  "closedAt": null,
+  "closedAt": "2026-07-18T06:38:14Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABGE0bvQ",
@@ -124,6 +124,21 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/pull/37#issuecomment-4703075372",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABKqKiyA",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "## Rubrics Update\n\nNo changes were committed to [`agent/rubrics`](https://github.com/self-evolving/literature-template/tree/agent/rubrics) from PR #37.\n\nno rubric changes\n\nI reviewed PR #37’s full PR metadata, issue comments, review comments, reviews, linked #36 context, maintainer signals, and the existing rubrics. The substantive PR #37 feedback was agent-authored, while the only human comments from `lolipopshock` were `/review` requests. The technical lessons are already covered by active rubrics like `bounded-transient-retries`, `validate-preview-contracts`, `keep-privileged-workflows-on-trusted-runtime`, `reuse-existing-code`, and `shared-capabilities-in-runtime`.\n\nThe rubrics checkout is clean.\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-6`",
+      "createdAt": "2026-07-18T06:39:56Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/pull/37#issuecomment-5010268872",
+      "viewerDidAuthor": true
     }
   ],
   "createdAt": "2026-06-14T17:48:39Z",
@@ -150,7 +165,7 @@
       "color": "0e8a16"
     }
   ],
-  "mergedAt": null,
+  "mergedAt": "2026-07-18T06:38:14Z",
   "number": 37,
   "reviewDecision": "",
   "reviews": [
@@ -170,8 +185,8 @@
       }
     }
   ],
-  "state": "OPEN",
+  "state": "MERGED",
   "title": "Harden Sepo site deployment action",
-  "updatedAt": "2026-06-14T21:12:52Z",
+  "updatedAt": "2026-07-18T06:39:56Z",
   "url": "https://github.com/self-evolving/literature-template/pull/37"
 }
