@@ -13,3 +13,8 @@ replit.nix
 quartz/cli/tui/dist/
 .agent/node_modules/
 .agent/dist/
+
+# local secrets — never publish
+.env
+.env.*
+!.env.example

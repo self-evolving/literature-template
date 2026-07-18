@@ -4,6 +4,10 @@ import YAML from "yaml"
 import { styleText } from "util"
 import { QuartzConfig, GlobalConfiguration, FullPageLayout } from "../../cfg"
 import { QuartzComponent, QuartzComponentConstructor } from "../../components/types"
+import Flex from "../../components/Flex"
+import MobileOnly from "../../components/MobileOnly"
+import DesktopOnly from "../../components/DesktopOnly"
+import ConditionalRender from "../../components/ConditionalRender"
 import { PluginTypes } from "../types"
 import {
   PluginManifest,
@@ -636,6 +640,8 @@ function buildLayoutForEntries(
     {
       component: QuartzComponent
       priority: number
+      display?: "mobile-only" | "desktop-only"
+      condition?: string
       group?: string
       groupOptions?: PluginLayoutDeclaration["groupOptions"]
     }[]
@@ -647,9 +653,9 @@ function buildLayoutForEntries(
   }
 
   for (const entry of entries) {
-    if (!entry.layout) continue
+    const layouts = normalizeLayoutDeclarations(entry.layout)
+    if (layouts.length === 0) continue
 
-    const layout = entry.layout
     const name = extractPluginName(entry.source)
 
     // Look up component from registry
@@ -689,24 +695,18 @@ function buildLayoutForEntries(
       component = reg.component as QuartzComponent
     }
 
-    // Apply display modifier
-    if (layout.display && layout.display !== "all") {
-      component = applyDisplayWrapper(component, layout.display)
-    }
-
-    // Apply condition
-    if (layout.condition) {
-      component = applyConditionWrapper(component, layout.condition)
-    }
-
-    const posArray = positions[layout.position]
-    if (posArray) {
-      posArray.push({
-        component,
-        priority: layout.priority,
-        group: layout.group,
-        groupOptions: layout.groupOptions,
-      })
+    for (const layout of layouts) {
+      const posArray = positions[layout.position]
+      if (posArray) {
+        posArray.push({
+          component,
+          priority: layout.priority,
+          display: normalizeDisplay(layout.display),
+          condition: layout.condition,
+          group: layout.group,
+          groupOptions: layout.groupOptions,
+        })
+      }
     }
   }
 
@@ -731,6 +731,8 @@ function resolveGroups(
   items: {
     component: QuartzComponent
     priority: number
+    display?: "mobile-only" | "desktop-only"
+    condition?: string
     group?: string
     groupOptions?: PluginLayoutDeclaration["groupOptions"]
   }[],
@@ -740,7 +742,12 @@ function resolveGroups(
   // Effective priority = explicit group config priority ?? first member's priority.
   const groupedComponents = new Map<
     string,
-    { component: QuartzComponent; groupOptions?: PluginLayoutDeclaration["groupOptions"] }[]
+    {
+      component: QuartzComponent
+      display?: "mobile-only" | "desktop-only"
+      condition?: string
+      groupOptions?: PluginLayoutDeclaration["groupOptions"]
+    }[]
   >()
   const groupPriority = new Map<string, number>()
 
@@ -754,6 +761,8 @@ function resolveGroups(
       }
       groupedComponents.get(item.group)!.push({
         component: item.component,
+        display: item.display,
+        condition: item.condition,
         groupOptions: item.groupOptions,
       })
     }
@@ -773,9 +782,14 @@ function resolveGroups(
 
       const members = groupedComponents.get(item.group)!
       const groupConfig = groups[item.group] ?? {}
+      const commonDisplay = commonValue(members.map((m) => m.display))
+      const commonCondition = commonValue(members.map((m) => m.condition))
 
       const flexComponents = members.map((m) => ({
-        Component: m.component,
+        Component: applyLayoutWrappers(m.component, {
+          display: m.display === commonDisplay ? undefined : m.display,
+          condition: m.condition === commonCondition ? undefined : m.condition,
+        }),
         grow: m.groupOptions?.grow,
         shrink: m.groupOptions?.shrink,
         basis: m.groupOptions?.basis,
@@ -784,19 +798,23 @@ function resolveGroups(
         justify: m.groupOptions?.justify,
       }))
 
-      // Dynamically import Flex to avoid circular dependencies
-      const FlexModule = require("../../components/Flex")
-      const Flex = FlexModule.default as Function
-      const flexComponent = Flex({
+      let flexComponent = Flex({
         components: flexComponents,
         direction: groupConfig.direction ?? "row",
         wrap: groupConfig.wrap,
         gap: groupConfig.gap ?? "1rem",
       }) as QuartzComponent
+      flexComponent = applyLayoutWrappers(flexComponent, {
+        display: commonDisplay,
+        condition: commonCondition,
+      })
 
       entries.push({ priority: groupPriority.get(item.group)!, component: flexComponent })
     } else {
-      entries.push({ priority: item.priority, component: item.component })
+      entries.push({
+        priority: item.priority,
+        component: applyLayoutWrappers(item.component, item),
+      })
     }
   }
 
@@ -806,15 +824,43 @@ function resolveGroups(
   return entries.map((e) => e.component)
 }
 
+function normalizeLayoutDeclarations(layout: PluginJsonEntry["layout"]): PluginLayoutDeclaration[] {
+  if (!layout) return []
+  return Array.isArray(layout) ? layout : [layout]
+}
+
+function normalizeDisplay(
+  display: PluginLayoutDeclaration["display"],
+): "mobile-only" | "desktop-only" | undefined {
+  return display && display !== "all" ? display : undefined
+}
+
+function commonValue<T>(values: (T | undefined)[]): T | undefined {
+  const first = values[0]
+  return first !== undefined && values.every((value) => value === first) ? first : undefined
+}
+
+function applyLayoutWrappers(
+  component: QuartzComponent,
+  layout: { display?: "mobile-only" | "desktop-only"; condition?: string },
+): QuartzComponent {
+  let wrapped = component
+  if (layout.display) {
+    wrapped = applyDisplayWrapper(wrapped, layout.display)
+  }
+  if (layout.condition) {
+    wrapped = applyConditionWrapper(wrapped, layout.condition)
+  }
+  return wrapped
+}
+
 function applyDisplayWrapper(
   component: QuartzComponent,
   display: "mobile-only" | "desktop-only",
 ): QuartzComponent {
   if (display === "mobile-only") {
-    const MobileOnly = require("../../components/MobileOnly").default as Function
     return MobileOnly(component) as QuartzComponent
   } else {
-    const DesktopOnly = require("../../components/DesktopOnly").default as Function
     return DesktopOnly(component) as QuartzComponent
   }
 }
@@ -829,7 +875,6 @@ function applyConditionWrapper(component: QuartzComponent, conditionName: string
     return component
   }
 
-  const ConditionalRender = require("../../components/ConditionalRender").default as Function
   return ConditionalRender({
     component,
     condition: predicate,

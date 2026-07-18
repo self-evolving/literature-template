@@ -145,7 +145,7 @@ export interface PluginJsonEntry {
   enabled: boolean
   options?: Record<string, unknown>
   order?: number
-  layout?: PluginLayoutDeclaration
+  layout?: PluginLayoutDeclaration | PluginLayoutDeclaration[]
 }
 
 /** Flex group configuration in the top-level layout section */
