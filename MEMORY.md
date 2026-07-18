@@ -27,3 +27,4 @@
 - Add-paper citation buttons must not call GitHub workflow APIs with browser-held repo credentials; use Sepo/auth backend or manual dispatch. [[github/self-evolving/literature-template/issue-5.json]]
 - Review-nudge workflow was dropped from the runtime stack; do not reintroduce automated PR nudges without fresh direction. [[github/self-evolving/literature-template/pull-46.json]]
 - Sepo deploy action: bounded transient OIDC/deploy retries; output only single-line http(s) URLs. [[github/self-evolving/literature-template/pull-37.json]]
+- Agent instructions: AGENTS.md is canonical; CLAUDE.md should remain a one-line @AGENTS.md adapter. [[github/self-evolving/literature-template/pull-47.json]]
