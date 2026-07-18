@@ -21,7 +21,7 @@ const normalizeBaseUrl = (url?: string) => url?.replace(/^https?:\/\//, "").repl
 const siteBaseUrl =
   normalizeBaseUrl(
     process.env.SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL,
-  ) ?? "literature-template.vercel.app"
+  ) ?? "literature.sepo.site"
 
 const isSitePage = (slug?: string) => Boolean(slug && !slug.startsWith("tags/"))
 const isLibraryPage = (slug?: string) => Boolean(isSitePage(slug) && slug !== "index")

@@ -7,7 +7,7 @@ configuration:
   analytics:
     provider: plausible
   locale: en-US
-  baseUrl: literature-template.vercel.app
+  baseUrl: literature.sepo.site
   ignorePatterns:
     - private
     - templates
