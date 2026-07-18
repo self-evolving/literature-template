@@ -23,9 +23,10 @@ const siteBaseUrl =
     process.env.SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL,
   ) ?? "literature-template.vercel.app"
 
-const isLibraryPage = (slug?: string) =>
-  Boolean(slug && slug !== "index" && !slug.startsWith("tags/"))
+const isSitePage = (slug?: string) => Boolean(slug && !slug.startsWith("tags/"))
+const isLibraryPage = (slug?: string) => Boolean(isSitePage(slug) && slug !== "index")
 
+registerCondition("site-page", (page) => isSitePage(page.fileData.slug))
 registerCondition("library-page", (page) => isLibraryPage(page.fileData.slug))
 
 type SepoCommentsTriggerMode = "pill" | "bot"

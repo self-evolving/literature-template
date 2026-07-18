@@ -189,11 +189,9 @@ plugins:
         groupOptions:
           grow: true
         display: desktop-only
-        condition: not-index
       - position: left
         priority: 40
         display: mobile-only
-        condition: not-index
   - source: github:quartz-community/backlinks
     enabled: true
     layout:
@@ -225,7 +223,6 @@ plugins:
     layout:
       position: left
       priority: 10
-      condition: not-index
   - source: github:quartz-community/spacer
     enabled: true
     order: 25
@@ -233,19 +230,16 @@ plugins:
       position: left
       priority: 25
       display: mobile-only
-      condition: not-index
   - source: github:quartz-community/darkmode
     enabled: true
     layout:
       - position: left
         priority: 30
         display: mobile-only
-        condition: not-index
       - position: left
         priority: 30
         group: toolbar
         display: desktop-only
-        condition: not-index
   - source: github:quartz-community/reader-mode
     enabled: true
     layout:
@@ -253,7 +247,6 @@ plugins:
       priority: 35
       group: toolbar
       display: desktop-only
-      condition: not-index
   - source: github:quartz-community/breadcrumbs
     enabled: false
     layout:
@@ -271,7 +264,7 @@ plugins:
     layout:
       position: left
       priority: 50
-      condition: library-page
+      condition: site-page
   - source: ./quartz/plugins/local/sepo-comments
     enabled: true
     layout:
