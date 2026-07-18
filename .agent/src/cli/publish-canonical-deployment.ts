@@ -2,7 +2,7 @@
 // Usage: node .agent/dist/cli/publish-canonical-deployment.js
 // Env: GITHUB_REPOSITORY, GITHUB_TOKEN or GH_TOKEN, URL, SHA, RUN_URL, ENVIRONMENT
 
-import { publishCanonicalDeployment } from "../github.js";
+import { publishCanonicalDeployment } from "../deployments.js";
 
 function requireEnv(name: string): string {
   const value = String(process.env[name] || "").trim();

@@ -31,6 +31,26 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
+function readRunAgentTaskSteps(relativePath: string): Array<{
+  jobId: string;
+  step: Record<string, unknown>;
+}> {
+  const workflow = parseYaml(readRepoFile(relativePath)) as unknown;
+  assert.ok(isRecord(workflow), `${relativePath} should parse as a YAML object`);
+  assert.ok(isRecord(workflow.jobs), `${relativePath} should define jobs`);
+
+  const steps: Array<{ jobId: string; step: Record<string, unknown> }> = [];
+  for (const [jobId, job] of Object.entries(workflow.jobs)) {
+    if (!isRecord(job) || !Array.isArray(job.steps)) continue;
+    for (const step of job.steps) {
+      if (isRecord(step) && step.uses === "./.github/actions/run-agent-task") {
+        steps.push({ jobId, step });
+      }
+    }
+  }
+  return steps;
+}
+
 function readMarkdownIssueTemplate(relativePath: string): {
   frontMatter: Record<string, unknown>;
   body: string;
@@ -202,19 +222,42 @@ test("answer route passes trigger metadata into prompt variables", () => {
     (step): step is Record<string, unknown> =>
       isRecord(step) && step.name === "Run answer agent",
   );
+  const postAnswerStep = answerJob.steps.find(
+    (step): step is Record<string, unknown> =>
+      isRecord(step) && step.name === "Post answer",
+  );
   assert.ok(runAnswerStep, "answer job should run the answer agent");
   assert.ok(isRecord(runAnswerStep.with), "answer agent step should define inputs");
   assert.equal(runAnswerStep.with.request_source_kind, "${{ needs.portal.outputs.source_kind }}");
   assert.equal(runAnswerStep.with.request_comment_id, "${{ needs.portal.outputs.source_comment_id }}");
   assert.equal(runAnswerStep.with.request_comment_url, "${{ needs.portal.outputs.source_comment_url }}");
+  assert.equal(runAnswerStep.with.response_kind, "${{ needs.portal.outputs.response_kind }}");
+  assert.ok(postAnswerStep, "answer job should post the final answer");
+  assert.equal(
+    String(postAnswerStep.if || "").replace(/\s+/g, " ").trim(),
+    "always() && needs.portal.outputs.route == 'answer' && steps.answer.outcome != 'skipped'",
+  );
+  assert.ok(isRecord(postAnswerStep.env), "post answer step should define env");
+  assert.equal(
+    postAnswerStep.env.STATUS,
+    "${{ steps.answer.outcome == 'success' && 'success' || steps.answer.outcome == 'cancelled' && 'cancelled' || 'failed' }}",
+  );
 
   assert.ok(isRecord(runAgentTaskAction), "run-agent-task action should parse");
   assert.ok(isRecord(runAgentTaskAction.inputs), "run-agent-task action should define inputs");
   assert.ok(isRecord(runAgentTaskAction.inputs.request_source_kind));
   assert.ok(isRecord(runAgentTaskAction.inputs.request_comment_id));
   assert.ok(isRecord(runAgentTaskAction.inputs.request_comment_url));
+  assert.ok(isRecord(runAgentTaskAction.inputs.response_kind));
   assert.ok(isRecord(runAgentTaskAction.runs), "run-agent-task action should define runs");
   assert.ok(Array.isArray(runAgentTaskAction.runs.steps), "run-agent-task action should define steps");
+  const progressPolicyStep = runAgentTaskAction.runs.steps.find(
+    (step): step is Record<string, unknown> =>
+      isRecord(step) && step.id === "progress_policy",
+  );
+  assert.ok(progressPolicyStep, "run-agent-task action should resolve progress policy");
+  assert.ok(isRecord(progressPolicyStep.env), "progress policy step should define env");
+  assert.equal(progressPolicyStep.env.RESPONSE_KIND, "${{ inputs.response_kind }}");
   const runStep = runAgentTaskAction.runs.steps.find(
     (step): step is Record<string, unknown> => isRecord(step) && step.id === "run",
   );
@@ -291,6 +334,77 @@ test("all execution workflows use the shared run-agent-task action", () => {
   }
 
   assert.doesNotMatch(fixPrWorkflow, /build-linked-context\.cjs/);
+});
+
+test("orchestrated workflows pass orchestration state into run-agent-task", () => {
+  const action = parseYaml(readRepoFile(".github/actions/run-agent-task/action.yml")) as unknown;
+  assert.ok(isRecord(action), "run-agent-task action should parse");
+  assert.ok(isRecord(action.inputs), "run-agent-task should define inputs");
+  const orchestrationInput = action.inputs.orchestration_enabled;
+  assert.ok(isRecord(orchestrationInput), "run-agent-task should define orchestration_enabled");
+  assert.equal(orchestrationInput.default, "false");
+
+  assert.ok(isRecord(action.runs), "run-agent-task action should define runs");
+  assert.ok(Array.isArray(action.runs.steps), "run-agent-task action should define steps");
+  const progressPolicyStep = action.runs.steps.find(
+    (step): step is Record<string, unknown> =>
+      isRecord(step) && step.id === "progress_policy",
+  );
+  assert.ok(progressPolicyStep, "run-agent-task action should resolve progress policy");
+  assert.ok(isRecord(progressPolicyStep.env), "progress policy step should define env");
+  assert.equal(progressPolicyStep.env.ORCHESTRATION_ENABLED, "${{ inputs.orchestration_enabled }}");
+
+  for (const workflowPath of [
+    ".github/workflows/agent-implement.yml",
+    ".github/workflows/agent-fix-pr.yml",
+    ".github/workflows/agent-review.yml",
+    ".github/workflows/agent-rubrics-review.yml",
+    ".github/workflows/agent-self-approve.yml",
+  ]) {
+    const steps = readRunAgentTaskSteps(workflowPath);
+    assert.ok(steps.length > 0, `${workflowPath} should call run-agent-task`);
+    for (const { jobId, step } of steps) {
+      assert.ok(isRecord(step.with), `${workflowPath} job ${jobId} run-agent-task needs inputs`);
+      assert.equal(
+        step.with.orchestration_enabled,
+        "${{ inputs.orchestration_enabled }}",
+        `${workflowPath} job ${jobId} should forward orchestration_enabled`,
+      );
+    }
+  }
+
+  const reviewWorkflow = parseYaml(readRepoFile(".github/workflows/agent-review.yml")) as unknown;
+  assert.ok(isRecord(reviewWorkflow), "agent-review workflow should parse");
+  assert.ok(isRecord(reviewWorkflow.jobs), "agent-review workflow should define jobs");
+  const nestedRubricsReviewJob = reviewWorkflow.jobs["rubrics-review"];
+  assert.ok(isRecord(nestedRubricsReviewJob), "agent-review should define rubrics-review job");
+  assert.equal(
+    nestedRubricsReviewJob.uses,
+    "./.github/workflows/agent-rubrics-review.yml",
+  );
+  assert.ok(isRecord(nestedRubricsReviewJob.with), "rubrics-review job should pass inputs");
+  assert.equal(
+    nestedRubricsReviewJob.with.orchestration_enabled,
+    "${{ inputs.orchestration_enabled }}",
+  );
+
+  const rubricsReviewWorkflow = parseYaml(
+    readRepoFile(".github/workflows/agent-rubrics-review.yml"),
+  ) as unknown;
+  assert.ok(isRecord(rubricsReviewWorkflow), "agent-rubrics-review workflow should parse");
+  assert.ok(isRecord(rubricsReviewWorkflow.on), "agent-rubrics-review should define triggers");
+  const rubricsReviewWorkflowCall = rubricsReviewWorkflow.on.workflow_call;
+  assert.ok(isRecord(rubricsReviewWorkflowCall), "agent-rubrics-review should define workflow_call");
+  assert.ok(isRecord(rubricsReviewWorkflowCall.inputs), "workflow_call should define inputs");
+  const rubricsOrchestrationInput = rubricsReviewWorkflowCall.inputs.orchestration_enabled;
+  assert.ok(isRecord(rubricsOrchestrationInput), "workflow_call should accept orchestration_enabled");
+  assert.equal(rubricsOrchestrationInput.default, "false");
+
+  const orchestratorSteps = readRunAgentTaskSteps(".github/workflows/agent-orchestrator.yml");
+  assert.equal(orchestratorSteps.length, 1);
+  const orchestratorStep = orchestratorSteps[0]!.step;
+  assert.ok(isRecord(orchestratorStep.with), "orchestrator run-agent-task should define inputs");
+  assert.equal(orchestratorStep.with.orchestration_enabled, "true");
 });
 
 test("run-agent-task workflow steps are guarded by resolved task timeouts", () => {
@@ -855,6 +969,10 @@ test("agent router preauthorizes implicit follow-up answer gates", () => {
     /steps\.followup_authorization\.outputs\.route == 'answer'/,
   );
   assert.match(
+    runnerWorkflow.slice(intentIndex, resolveRouteIndex),
+    /progress_policy:\s*'\{"route_overrides":\{"answer":"disabled"\}\}'/,
+  );
+  assert.match(
     runnerWorkflow.slice(resolveRouteIndex, runnerWorkflow.indexOf("- name: React with eyes", resolveRouteIndex)),
     /steps\.context\.outputs\.implicit_followup != 'true'[\s\S]*steps\.followup_authorization\.outputs\.route == 'answer'/,
   );
@@ -982,6 +1100,7 @@ test("agent router dispatches agent-implement directly for explicit implement re
   // decision said an implementation-like route and no approval gate is needed.
   assert.match(implementJob, /needs\.portal\.outputs\.route == 'implement'/);
   assert.match(implementJob, /needs\.portal\.outputs\.route == 'create-action'/);
+  assert.match(implementJob, /needs\.portal\.outputs\.route == 'add-rubrics'/);
   assert.match(implementJob, /needs\.portal\.outputs\.needs_approval == 'false'/);
 
   // Runtime must be bootstrapped before any node .agent/dist/* calls.
@@ -1005,6 +1124,14 @@ test("agent router dispatches agent-implement directly for explicit implement re
     implementJob,
     /BASE_PR:\s*\$\{\{\s*needs\.portal\.outputs\.base_pr\s*\}\}/,
   );
+  assert.match(
+    implementJob,
+    /IMPLEMENTATION_PROMPT:\s*\$\{\{\s*needs\.portal\.outputs\.route == 'add-rubrics' && 'agent-add-rubrics' \|\| ''\s*\}\}/,
+  );
+  assert.match(
+    implementJob,
+    /BASE_BRANCH:\s*\$\{\{\s*needs\.portal\.outputs\.route == 'add-rubrics' && \(vars\.AGENT_RUBRICS_REF \|\| 'agent\/rubrics'\) \|\| ''\s*\}\}/,
+  );
 
   // Link-back comment on the originating PR/discussion points at the
   // tracking issue that was just created.
@@ -1016,6 +1143,8 @@ test("agent router dispatches agent-implement directly for explicit implement re
   // agent-approve.yml uses the same CLIs — no duplicate inline shell.
   assert.match(approveWorkflow, /node \.agent\/dist\/cli\/create-issue\.js/);
   assert.match(approveWorkflow, /node \.agent\/dist\/cli\/dispatch-agent-implement\.js/);
+  assert.match(approveWorkflow, /steps\.approval\.outputs\.route == 'add-rubrics' && 'agent-add-rubrics'/);
+  assert.match(approveWorkflow, /steps\.approval\.outputs\.route == 'add-rubrics' && \(vars\.AGENT_RUBRICS_REF \|\| 'agent\/rubrics'\)/);
   assert.doesNotMatch(approveWorkflow, /actions\/workflows\/\$\{WORKFLOW\}\/dispatches/);
 });
 
@@ -1526,6 +1655,9 @@ test("workflow docs record the minimal metadata contract and developer notes", (
   assert.match(rubricsInitializationPrompt, /Initialization context:/);
   assert.match(rubricsInitializationPrompt, /OWNER[\s\S]*MEMBER[\s\S]*COLLABORATOR/);
   assert.match(rubricsArchitecture, /Only rubric initialization bootstraps a missing branch/);
+  assert.match(rubricsArchitecture, /preflights rubrics branch availability before provider setup/);
+  assert.match(rubricsArchitecture, /shared task action skips model execution after rubric selection/);
+  assert.match(rubricsArchitecture, /there is nothing to score/);
   assert.match(rubricsArchitecture, /Dispatch triage is always rubric-disabled/);
   assert.match(rubricsArchitecture, /honor `AGENT_RUBRICS_POLICY`/);
   assert.match(existingRepoInstall, /cannot silently skip persistence/);
@@ -1621,6 +1753,37 @@ test("agent implement prompt input falls back to implementation route", () => {
     implementWorkflow,
     /IMPLEMENTATION_PROMPT:\s*\$\{\{\s*inputs\.implementation_prompt \|\| inputs\.implementation_route \|\| 'implement'\s*\}\}/,
   );
+});
+
+test("add-rubrics reuses implement workflow with a separate rubrics worktree", () => {
+  const implementWorkflow = readRepoFile(".github/workflows/agent-implement.yml");
+  const runAgentTaskAction = readRepoFile(".github/actions/run-agent-task/action.yml");
+  const runSource = readRepoFile(".agent/src/run.ts");
+  const verifySource = readRepoFile(".agent/src/verify.ts");
+  const verifyCli = readRepoFile(".agent/src/cli/verify.ts");
+  const prompt = readRepoFile(".github/prompts/agent-add-rubrics.md");
+
+  assert.match(implementWorkflow, /- name: Create add-rubrics worktree/);
+  assert.match(implementWorkflow, /BASE_BRANCH:\s*\$\{\{\s*inputs\.base_branch \|\| \(env\.IMPLEMENTATION_ROUTE == 'add-rubrics' && \(vars\.AGENT_RUBRICS_REF \|\| 'agent\/rubrics'\) \|\| ''\)\s*\}\}/);
+  assert.match(implementWorkflow, /if:\s*env\.IMPLEMENTATION_ROUTE == 'add-rubrics'/);
+  assert.match(implementWorkflow, /git worktree add -b "\$\{BRANCH\}" "\$\{worktree\}" FETCH_HEAD/);
+  assert.match(implementWorkflow, /agent_cwd:\s*\$\{\{\s*env\.AGENT_WORKTREE\s*\}\}/);
+  assert.match(implementWorkflow, /rubrics_mode_override:\s*\$\{\{\s*env\.IMPLEMENTATION_ROUTE == 'add-rubrics' && 'read-only' \|\| ''\s*\}\}/);
+  assert.match(implementWorkflow, /COMMIT_CWD:\s*\$\{\{\s*env\.AGENT_WORKTREE \|\| github\.workspace\s*\}\}/);
+  assert.match(implementWorkflow, /ROUTE:\s*\$\{\{\s*env\.IMPLEMENTATION_ROUTE\s*\}\}/);
+  assert.match(implementWorkflow, /VERIFY_CWD:\s*\$\{\{\s*env\.AGENT_WORKTREE \|\| github\.workspace\s*\}\}/);
+  assert.doesNotMatch(implementWorkflow, /GITHUB_WORKSPACE:\s*\$\{\{\s*env\.AGENT_WORKTREE/);
+  assert.match(runAgentTaskAction, /agent_cwd:/);
+  assert.match(runAgentTaskAction, /AGENT_CWD:\s*\$\{\{\s*inputs\.agent_cwd\s*\}\}/);
+  assert.match(runSource, /const agentCwd = process\.env\.AGENT_CWD/);
+  assert.match(runSource, /cwd:\s*agentCwd/);
+  assert.match(verifyCli, /process\.env\.VERIFY_CWD \|\| process\.env\.GITHUB_WORKSPACE/);
+  assert.match(verifySource, /AGENT_RUNTIME_DIR/);
+  assert.match(verifySource, /loadRubrics/);
+  assert.match(verifySource, /add-rubrics/);
+  assert.match(prompt, /agent\/rubrics/);
+  assert.match(prompt, /rubrics\/<area>/);
+  assert.match(prompt, /rubrics\/validate\.js/);
 });
 
 test("execution workflows expose automation handoff inputs", () => {
@@ -1848,6 +2011,7 @@ test("validateEnvelope accepts dispatch, action, self-approval, update, and rubr
   for (const route of [
     "dispatch",
     "create-action",
+    "add-rubrics",
     "agent-self-approve",
     "agent-self-merge",
     "update-agent",
@@ -1986,6 +2150,16 @@ test("run-agent-task resolves memory mode from policy and threads memory env to 
 test("run-agent-task only bootstraps missing rubrics for first-run initialization", () => {
   const action = readRepoFile(".github/actions/run-agent-task/action.yml");
   const rubricsPrompt = readRepoFile(".github/prompts/_rubrics.md");
+  const parsedAction = parseYaml(action) as unknown;
+  assert.ok(isRecord(parsedAction), "run-agent-task action should parse as a YAML object");
+  assert.ok(isRecord(parsedAction.runs), "run-agent-task action should define runs");
+  assert.ok(Array.isArray(parsedAction.runs.steps), "run-agent-task action should define steps");
+  const steps = parsedAction.runs.steps.filter(isRecord);
+  const stepIf = (name: string): string => {
+    const step = steps.find((candidate) => candidate.name === name);
+    assert.ok(step, `run-agent-task action should include step ${name}`);
+    return typeof step.if === "string" ? step.if : "";
+  };
 
   assert.match(
     action,
@@ -2000,7 +2174,141 @@ test("run-agent-task only bootstraps missing rubrics for first-run initializatio
   assert.match(action, /RUBRICS_LIMIT:\s*\$\{\{\s*inputs\.route == 'rubrics-review' && 'all' \|\| inputs\.rubrics_limit\s*\}\}/);
   assert.match(action, /all_route_args\+=\(--all-routes\)/);
   assert.match(action, /"\$\{all_route_args\[@\]\}"/);
-  assert.match(rubricsPrompt, /Agent \/ Rubrics \/ Initialization and Agent \/ Rubrics \/ Update/);
+  assert.match(action, /agent_run_skipped:/);
+  assert.match(action, /name: Resolve agent run gate/);
+  assert.match(action, /SELECTED_RUBRICS:\s*\$\{\{\s*steps\.select_rubrics\.outputs\.selected_count\s*\}\}/);
+  assert.match(action, /\[ "\$\{ROUTE\}" = "rubrics-review" \] && \[ "\$\{SELECTED_RUBRICS:-0\}" = "0" \]/);
+  assert.match(action, /No active rubrics are available to score/);
+  assert.match(
+    action,
+    /name: Run agent task[\s\S]*if:\s*\$\{\{\s*steps\.agent_run_gate\.outputs\.should_run == 'true'\s*\}\}/,
+  );
+  assert.match(action, /Propagate agent exit code[\s\S]*steps\.agent_run_gate\.outputs\.should_run == 'true'/);
+  assert.match(stepIf("Resolve progress policy"), /steps\.agent_run_gate\.outputs\.should_run == 'true'/);
+  assert.match(stepIf("Start progress reporter"), /steps\.agent_run_gate\.outputs\.should_run == 'true'/);
+  assert.match(stepIf("Run agent task"), /steps\.agent_run_gate\.outputs\.should_run == 'true'/);
+  assert.match(stepIf("Propagate agent exit code"), /steps\.agent_run_gate\.outputs\.should_run == 'true'/);
+  for (const name of [
+    "Commit memory edits",
+    "Validate rubric edits",
+    "Commit rubric edits",
+    "Require rubric initialization commit",
+    "Prepare session bundle",
+    "Upload session bundle artifact",
+    "Register session bundle artifact",
+  ]) {
+    const condition = stepIf(name);
+    assert.match(condition, /steps\.run\.outputs\.exit_code == '0'/, `${name} should be gated on a successful run`);
+    assert.doesNotMatch(
+      condition,
+      /steps\.agent_run_gate\.outputs\.should_run/,
+      `${name} should rely on the run exit-code gate instead of duplicating the agent-run gate`,
+    );
+  }
+  assert.match(rubricsPrompt, /dedicated rubrics routes should change rubric files/);
+  assert.match(rubricsPrompt, /Agent \/ Rubrics \/ Initialization, Agent \/ Rubrics \/ Update, or `add-rubrics` proposal runs/);
+});
+
+test("rubrics-review preflights only branch availability before model setup", () => {
+  const workflow = readRepoFile(".github/workflows/agent-rubrics-review.yml");
+  const parsed = parseYaml(workflow) as unknown;
+  assert.ok(isRecord(parsed), "rubrics-review workflow should parse as a YAML object");
+  assert.ok(isRecord(parsed.jobs), "rubrics-review workflow should define jobs");
+  const preflightJob = parsed.jobs.preflight;
+  const reviewJob = parsed.jobs["rubrics-review"];
+  assert.ok(isRecord(preflightJob), "rubrics-review workflow should define a preflight job");
+  assert.ok(isRecord(reviewJob), "rubrics-review workflow should define a rubrics-review job");
+  assert.ok(isRecord(preflightJob.outputs), "preflight job should expose outputs");
+  assert.equal(preflightJob.outputs.should_run, "${{ steps.preflight.outputs.should_run }}");
+  assert.equal(reviewJob.needs, "preflight");
+  assert.equal(reviewJob["if"], "vars.AGENT_ENABLED != 'false' && needs.preflight.outputs.should_run == 'true'");
+  assert.ok(Array.isArray(preflightJob.steps), "preflight job should define steps");
+  assert.ok(Array.isArray(reviewJob.steps), "rubrics-review job should define steps");
+  const preflightSteps = preflightJob.steps.filter(isRecord);
+  const reviewSteps = reviewJob.steps.filter(isRecord);
+  const allSteps = [...preflightSteps, ...reviewSteps];
+  const findPreflightStep = (name: string): { index: number; step: Record<string, unknown> } => {
+    const index = preflightSteps.findIndex((step) => step.name === name);
+    assert.notEqual(index, -1, `preflight job should include step ${name}`);
+    return { index, step: preflightSteps[index]! };
+  };
+  const findReviewStep = (name: string): { index: number; step: Record<string, unknown> } => {
+    const index = reviewSteps.findIndex((step) => step.name === name);
+    assert.notEqual(index, -1, `rubrics-review job should include step ${name}`);
+    return { index, step: reviewSteps[index]! };
+  };
+  const download = findPreflightStep("Download rubrics for review preflight");
+  const preflight = findPreflightStep("Resolve rubrics review preflight");
+  const provider = findReviewStep("Resolve rubrics review provider");
+  const setupRuntime = findReviewStep("Setup agent runtime");
+  const runReview = findReviewStep("Run rubrics review");
+  const reviewResult = findReviewStep("Resolve rubrics review result");
+  const persistArtifact = findReviewStep("Persist rubrics review artifact");
+  const postComment = findReviewStep("Post rubric review comment");
+
+  assert.equal(download.step.uses, "./.github/actions/download-agent-rubrics");
+  assert.ok(download.index < preflight.index);
+  assert.ok(provider.index < setupRuntime.index);
+  assert.ok(setupRuntime.index < runReview.index);
+  assert.ok(runReview.index < reviewResult.index);
+  assert.ok(reviewResult.index < persistArtifact.index);
+  assert.ok(reviewResult.index < postComment.index);
+  assert.equal(provider.step["if"], undefined);
+  assert.equal(setupRuntime.step["if"], undefined);
+  assert.equal(runReview.step["if"], undefined);
+  assert.equal(reviewResult.step["if"], "always()");
+  assert.equal(persistArtifact.step["if"], "${{ steps.review_result.outputs.has_response == 'true' }}");
+  assert.equal(postComment.step["if"], "${{ steps.review_result.outputs.should_post_comment == 'true' }}");
+
+  assert.equal(
+    reviewSteps.find((step) => step.name === "Download rubrics for review preflight"),
+    undefined,
+    "rubrics-review job should rely on the preflight job for branch availability",
+  );
+  assert.equal(
+    allSteps.find((step) => step.name === "Count active rubrics for review"),
+    undefined,
+    "workflow preflight should not duplicate the selector",
+  );
+  assert.equal(
+    allSteps.find((step) => step.name === "Resolve rubrics review mode"),
+    undefined,
+    "workflow preflight should not invoke the compiled rubrics policy CLI",
+  );
+  assert.equal(
+    allSteps.find((step) => step.name === "Setup agent runtime for rubrics preflight"),
+    undefined,
+    "workflow preflight should not build runtime before branch availability is known",
+  );
+
+  for (const [index, step] of preflightSteps.entries()) {
+    const run = typeof step.run === "string" ? step.run : "";
+    assert.ok(
+      !/(?:node\s+)?\.agent\/dist\/|\.agent\/node_modules/.test(run),
+      `preflight step ${String(step.name || index)} must not use built runtime`,
+    );
+  }
+  for (const [index, step] of reviewSteps.entries()) {
+    const run = typeof step.run === "string" ? step.run : "";
+    assert.ok(
+      index > setupRuntime.index || !/(?:node\s+)?\.agent\/dist\/|\.agent\/node_modules/.test(run),
+      `step ${String(step.name || index)} must not use built runtime before setup-agent-runtime`,
+    );
+  }
+
+  assert.match(workflow, /name: Download rubrics for review preflight/);
+  assert.match(workflow, /continue_on_missing:\s*"true"/);
+  assert.match(workflow, /bootstrap_if_missing:\s*"false"/);
+  assert.match(workflow, /id:\s*preflight/);
+  assert.match(workflow, /should_run=true/);
+  assert.match(workflow, /Rubrics branch \$\{RUBRICS_REF\} is not available/);
+  assert.match(workflow, /name: Report skipped rubric review[\s\S]*::notice title=Rubrics review skipped::/);
+  assert.match(
+    workflow,
+    /rubrics-review:\n\s+needs: preflight\n\s+if: vars\.AGENT_ENABLED != 'false' && needs\.preflight\.outputs\.should_run == 'true'/,
+  );
+  assert.doesNotMatch(workflow, /if:\s*\$\{\{\s*steps\.preflight\.outputs\.should_run == 'true'\s*\}\}/);
+  assert.doesNotMatch(workflow, /steps\.preflight\.outputs\.should_run == 'true' && steps\.review\.outputs\.response_file != ''/);
 });
 
 test("normal workflows honor rubrics policy instead of forcing read-only", () => {
@@ -2103,6 +2411,7 @@ test("memory workflows exist and point at the right CLIs / prompts", () => {
   assert.match(prClosedWorkflow, /prompt: memory-pr-closed/);
   assert.match(prClosedWorkflow, /memory_mode_override: 'enabled'/);
   assert.match(prClosedWorkflow, /memory_policy:\s*\$\{\{\s*vars\.AGENT_MEMORY_POLICY \|\| ''\s*\}\}/);
+  assert.match(prClosedWorkflow, /progress_policy:\s*'\{"route_overrides":\{"answer":"disabled"\}\}'/);
   assert.doesNotMatch(prClosedWorkflow, /memory_bootstrap_if_missing:/);
   assert.match(prClosedWorkflow, /inputs\.memory_ref \|\| vars\.AGENT_MEMORY_REF \|\| 'agent\/memory'/);
   assert.doesNotMatch(prClosedWorkflow, /continue-on-error:\s*true/);

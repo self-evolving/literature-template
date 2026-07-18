@@ -7,7 +7,7 @@ import {
   PreviewDeploymentPublishError,
   publishPreviewDeployment,
   type PreviewDeploymentWarning,
-} from "../github.js";
+} from "../deployments.js";
 
 function requireEnv(name: string): string {
   const value = String(process.env[name] || "").trim();

@@ -337,12 +337,12 @@ export function createDiscussion(
     createDiscussion?: { discussion?: { id?: string; url?: string } | null } | null;
   }>(query, { repoId, categoryId, title, body });
 
-  const discussion = data.createDiscussion?.discussion;
-  const url = discussion?.url;
-  if (!url) {
-    throw new Error("GitHub did not return a URL for the created discussion.");
+  const id = data.createDiscussion?.discussion?.id;
+  const url = data.createDiscussion?.discussion?.url;
+  if (!id || !url) {
+    throw new Error("GitHub did not return an ID and URL for the created discussion.");
   }
-  return { id: discussion?.id || "", url };
+  return { id, url };
 }
 
 export function createRepositoryDiscussion(

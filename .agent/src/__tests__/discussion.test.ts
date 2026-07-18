@@ -81,13 +81,14 @@ test("requireDiscussionCategory validates discussion configuration", () => {
   );
 });
 
-test("createDiscussion returns the created discussion URL", () => {
+test("createDiscussion returns the created discussion ID and URL", () => {
   const { client, calls } = queuedClient([
-    { createDiscussion: { discussion: { url: "https://github.com/org/repo/discussions/1" } } },
+    { createDiscussion: { discussion: { id: "discussion-1", url: "https://github.com/org/repo/discussions/1" } } },
   ]);
 
   const discussion = createDiscussion(client, "repo-1", "cat-1", "Daily Summary", "Body");
 
+  assert.equal(discussion.id, "discussion-1");
   assert.equal(discussion.url, "https://github.com/org/repo/discussions/1");
   assert.equal(calls.length, 1);
   assert.match(calls[0]?.query || "", /createDiscussion/);
@@ -105,7 +106,7 @@ test("createRepositoryDiscussion composes config lookup and creation", () => {
         },
       },
     },
-    { createDiscussion: { discussion: { url: "https://github.com/org/repo/discussions/2" } } },
+    { createDiscussion: { discussion: { id: "discussion-2", url: "https://github.com/org/repo/discussions/2" } } },
   ]);
 
   const discussion = createRepositoryDiscussion(
@@ -117,6 +118,7 @@ test("createRepositoryDiscussion composes config lookup and creation", () => {
     client,
   );
 
+  assert.equal(discussion.id, "discussion-2");
   assert.equal(discussion.url, "https://github.com/org/repo/discussions/2");
   assert.equal(calls.length, 2);
 });

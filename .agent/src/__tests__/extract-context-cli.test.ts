@@ -1215,6 +1215,33 @@ test("extract-context leaves explicit mentions unchanged without an agent label"
   assert.equal(outputs.get("implicit_followup"), "false");
 });
 
+test("extract-context maps chat alias mentions to the answer route", () => {
+  const outputs = runExtractContextCli({
+    eventName: "issue_comment",
+    payload: {
+      action: "created",
+      sender: { login: "alice", type: "User" },
+      comment: {
+        id: 303,
+        node_id: "IC_303",
+        html_url: "https://github.com/self-evolving/repo/issues/303#issuecomment-303",
+        body: "@sepo-agent /chat can you explain the plan?",
+        author_association: "CONTRIBUTOR",
+        user: { login: "alice" },
+      },
+      issue: {
+        number: 303,
+        labels: [{ name: "question" }],
+        html_url: "https://github.com/self-evolving/repo/issues/303",
+      },
+    },
+  });
+
+  assert.equal(outputs.get("should_respond"), "true");
+  assert.equal(outputs.get("requested_route"), "answer");
+  assert.equal(outputs.get("implicit_followup"), "false");
+});
+
 test("extract-context marks unmentioned questions on agent-labeled issues as implicit follow-ups", () => {
   const outputs = runExtractContextCli({
     eventName: "issue_comment",

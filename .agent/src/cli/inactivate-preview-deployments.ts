@@ -2,7 +2,7 @@
 // Usage: node .agent/dist/cli/inactivate-preview-deployments.js
 // Env: GITHUB_REPOSITORY, GH_TOKEN, PR, SHA, RUN_URL, ENVIRONMENT
 
-import { inactivatePreviewDeployments } from "../github.js";
+import { inactivatePreviewDeployments } from "../deployments.js";
 
 function requireEnv(name: string): string {
   const value = String(process.env[name] || "").trim();

@@ -16,6 +16,7 @@ export const ROUTES = new Set([
   "review",
   "orchestrate",
   "create-action",
+  "add-rubrics",
   "unsupported",
 ]);
 
@@ -29,12 +30,23 @@ export interface DispatchDecision {
   basePr?: string;
 }
 
-const EXPLICIT_ROUTE_COMMANDS = ["answer", "implement", "fix-pr", "review", "orchestrate", "create-action", "install"] as const;
+const EXPLICIT_ROUTE_COMMANDS = [
+  "answer",
+  "implement",
+  "fix-pr",
+  "review",
+  "orchestrate",
+  "create-action",
+  "add-rubrics",
+  "chat",
+  "install",
+] as const;
 const LABEL_ROUTE_PREFIX = "agent/";
 const LABEL_SKILL_PREFIX = "agent/s/";
 const VALID_SKILL_LABEL = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 export const INSTALL_ROUTE = "install";
 const DEFAULT_IMPLEMENT_ISSUE_TITLE = "Implement requested change";
+const DEFAULT_ADD_RUBRICS_ISSUE_TITLE = "Propose rubric updates";
 
 export interface RequestedLabelDecision {
   route: string;
@@ -50,6 +62,10 @@ export interface ImplementIssueMetadata {
   issueTitle: string;
   issueBody: string;
   basePr?: string;
+}
+
+function canonicalizeExplicitRouteCommand(route: string): string {
+  return route === "chat" ? "answer" : route;
 }
 
 function normalizeOptionalBasePr(value: unknown): string {
@@ -80,6 +96,21 @@ function fallbackImplementIssueBody(originalRequest: string): string {
     "- Implement the requested change.",
     "- Preserve existing behavior unless the request requires a change.",
     "- Update tests or validation as needed.",
+  ].join("\n");
+}
+
+function fallbackAddRubricsIssueBody(originalRequest: string): string {
+  return [
+    "## Goal",
+    "Propose the requested user/team rubric updates.",
+    "",
+    "## Original request",
+    originalRequest,
+    "",
+    "## Acceptance criteria",
+    "- Review existing rubrics before adding new ones.",
+    "- Add or update rubric YAML on the `agent/rubrics` branch.",
+    "- Validate rubric YAML before opening the proposal PR.",
   ].join("\n");
 }
 
@@ -139,7 +170,8 @@ export function extractRequestedRouteDecision(body: string, mention: string): Re
   );
   const explicitMatch = sanitized.match(explicitRegex);
   if (explicitMatch) {
-    return { route: explicitMatch[1].toLowerCase(), skill: "" };
+    const route = canonicalizeExplicitRouteCommand(explicitMatch[1].toLowerCase());
+    return { route, skill: "" };
   }
 
   const skillRegex = new RegExp(
@@ -166,7 +198,9 @@ export function buildRequestedRouteDecision(
   requestText: string,
   implementMetadata?: ImplementIssueMetadata | null,
 ): DispatchDecision {
-  const normalizedRoute = String(route || "").trim().toLowerCase();
+  const normalizedRoute = canonicalizeExplicitRouteCommand(
+    String(route || "").trim().toLowerCase(),
+  );
   if (
     normalizedRoute !== "skill" &&
     normalizedRoute !== "unsupported" &&
@@ -215,6 +249,18 @@ export function buildRequestedRouteDecision(
         "- Include an expiration guard before running the agent task.",
         "- Preserve activation through normal PR review and merge.",
       ].join("\n"),
+    };
+  }
+
+  if (normalizedRoute === "add-rubrics") {
+    const originalRequest = String(requestText || "").trim() || "No request text provided.";
+    return {
+      route: "add-rubrics",
+      needsApproval: false,
+      confidence: "high",
+      summary: "I’ll propose rubric updates in a pull request.",
+      issueTitle: DEFAULT_ADD_RUBRICS_ISSUE_TITLE,
+      issueBody: fallbackAddRubricsIssueBody(originalRequest),
     };
   }
 
@@ -420,6 +466,17 @@ export function applyDispatchPolicy(
     }
     if (!normalized.issueBody) {
       normalized.issueBody = "Create a scheduled GitHub Actions workflow for the requested automation.";
+    }
+    return normalized;
+  }
+
+  if (normalized.route === "add-rubrics") {
+    normalized.needsApproval = !isExplicit;
+    if (!normalized.issueTitle) {
+      normalized.issueTitle = DEFAULT_ADD_RUBRICS_ISSUE_TITLE;
+    }
+    if (!normalized.issueBody) {
+      normalized.issueBody = fallbackAddRubricsIssueBody("No request text provided.");
     }
     return normalized;
   }

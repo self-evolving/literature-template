@@ -40,6 +40,9 @@ Check [Install into an existing repository](setup/install-existing-repository.md
 # Use an explicit slash route when you already know the action
 @sepo-agent /implement implement issue #2
 
+# Propose user/team rubric updates against agent/rubrics
+@sepo-agent /add-rubrics prefer small PRs for workflow changes
+
 # Invoke arbitrary skills
 @sepo-agent /skill <skill-name>
 
@@ -62,6 +65,10 @@ Check [Install into an existing repository](setup/install-existing-repository.md
 
 For example, adding the `agent/review` label will run the review agent. The `Agent / Onboarding / Check Setup` workflow creates the built-in trigger labels on first run.
 
+### Live Progress and Cancel Control
+
+For direct `/implement` and `/fix-pr` runs on issues or pull requests, Sepo posts one live progress comment and edits it as the agent works. `/answer` runs on issues and pull requests show report-only progress by default. When the run finishes, Sepo updates that progress comment with the final response or status and keeps the activity log collapsed below it. Orchestrated chains use handoff and status comments by default; set `AGENT_PROGRESS_POLICY` with `orchestration_mode: "report-only"` to opt into non-cancellable progress comments for orchestrated runs. The original requester, repository owner, member, or collaborator can react 👎 on cancellable progress comments to stop the in-flight run.
+
 ### Task Orchestration Route
 
 Use `@sepo-agent /orchestrate` (or `agent/orchestrate`) to run the orchestration route explicitly. It checks current target state, dispatches the right built-in action (`implement`, `review`, or `fix-pr`), and keeps that explicitly started chain moving through bounded follow-up handoffs until a stop condition is reached. Direct `/implement`, `/review`, and `/fix-pr` requests remain one-shot.
@@ -69,6 +76,8 @@ Use `@sepo-agent /orchestrate` (or `agent/orchestrate`) to run the orchestration
 ### Tracking Workspace Memory and Rubrics
 
 Sepo persists long-lived context in `agent/memory` and preference rules in `agent/rubrics`, both as repository-owned branches. This lets later runs resume with durable project context and team-specific guidance.
+
+Use `@sepo-agent /add-rubrics` to propose add-or-update rubric changes in a draft PR targeting `agent/rubrics`.
 
 ### Scheduled Jobs
 
