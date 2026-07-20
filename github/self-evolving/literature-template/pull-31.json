@@ -7,7 +7,7 @@
   },
   "baseRefName": "main",
   "body": "Follow-up to #29's second review warning, which merged unaddressed: the README forwarding-contract paragraph now covers SEPO_PREVIEW_API (build-validated as an absolute http(s) URL since it becomes the switcher's fetch base).\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)",
-  "closedAt": null,
+  "closedAt": "2026-07-19T23:00:13Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABFtJ6yQ",
@@ -40,8 +40,8 @@
   "number": 31,
   "reviewDecision": "",
   "reviews": [],
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Document SEPO_PREVIEW_API in the forwarding contract",
-  "updatedAt": "2026-06-11T06:37:51Z",
+  "updatedAt": "2026-07-19T23:00:13Z",
   "url": "https://github.com/self-evolving/literature-template/pull/31"
 }
