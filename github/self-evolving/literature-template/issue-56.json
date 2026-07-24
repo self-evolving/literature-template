@@ -1,0 +1,69 @@
+{
+  "author": {
+    "id": "MDQ6VXNlcjIyNTEyODI1",
+    "is_bot": false,
+    "login": "lolipopshock",
+    "name": "Shannon Shen"
+  },
+  "body": "## Problem\n\nSepo records repository visibility at canonical deploy time in both the preview registry (`isPrivate`) and the deployed R2 `META` (`visibility`). Changing a GitHub repository from private to public, or public to private, does not update either snapshot until another canonical deployment happens.\n\nThis can leave a newly public site behind the private-site gate. More importantly, a newly private repository's previously public deployment can remain publicly served until a later deployment.\n\nGitHub exposes repository visibility transitions through the `repository` event actions `publicized` and `privatized`.\n\n## Proposed change\n\nUpdate `.github/workflows/agent-deploy-site-main.yml` to trigger on visibility changes in addition to its existing triggers:\n\n```yaml\non:\n  push:\n    branches: [main]\n  workflow_dispatch:\n  repository:\n    types: [publicized, privatized]\n```\n\nEnsure the deploy job's guard accepts `repository` events while continuing to deploy only the default branch. The canonical deployment should refresh both the Redis registry record and R2 metadata from GitHub's current repository visibility.\n\n## Acceptance criteria\n\n- A `publicized` event automatically runs the canonical deployment and makes the refreshed site public without a manual dispatch.\n- A `privatized` event automatically runs the canonical deployment and gates the refreshed site.\n- Existing default-branch push and manual-dispatch behavior remains intact.\n- The workflow runs from the repository's default branch and preserves existing concurrency behavior.\n- Tests or documentation cover the visibility-event trigger and the expected snapshot-refresh behavior.\n- The implementation considers and documents the exposure window while a `privatized` redeployment is running; if a full rebuild is not sufficiently fail-closed, capture a follow-up for a lightweight visibility-refresh path.\n",
+  "closedAt": null,
+  "comments": [
+    {
+      "id": "IC_kwDOSvUJfs8AAAABLc-KFg",
+      "author": {
+        "login": "lolipopshock"
+      },
+      "authorAssociation": "CONTRIBUTOR",
+      "body": "@sepo-agent /answer",
+      "createdAt": "2026-07-23T21:18:02Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [
+        {
+          "content": "EYES",
+          "users": {
+            "totalCount": 1
+          }
+        }
+      ],
+      "url": "https://github.com/self-evolving/literature-template/issues/56#issuecomment-5063543318",
+      "viewerDidAuthor": false
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABLc-2KQ",
+      "author": {
+        "login": "sepo-agent-app"
+      },
+      "authorAssociation": "NONE",
+      "body": "I can scope this, but there is one important caveat: GitHub Actions’ documented workflow trigger for private-to-public is `public`, not `repository: types: [publicized]`; I do not see `repository` listed as an Actions workflow event. GitHub’s Actions docs say `public` runs when the repo changes from private to public and runs on the default branch: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#public\n\nFor public-to-private, a repo-local workflow alone may not satisfy the acceptance criteria. GitHub webhook/audit ecosystems may expose repository visibility transitions, but Actions docs do not document a native `privatized` workflow trigger. So the reliable design is:\n\n1. Update [`.github/workflows/agent-deploy-site-main.yml`](.github/workflows/agent-deploy-site-main.yml) to add `public` for private-to-public refreshes.\n2. Replace the hardcoded `github.ref == 'refs/heads/main'` guard with a default-branch-aware guard, e.g. compare against `github.event.repository.default_branch`, while preserving `AGENT_ENABLED`.\n3. For private-to-public, let the existing full canonical deploy path refresh the Sepo registry `isPrivate` and R2 `META.visibility`, since [`.github/actions/deploy-sepo-site/action.yml`](.github/actions/deploy-sepo-site/action.yml) already sends `canonical: true`.\n4. For public-to-private, add or use a service-side GitHub App webhook path that receives the repository visibility event and either dispatches a default-branch canonical deploy or, preferably, calls a lightweight visibility-refresh endpoint before any rebuild.\n5. Document the exposure window in [README.md](README.md): a full rebuild is not fail-closed for `privatized` because the previously public deployment can remain public until deploy completes successfully.\n6. Add tests in [`.agent/src/__tests__/envelope.test.ts`](.agent/src/__tests__/envelope.test.ts) or workflow validation coverage to assert the `public` trigger, default-branch guard behavior, and docs mention the visibility snapshot refresh.\n\nMy recommendation: implement `public` immediately for the publicized case, but treat the privatized case as requiring a backend/lightweight refresh path. A full rebuild-only solution is useful but not strong enough for the security side of the issue because failed or slow builds leave the old public snapshot live.\n\n---\n\n<details>\n<summary>Sepo activity</summary>\n\n**Sepo finished — answer · 2m25s · 26 steps**\n\nLast message\n> I can scope this, but there is one important caveat: GitHub Actions’ documented workflow trigger for private-to-public is `public`, not `repository: types: [publicized]`; I do not see `repository` listed as an Actions workflow event. GitHu…\n\nActivity\n\n- 🔍 Searched `Searching the Web` (completed)\n- 🔍 Searched `Searching the Web` (completed)\n- 🔍 Searched `Searching the Web` (completed)\n- 🔍 Searched `Searching the Web` (completed)\n- 🔍 Searched `Searching the Web` (completed)\n- 💬 Message \"I can scope this, but there is one important caveat: GitHub Actions’ documented workflow trigger for private-to-public is `public`, not `repository: types: [publicized]`; I do not see `repository` listed as an Actions workflow event. GitHu…\"\n</details>\n\n<!-- sepo-progress:run-30045623455 -->\n\n---\n`codex` | `gpt-5.5/xhigh` | `Macmini-runner-4`",
+      "createdAt": "2026-07-23T21:18:51Z",
+      "includesCreatedEdit": true,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/56#issuecomment-5063554601",
+      "viewerDidAuthor": true
+    }
+  ],
+  "createdAt": "2026-07-23T21:18:01Z",
+  "labels": [
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClxySrA",
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "id": "LA_kwDOSvUJfs8AAAAClx9LEw",
+      "name": "agent",
+      "description": "Handled by the agent",
+      "color": "0e8a16"
+    }
+  ],
+  "number": 56,
+  "state": "OPEN",
+  "title": "Automatically refresh canonical deployments when repository visibility changes",
+  "updatedAt": "2026-07-23T21:21:24Z",
+  "url": "https://github.com/self-evolving/literature-template/issues/56"
+}
