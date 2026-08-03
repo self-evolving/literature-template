@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "1. it will call the add-paper route in the workflow \n2. and then it will create the pr (with the designated goal, etc)  ",
-  "closedAt": null,
+  "closedAt": "2026-08-03T06:07:48Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABIOueyA",
@@ -44,6 +44,21 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/issues/5#issuecomment-4847297113",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABM7uLBg",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Closing because this agent issue has had no activity for 30 days.",
+      "createdAt": "2026-08-03T06:07:48Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/5#issuecomment-5162896134",
+      "viewerDidAuthor": false
     }
   ],
   "createdAt": "2026-06-02T20:42:57Z",
@@ -56,8 +71,8 @@
     }
   ],
   "number": 5,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Add an `add paper` button for the citation popover ->",
-  "updatedAt": "2026-06-30T19:38:46Z",
+  "updatedAt": "2026-08-03T06:07:48Z",
   "url": "https://github.com/self-evolving/literature-template/issues/5"
 }
