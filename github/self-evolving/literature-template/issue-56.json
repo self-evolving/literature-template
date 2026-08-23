@@ -6,7 +6,7 @@
     "name": "Shannon Shen"
   },
   "body": "## Problem\n\nSepo records repository visibility at canonical deploy time in both the preview registry (`isPrivate`) and the deployed R2 `META` (`visibility`). Changing a GitHub repository from private to public, or public to private, does not update either snapshot until another canonical deployment happens.\n\nThis can leave a newly public site behind the private-site gate. More importantly, a newly private repository's previously public deployment can remain publicly served until a later deployment.\n\nGitHub exposes repository visibility transitions through the `repository` event actions `publicized` and `privatized`.\n\n## Proposed change\n\nUpdate `.github/workflows/agent-deploy-site-main.yml` to trigger on visibility changes in addition to its existing triggers:\n\n```yaml\non:\n  push:\n    branches: [main]\n  workflow_dispatch:\n  repository:\n    types: [publicized, privatized]\n```\n\nEnsure the deploy job's guard accepts `repository` events while continuing to deploy only the default branch. The canonical deployment should refresh both the Redis registry record and R2 metadata from GitHub's current repository visibility.\n\n## Acceptance criteria\n\n- A `publicized` event automatically runs the canonical deployment and makes the refreshed site public without a manual dispatch.\n- A `privatized` event automatically runs the canonical deployment and gates the refreshed site.\n- Existing default-branch push and manual-dispatch behavior remains intact.\n- The workflow runs from the repository's default branch and preserves existing concurrency behavior.\n- Tests or documentation cover the visibility-event trigger and the expected snapshot-refresh behavior.\n- The implementation considers and documents the exposure window while a `privatized` redeployment is running; if a full rebuild is not sufficiently fail-closed, capture a follow-up for a lightweight visibility-refresh path.\n",
-  "closedAt": null,
+  "closedAt": "2026-08-23T09:24:23Z",
   "comments": [
     {
       "id": "IC_kwDOSvUJfs8AAAABLc-KFg",
@@ -44,6 +44,21 @@
       "reactionGroups": [],
       "url": "https://github.com/self-evolving/literature-template/issues/56#issuecomment-5063554601",
       "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOSvUJfs8AAAABQPzmuQ",
+      "author": {
+        "login": "github-actions"
+      },
+      "authorAssociation": "NONE",
+      "body": "Closing because this agent issue has had no activity for 30 days.",
+      "createdAt": "2026-08-23T09:24:22Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/self-evolving/literature-template/issues/56#issuecomment-5385283257",
+      "viewerDidAuthor": false
     }
   ],
   "createdAt": "2026-07-23T21:18:01Z",
@@ -62,8 +77,8 @@
     }
   ],
   "number": 56,
-  "state": "OPEN",
+  "state": "CLOSED",
   "title": "Automatically refresh canonical deployments when repository visibility changes",
-  "updatedAt": "2026-07-23T21:21:24Z",
+  "updatedAt": "2026-08-23T09:24:23Z",
   "url": "https://github.com/self-evolving/literature-template/issues/56"
 }
